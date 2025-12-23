@@ -1,0 +1,15 @@
+/* components/Card.module.css */
+.card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    backdrop-filter: blur(16px);
+    box-shadow: var(--glass-shadow);
+    transition: transform var(--transition-normal);
+}
+
+.interactive:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.25);
+}

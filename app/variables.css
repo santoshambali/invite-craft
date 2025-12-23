@@ -1,0 +1,39 @@
+:root {
+  /* Colors - Dashboard Theme */
+  --dash-sidebar-bg: #8b5cf6;
+  --dash-sidebar-bg-gradient: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+  --dash-sidebar-text: #ffffff;
+  --dash-sidebar-active: rgba(255, 255, 255, 0.2);
+
+  --dash-bg: #f3f4f6;
+  --dash-card-bg: #ffffff;
+  --dash-text-primary: #111827;
+  --dash-text-secondary: #6b7280;
+
+  --dash-accent-pink: #ec4899;
+  --dash-accent-pink-gradient: linear-gradient(90deg, #f472b6 0%, #db2777 100%);
+
+  --dash-success: #16a34a;
+
+  /* Shared / Existing */
+  --primary-color: #6366f1;
+  --secondary-color: #a855f7;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Glass / Dark Theme Tokens */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --transition-fast: 0.2s ease;
+
+  --spacing-xs: 0.25rem;
+  --spacing-md: 1rem;
+}

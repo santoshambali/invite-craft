@@ -1,0 +1,69 @@
+/* app/create/page.module.css */
+.container {
+    min-height: 100vh;
+    padding: var(--spacing-xl);
+}
+
+.content {
+    text-align: center;
+    max-width: 1200px;
+    width: 100%;
+    margin: 4rem auto 0;
+    /* Add top margin for spacing below header */
+}
+
+.heading {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: var(--spacing-sm);
+    background: linear-gradient(to right, #fff, var(--text-secondary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subheading {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 4rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+}
+
+.optionCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: 4rem 2rem;
+    height: 100%;
+}
+
+.icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.cardTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.cardDesc {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 300px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+}

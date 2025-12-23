@@ -1,0 +1,126 @@
+/* app/create/templates/page.module.css */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--dash-bg);
+}
+
+.mainContent {
+    margin-left: 280px;
+    /* Sidebar width */
+    flex: 1;
+    padding: 3rem;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.heading {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dash-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--dash-text-secondary);
+    font-size: 1rem;
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+}
+
+.filterPill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background: white;
+    color: var(--dash-text-secondary);
+    font-weight: 500;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.filterPill:hover {
+    background: #f9fafb;
+}
+
+.activePill {
+    background: #8b5cf6;
+    color: white;
+}
+
+.activePill:hover {
+    background: #7c3aed;
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+/* Template Card */
+.templateCard {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.templateCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.previewArea {
+    height: 200px;
+    width: 100%;
+    position: relative;
+}
+
+.premiumBadge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #fcd34d;
+    color: #92400e;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: 2;
+}
+
+.cardFooter {
+    padding: 1.25rem;
+    background: white;
+}
+
+.templateName {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dash-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.templateCategory {
+    font-size: 0.85rem;
+    color: var(--dash-text-secondary);
+}
