@@ -5,8 +5,9 @@
  * Base URL is read from environment variables for flexibility across environments.
  */
 
-// Get base URL from environment variable or use default
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://192.168.29.200:8080';
+// Base URLs for different services
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const INVITATION_API_BASE_URL = 'http://localhost:8080';
 
 // API Endpoints configuration
 const API_ENDPOINTS = {
@@ -26,8 +27,10 @@ const API_ENDPOINTS = {
 
     // Invitation endpoints (v1 API)
     INVITATIONS: {
+        LIST: '/api/v1/invitations',
         CREATE: '/api/v1/invitations',
         GET: (id) => `/api/v1/invitations/${id}`,
+        DELETE: (id) => `/api/v1/invitations/${id}`,
         UPLOAD_URL: '/api/v1/invitations/upload-url',
     },
 
@@ -57,6 +60,15 @@ export const buildApiUrl = (endpoint) => {
 };
 
 /**
+ * Build full API URL for invitation service (uses localhost)
+ * @param {string} endpoint - The endpoint path
+ * @returns {string} Full API URL
+ */
+export const buildInvitationApiUrl = (endpoint) => {
+    return `${INVITATION_API_BASE_URL}${endpoint}`;
+};
+
+/**
  * Get API configuration
  * @returns {object} API configuration object
  */
@@ -70,12 +82,14 @@ export const getApiConfig = () => {
 // Export individual endpoint groups for convenience
 export const { AUTH, USERS, INVITATIONS, TEMPLATES, EVENTS } = API_ENDPOINTS;
 
-// Export base URL
-export { API_BASE_URL };
+// Export base URLs
+export { API_BASE_URL, INVITATION_API_BASE_URL };
 
 // Default export
 export default {
     baseUrl: API_BASE_URL,
+    invitationBaseUrl: INVITATION_API_BASE_URL,
     endpoints: API_ENDPOINTS,
     buildApiUrl,
+    buildInvitationApiUrl,
 };

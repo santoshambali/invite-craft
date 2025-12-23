@@ -36,6 +36,21 @@ export const isAuthenticated = () => {
     return !!getAccessToken();
 };
 
+export const getUserId = () => {
+    const token = getAccessToken();
+    if (!token) return null;
+    
+    try {
+        // Decode JWT payload (base64)
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        return decoded.userId || decoded.sub || decoded.user_id || null;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+};
+
 export const logout = async () => {
     // Optional: Call API to invalidate token
     const token = getAccessToken();

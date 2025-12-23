@@ -25,6 +25,7 @@ function PreviewContent() {
     });
 
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
 
     const showToast = (msg, type = 'success') => {
         setToast({ show: true, message: msg, type });
@@ -76,20 +77,22 @@ function PreviewContent() {
     };
 
     const handleSave = async () => {
-        try {
-            setLoading(true);
+        // First, generate the image from the card BEFORE setting any loading state
+        // This ensures the card element is still mounted and visible
+        if (!cardRef.current) {
+            showToast('Unable to generate invitation image', 'error');
+            return;
+        }
 
-            // First, generate the image from the card
-            if (!cardRef.current) {
-                showToast('Unable to generate invitation image', 'error');
-                return;
-            }
+        try {
+            // Generate image data URL first while card is still visible
+            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+
+            // Now set saving state (doesn't hide the card)
+            setSaving(true);
 
             // Import the invitation service dynamically
             const { saveInvitationWithImage } = await import('../services/invitationService');
-
-            // Generate image data URL
-            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
 
             // Prepare event data
             const eventData = {
@@ -149,7 +152,7 @@ function PreviewContent() {
                 showToast('Saved locally (offline mode)', 'warning');
             }
         } finally {
-            setLoading(false);
+            setSaving(false);
         }
     };
 
@@ -303,8 +306,8 @@ function PreviewContent() {
                     <Button variant="secondary" onClick={handleDownload}>
                         Download Image
                     </Button>
-                    <Button onClick={handleSave} disabled={loading}>
-                        {loading ? 'Saving...' : (eventId || data.id ? 'Update Invitation' : 'Save Invitation')}
+                    <Button onClick={handleSave} disabled={saving}>
+                        {saving ? 'Saving...' : (eventId || data.id ? 'Update Invitation' : 'Save Invitation')}
                     </Button>
                 </div>
             </div>
