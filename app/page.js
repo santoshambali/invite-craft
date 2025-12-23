@@ -57,12 +57,12 @@ export default function Dashboard() {
       <Header />
 
       <main className={styles.mainContent}>
-        <header className={styles.pageHeader}>
-          <h1 className={styles.title}>My Events</h1>
+        {/* <header className={styles.pageHeader}>
+          <h1 className={styles.title}>My Invitations</h1>
           <p className={styles.subtitle}>Manage and track your invitations</p>
-        </header>
+        </header> */}
 
-        <div className={styles.statsGrid}>
+        {/* <div className={styles.statsGrid}>
           <div className={styles.statCard}>
             <h3 className={styles.statTitle}>Total Events</h3>
             <div className={styles.statValue}>{allEvents.length}</div>
@@ -80,7 +80,7 @@ export default function Dashboard() {
             <div className={styles.statValue}>{allEvents.filter(e => e.status === 'Draft').length}</div>
             <div className={`${styles.statMeta} ${styles.metaPurple}`}>Work in progress</div>
           </div>
-        </div>
+        </div> */}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {allEvents.map((event) => (

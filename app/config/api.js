@@ -24,19 +24,26 @@ const API_ENDPOINTS = {
         UPDATE: '/api/users/update',
     },
 
-    // Invitation endpoints (add as needed)
+    // Invitation endpoints (v1 API)
     INVITATIONS: {
-        CREATE: '/api/invitations',
-        LIST: '/api/invitations',
-        GET: (id) => `/api/invitations/${id}`,
-        UPDATE: (id) => `/api/invitations/${id}`,
-        DELETE: (id) => `/api/invitations/${id}`,
+        CREATE: '/api/v1/invitations',
+        GET: (id) => `/api/v1/invitations/${id}`,
+        UPLOAD_URL: '/api/v1/invitations/upload-url',
     },
 
-    // Template endpoints (add as needed)
+    // Template endpoints (add as needed - to be implemented)
     TEMPLATES: {
         LIST: '/api/templates',
         GET: (id) => `/api/templates/${id}`,
+    },
+
+    // Event endpoints (to be implemented)
+    EVENTS: {
+        CREATE: '/api/v1/events',
+        LIST: '/api/v1/events',
+        GET: (id) => `/api/v1/events/${id}`,
+        UPDATE: (id) => `/api/v1/events/${id}`,
+        DELETE: (id) => `/api/v1/events/${id}`,
     },
 };
 
@@ -61,7 +68,7 @@ export const getApiConfig = () => {
 };
 
 // Export individual endpoint groups for convenience
-export const { AUTH, USERS, INVITATIONS, TEMPLATES } = API_ENDPOINTS;
+export const { AUTH, USERS, INVITATIONS, TEMPLATES, EVENTS } = API_ENDPOINTS;
 
 // Export base URL
 export { API_BASE_URL };

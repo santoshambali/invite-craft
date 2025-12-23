@@ -75,25 +75,81 @@ function PreviewContent() {
         setData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = () => {
-        if (typeof window !== 'undefined') {
-            const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
-            let dateId;
+    const handleSave = async () => {
+        try {
+            setLoading(true);
 
-            if (data.id && allEvents.some(e => e.id === data.id)) {
-                // Update existing
-                const updatedEvents = allEvents.map(e => e.id === data.id ? { ...data, status: 'Draft' } : e);
-                localStorage.setItem('myEvents', JSON.stringify(updatedEvents));
-                dateId = data.id;
-            } else {
-                // Create new
-                dateId = Date.now().toString();
-                const newEvent = { ...data, id: dateId, status: 'Draft' };
-                localStorage.setItem('myEvents', JSON.stringify([newEvent, ...allEvents]));
-                // Update local state so subsequent saves are updates
-                setData(prev => ({ ...prev, id: dateId }));
+            // First, generate the image from the card
+            if (!cardRef.current) {
+                showToast('Unable to generate invitation image', 'error');
+                return;
             }
-            showToast('Event Saved Successfully!');
+
+            // Import the invitation service dynamically
+            const { saveInvitationWithImage } = await import('../services/invitationService');
+
+            // Generate image data URL
+            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+
+            // Prepare event data
+            const eventData = {
+                ...data,
+                eventId: data.eventId || data.id, // Use existing eventId or id
+                templateId: data.templateId || data.category || 'custom',
+            };
+
+            // Save to backend API
+            const result = await saveInvitationWithImage(eventData, dataUrl);
+
+            // Also save to localStorage for backward compatibility
+            if (typeof window !== 'undefined') {
+                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
+                const savedEvent = {
+                    ...data,
+                    id: result.id || data.id || Date.now().toString(),
+                    invitationId: result.id,
+                    imageUrl: result.imageUrl,
+                    status: result.status || 'Draft',
+                    createdAt: result.createdAt || new Date().toISOString()
+                };
+
+                if (data.id && allEvents.some(e => e.id === data.id)) {
+                    // Update existing
+                    const updatedEvents = allEvents.map(e => e.id === data.id ? savedEvent : e);
+                    localStorage.setItem('myEvents', JSON.stringify(updatedEvents));
+                } else {
+                    // Create new
+                    localStorage.setItem('myEvents', JSON.stringify([savedEvent, ...allEvents]));
+                    setData(prev => ({ ...prev, id: savedEvent.id, invitationId: result.id }));
+                }
+            }
+
+            showToast('Invitation saved successfully!');
+        } catch (error) {
+            console.error('Error saving invitation:', error);
+            showToast(error.message || 'Failed to save invitation. Please try again.', 'error');
+
+            // Fallback to localStorage-only save
+            if (typeof window !== 'undefined') {
+                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
+                let dateId;
+
+                if (data.id && allEvents.some(e => e.id === data.id)) {
+                    // Update existing
+                    const updatedEvents = allEvents.map(e => e.id === data.id ? { ...data, status: 'Draft' } : e);
+                    localStorage.setItem('myEvents', JSON.stringify(updatedEvents));
+                    dateId = data.id;
+                } else {
+                    // Create new
+                    dateId = Date.now().toString();
+                    const newEvent = { ...data, id: dateId, status: 'Draft' };
+                    localStorage.setItem('myEvents', JSON.stringify([newEvent, ...allEvents]));
+                    setData(prev => ({ ...prev, id: dateId }));
+                }
+                showToast('Saved locally (offline mode)', 'warning');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -247,8 +303,8 @@ function PreviewContent() {
                     <Button variant="secondary" onClick={handleDownload}>
                         Download Image
                     </Button>
-                    <Button onClick={handleSave}>
-                        {eventId || data.id ? 'Update Invitation' : 'Save Invitation'}
+                    <Button onClick={handleSave} disabled={loading}>
+                        {loading ? 'Saving...' : (eventId || data.id ? 'Update Invitation' : 'Save Invitation')}
                     </Button>
                 </div>
             </div>

@@ -15,7 +15,7 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.brand} onClick={() => router.push('/')}>
-                SmartInvite
+                InviteCraft
             </div>
 
             <nav className={styles.nav}>
@@ -44,7 +44,7 @@ export default function Header() {
             <div className={styles.actions}>
                 <Link href="/create" style={{ textDecoration: 'none' }}>
                     <button className={styles.createButton}>
-                        <span>+</span> New Event
+                        <span>+</span> New Invitation
                     </button>
                 </Link>
 
