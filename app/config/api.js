@@ -8,7 +8,8 @@
 // Base URLs for different services
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-const INVITATION_API_BASE_URL = "http://localhost:8080";
+const INVITATION_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
 // API Endpoints configuration
 const API_ENDPOINTS = {
