@@ -1,25 +1,25 @@
 /**
  * Invitation Service
- * 
+ *
  * Handles all API interactions for invitations including:
  * - Creating invitations
  * - Fetching invitations
  * - Uploading images via signed URLs
  */
 
-import { buildInvitationApiUrl } from '../config/api';
-import { getAccessToken, getUserId } from '../utils/auth';
+import { buildInvitationApiUrl } from "../config/api";
+import { getAccessToken, getUserId } from "../utils/auth";
 
 /**
  * Get authorization headers
  * @returns {Object} Headers object with authorization
  */
 const getAuthHeaders = () => {
-    const token = getAccessToken();
-    return {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-    };
+  const token = getAccessToken();
+  return {
+    "Content-Type": "application/json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 };
 
 /**
@@ -28,13 +28,15 @@ const getAuthHeaders = () => {
  * @returns {Promise<Object>} Parsed response data
  */
 const handleResponse = async (response) => {
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error(data.error?.details || data.message || 'API request failed');
-    }
+  if (!response.ok) {
+    throw new Error(
+      data.error?.details || data.message || "API request failed"
+    );
+  }
 
-    return data;
+  return data;
 };
 
 /**
@@ -43,19 +45,21 @@ const handleResponse = async (response) => {
  * @returns {Promise<string>} Signed URL for viewing the image
  */
 export const getViewUrl = async (filename) => {
-    try {
-        const url = buildInvitationApiUrl(`/api/v1/invitations/view-url?filename=${encodeURIComponent(filename)}`);
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
+  try {
+    const url = buildInvitationApiUrl(
+      `/api/v1/invitations/view-url?filename=${encodeURIComponent(filename)}`
+    );
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
 
-        const result = await handleResponse(response);
-        return result.data?.viewUrl || result.viewUrl;
-    } catch (error) {
-        console.error('Error getting view URL:', error);
-        throw error;
-    }
+    const result = await handleResponse(response);
+    return result.data?.viewUrl || result.viewUrl;
+  } catch (error) {
+    console.error("Error getting view URL:", error);
+    throw error;
+  }
 };
 
 /**
@@ -64,19 +68,21 @@ export const getViewUrl = async (filename) => {
  * @returns {Promise<Object>} Object containing uploadUrl and publicUrl
  */
 export const getUploadUrl = async (filename) => {
-    try {
-        const url = buildInvitationApiUrl(`/api/v1/invitations/upload-url?filename=${encodeURIComponent(filename)}`);
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
+  try {
+    const url = buildInvitationApiUrl(
+      `/api/v1/invitations/upload-url?filename=${encodeURIComponent(filename)}`
+    );
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
 
-        const result = await handleResponse(response);
-        return result.data; // Returns { uploadUrl, publicUrl }
-    } catch (error) {
-        console.error('Error getting upload URL:', error);
-        throw error;
-    }
+    const result = await handleResponse(response);
+    return result.data; // Returns { uploadUrl, publicUrl }
+  } catch (error) {
+    console.error("Error getting upload URL:", error);
+    throw error;
+  }
 };
 
 /**
@@ -86,23 +92,23 @@ export const getUploadUrl = async (filename) => {
  * @returns {Promise<void>}
  */
 export const uploadImageToGCS = async (uploadUrl, file) => {
-    try {
-        const response = await fetch(uploadUrl, {
-            method: 'PUT',
-            mode: 'cors',
-            headers: {
-                'Content-Type': file.type || 'image/png'
-            },
-            body: file
-        });
+  try {
+    const response = await fetch(uploadUrl, {
+      method: "PUT",
+      mode: "cors",
+      headers: {
+        "Content-Type": file.type || "image/png",
+      },
+      body: file,
+    });
 
-        if (!response.ok) {
-            throw new Error('Failed to upload image to GCS');
-        }
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
+    if (!response.ok) {
+      throw new Error("Failed to upload image to GCS");
     }
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw error;
+  }
 };
 
 /**
@@ -111,15 +117,15 @@ export const uploadImageToGCS = async (uploadUrl, file) => {
  * @returns {Blob} Blob object
  */
 export const dataUrlToBlob = (dataUrl) => {
-    const arr = dataUrl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new Blob([u8arr], { type: mime });
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
 };
 
 /**
@@ -128,27 +134,30 @@ export const dataUrlToBlob = (dataUrl) => {
  * @param {string} eventTitle - Title of the event (used for filename)
  * @returns {Promise<string>} Public URL of the uploaded image
  */
-export const uploadInvitationImage = async (dataUrl, eventTitle = 'invitation') => {
-    try {
-        // Generate filename
-        const timestamp = Date.now();
-        const sanitizedTitle = eventTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        const filename = `${sanitizedTitle}_${timestamp}.png`;
+export const uploadInvitationImage = async (
+  dataUrl,
+  eventTitle = "invitation"
+) => {
+  try {
+    // Generate filename
+    const timestamp = Date.now();
+    const sanitizedTitle = eventTitle.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+    const filename = `${sanitizedTitle}_${timestamp}.png`;
 
-        // Get signed URL
-        const { uploadUrl, publicUrl } = await getUploadUrl(filename);
+    // Get signed URL
+    const { uploadUrl, publicUrl } = await getUploadUrl(filename);
 
-        // Convert data URL to Blob
-        const blob = dataUrlToBlob(dataUrl);
+    // Convert data URL to Blob
+    const blob = dataUrlToBlob(dataUrl);
 
-        // Upload to GCS
-        await uploadImageToGCS(uploadUrl, blob);
+    // Upload to GCS
+    await uploadImageToGCS(uploadUrl, blob);
 
-        return publicUrl;
-    } catch (error) {
-        console.error('Error uploading invitation image:', error);
-        throw error;
-    }
+    return publicUrl;
+  } catch (error) {
+    console.error("Error uploading invitation image:", error);
+    throw error;
+  }
 };
 
 /**
@@ -160,20 +169,20 @@ export const uploadInvitationImage = async (dataUrl, eventTitle = 'invitation') 
  * @returns {Promise<Object>} Created invitation response
  */
 export const createInvitation = async (invitationData) => {
-    try {
-        const url = buildInvitationApiUrl('/api/v1/invitations');
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify(invitationData)
-        });
+  try {
+    const url = buildInvitationApiUrl("/api/v1/invitations");
+    const response = await fetch(url, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(invitationData),
+    });
 
-        const result = await handleResponse(response);
-        return result.data; // Returns InvitationResponse
-    } catch (error) {
-        console.error('Error creating invitation:', error);
-        throw error;
-    }
+    const result = await handleResponse(response);
+    return result.data; // Returns InvitationResponse
+  } catch (error) {
+    console.error("Error creating invitation:", error);
+    throw error;
+  }
 };
 
 /**
@@ -181,26 +190,26 @@ export const createInvitation = async (invitationData) => {
  * @returns {Promise<Array>} List of invitations
  */
 export const getUserInvitations = async () => {
-    try {
-        const url = buildInvitationApiUrl('/api/v1/invitations');
-        console.log('Fetching invitations from:', url);
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
+  try {
+    const url = buildInvitationApiUrl("/api/v1/invitations");
+    console.log("Fetching invitations from:", url);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
 
-        const result = await handleResponse(response);
-        console.log('API Response:', result);
-        
-        // Handle different response formats - backend returns { items: [...] }
-        const invitations = result.items || result.data || result.invitations || [];
-        console.log('Parsed invitations:', invitations);
-        
-        return Array.isArray(invitations) ? invitations : [];
-    } catch (error) {
-        console.error('Error fetching invitations:', error);
-        throw error;
-    }
+    const result = await handleResponse(response);
+    console.log("API Response:", result);
+
+    // Handle different response formats - backend returns { items: [...] }
+    const invitations = result.items || result.data || result.invitations || [];
+    console.log("Parsed invitations:", invitations);
+
+    return Array.isArray(invitations) ? invitations : [];
+  } catch (error) {
+    console.error("Error fetching invitations:", error);
+    throw error;
+  }
 };
 
 /**
@@ -209,21 +218,23 @@ export const getUserInvitations = async () => {
  * @returns {Promise<void>}
  */
 export const deleteInvitation = async (id) => {
-    try {
-        const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: getAuthHeaders()
-        });
+  try {
+    const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
 
-        if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.error?.details || data.message || 'Failed to delete invitation');
-        }
-    } catch (error) {
-        console.error('Error deleting invitation:', error);
-        throw error;
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(
+        data.error?.details || data.message || "Failed to delete invitation"
+      );
     }
+  } catch (error) {
+    console.error("Error deleting invitation:", error);
+    throw error;
+  }
 };
 
 /**
@@ -232,19 +243,42 @@ export const deleteInvitation = async (id) => {
  * @returns {Promise<Object>} Invitation data
  */
 export const getInvitation = async (id) => {
-    try {
-        const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: getAuthHeaders()
-        });
+  try {
+    const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
 
-        const result = await handleResponse(response);
-        return result.data;
-    } catch (error) {
-        console.error('Error fetching invitation:', error);
-        throw error;
-    }
+    const result = await handleResponse(response);
+    return result.data;
+  } catch (error) {
+    console.error("Error fetching invitation:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing invitation
+ * @param {string} id - UUID of the invitation
+ * @param {Object} invitationData - Updated invitation data
+ * @returns {Promise<Object>} Updated invitation response
+ */
+export const updateInvitation = async (id, invitationData) => {
+  try {
+    const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(invitationData),
+    });
+
+    const result = await handleResponse(response);
+    return result.data; // Returns InvitationResponse
+  } catch (error) {
+    console.error("Error updating invitation:", error);
+    throw error;
+  }
 };
 
 /**
@@ -253,29 +287,29 @@ export const getInvitation = async (id) => {
  * @returns {string} Formatted time string (HH:mm:ss)
  */
 const formatTimeForBackend = (time) => {
-    if (!time) return null;
-    
-    // If already in HH:mm:ss format, return as is
-    if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
-        return time;
-    }
-    
-    // If in HH:mm format, add seconds
-    if (/^\d{2}:\d{2}$/.test(time)) {
-        return `${time}:00`;
-    }
-    
-    // Try to parse other formats
-    try {
-        const date = new Date(`1970-01-01T${time}`);
-        if (!isNaN(date.getTime())) {
-            return date.toTimeString().slice(0, 8);
-        }
-    } catch (e) {
-        // Fall through
-    }
-    
+  if (!time) return null;
+
+  // If already in HH:mm:ss format, return as is
+  if (/^\d{2}:\d{2}:\d{2}$/.test(time)) {
     return time;
+  }
+
+  // If in HH:mm format, add seconds
+  if (/^\d{2}:\d{2}$/.test(time)) {
+    return `${time}:00`;
+  }
+
+  // Try to parse other formats
+  try {
+    const date = new Date(`1970-01-01T${time}`);
+    if (!isNaN(date.getTime())) {
+      return date.toTimeString().slice(0, 8);
+    }
+  } catch (e) {
+    // Fall through
+  }
+
+  return time;
 };
 
 /**
@@ -284,24 +318,24 @@ const formatTimeForBackend = (time) => {
  * @returns {string} Formatted date string (YYYY-MM-DD)
  */
 const formatDateForBackend = (date) => {
-    if (!date) return null;
-    
-    // If already in YYYY-MM-DD format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        return date;
-    }
-    
-    // Try to parse and format
-    try {
-        const parsed = new Date(date);
-        if (!isNaN(parsed.getTime())) {
-            return parsed.toISOString().split('T')[0];
-        }
-    } catch (e) {
-        // Fall through
-    }
-    
+  if (!date) return null;
+
+  // If already in YYYY-MM-DD format, return as is
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return date;
+  }
+
+  // Try to parse and format
+  try {
+    const parsed = new Date(date);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toISOString().split("T")[0];
+    }
+  } catch (e) {
+    // Fall through
+  }
+
+  return date;
 };
 
 /**
@@ -312,47 +346,49 @@ const formatDateForBackend = (date) => {
  * @returns {Promise<Object>} Created invitation response
  */
 export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
-    try {
-        // Upload image first
-        const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
+  try {
+    // Upload image first
+    const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
 
-        // Get userId from JWT token
-        const userId = getUserId();
-        if (!userId) {
-            throw new Error('User not authenticated. Please log in to save invitations.');
-        }
-
-        // Create invitation with all required fields matching backend API schema
-        const invitationData = {
-            eventId: eventData.eventId || generateTempEventId(),
-            userId: userId,
-            templateId: eventData.templateId || eventData.category || 'custom',
-            imageUrl: imageUrl,
-            title: eventData.title || null,
-            eventType: eventData.eventType || null,
-            date: formatDateForBackend(eventData.date),
-            time: formatTimeForBackend(eventData.time),
-            location: eventData.location || null,
-            gmapUrl: eventData.gmapUrl || null
-        };
-
-        // Remove null/undefined values to avoid sending empty fields
-        Object.keys(invitationData).forEach(key => {
-            if (invitationData[key] === null || invitationData[key] === undefined) {
-                delete invitationData[key];
-            }
-        });
-
-        const invitation = await createInvitation(invitationData);
-
-        return {
-            ...invitation,
-            eventData // Include original event data for local storage fallback
-        };
-    } catch (error) {
-        console.error('Error saving invitation with image:', error);
-        throw error;
+    // Get userId from JWT token
+    const userId = getUserId();
+    if (!userId) {
+      throw new Error(
+        "User not authenticated. Please log in to save invitations."
+      );
     }
+
+    // Create invitation with all required fields matching backend API schema
+    const invitationData = {
+      eventId: eventData.eventId || generateTempEventId(),
+      userId: userId,
+      templateId: eventData.templateId || eventData.category || "custom",
+      imageUrl: imageUrl,
+      title: eventData.title || null,
+      eventType: eventData.eventType || null,
+      date: formatDateForBackend(eventData.date),
+      time: formatTimeForBackend(eventData.time),
+      location: eventData.location || null,
+      gmapUrl: eventData.gmapUrl || null,
+    };
+
+    // Remove null/undefined values to avoid sending empty fields
+    Object.keys(invitationData).forEach((key) => {
+      if (invitationData[key] === null || invitationData[key] === undefined) {
+        delete invitationData[key];
+      }
+    });
+
+    const invitation = await createInvitation(invitationData);
+
+    return {
+      ...invitation,
+      eventData, // Include original event data for local storage fallback
+    };
+  } catch (error) {
+    console.error("Error saving invitation with image:", error);
+    throw error;
+  }
 };
 
 /**
@@ -360,21 +396,81 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
  * @returns {string} Temporary UUID-like string
  */
 const generateTempEventId = () => {
-    // Simple UUID v4 generator
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
+  // Simple UUID v4 generator
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
+/**
+ * Update invitation with image upload
+ * This is a convenience method that handles both image upload and invitation update
+ * @param {string} id - Invitation ID to update
+ * @param {Object} eventData - Event data from the form
+ * @param {string} imageDataUrl - Data URL of the invitation image
+ * @returns {Promise<Object>} Updated invitation response
+ */
+export const updateInvitationWithImage = async (
+  id,
+  eventData,
+  imageDataUrl
+) => {
+  try {
+    // Upload image first
+    const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
+
+    // Get userId from JWT token
+    const userId = getUserId();
+    if (!userId) {
+      throw new Error(
+        "User not authenticated. Please log in to update invitations."
+      );
+    }
+
+    // Update invitation with all required fields matching backend API schema
+    const invitationData = {
+      eventId: eventData.eventId || generateTempEventId(),
+      userId: userId,
+      templateId: eventData.templateId || eventData.category || "custom",
+      imageUrl: imageUrl,
+      title: eventData.title || null,
+      eventType: eventData.eventType || null,
+      date: formatDateForBackend(eventData.date),
+      time: formatTimeForBackend(eventData.time),
+      location: eventData.location || null,
+      gmapUrl: eventData.gmapUrl || null,
+    };
+
+    // Remove null/undefined values to avoid sending empty fields
+    Object.keys(invitationData).forEach((key) => {
+      if (invitationData[key] === null || invitationData[key] === undefined) {
+        delete invitationData[key];
+      }
     });
+
+    const invitation = await updateInvitation(id, invitationData);
+
+    return {
+      ...invitation,
+      eventData, // Include original event data for local storage fallback
+    };
+  } catch (error) {
+    console.error("Error updating invitation with image:", error);
+    throw error;
+  }
 };
 
 export default {
-    getUploadUrl,
-    uploadImageToGCS,
-    uploadInvitationImage,
-    createInvitation,
-    getInvitation,
-    getUserInvitations,
-    deleteInvitation,
-    saveInvitationWithImage
+  getUploadUrl,
+  uploadImageToGCS,
+  uploadInvitationImage,
+  createInvitation,
+  updateInvitation,
+  getInvitation,
+  getUserInvitations,
+  deleteInvitation,
+  saveInvitationWithImage,
+  updateInvitationWithImage,
 };
