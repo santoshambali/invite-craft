@@ -69,114 +69,211 @@
   color: #8b5cf6;
 }
 
-/* Event List Card */
+/* Event List Card - Split Layout */
 .eventCard {
-  background: var(--dash-card-bg);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  overflow: hidden;
+  min-height: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.eventPreview {
-  width: 140px;
-  height: 180px;
-  background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%);
-  border-radius: var(--radius-md);
+.eventCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.eventPreviewSection {
+  flex: 0 0 35%;
+  max-width: 35%;
+  background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  padding: 1.25rem;
+  position: relative;
+  min-height: 400px;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.eventPreviewImage {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.eventPreviewImage:hover {
+  transform: scale(1.02);
+}
+
+.eventPreviewPlaceholder {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6366f1;
   font-weight: 600;
   text-align: center;
   padding: 1rem;
-  flex-shrink: 0;
+  font-size: 1.1rem;
 }
 
-.eventContent {
+.eventDetailsSection {
   flex: 1;
+  padding: 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.eventHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .eventTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--dash-text-primary);
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.statusBadgeInline {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #15803d;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statusBadgeInline.draft {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #b45309;
 }
 
 .tag {
   display: inline-block;
-  background: #ede9fe;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
   color: #7c3aed;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.detailsRow {
-  display: flex;
-  gap: 2rem;
-  color: var(--dash-text-secondary);
-  font-size: 0.95rem;
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   margin-bottom: 1.5rem;
-  align-items: center;
+  flex: 1;
 }
 
 .detailItem {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  color: #64748b;
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+}
+
+.detailItem span:first-child {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
 }
 
 .actionRow {
   display: flex;
-  gap: 1rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .actionBtn {
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: opacity 0.2s;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btnPurple {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #ffffff;
+}
+
+.btnPurple:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 }
 
 .btnBlue {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+}
+
+.btnBlue:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 .btnGreen {
-  background: #dcfce7;
-  color: #16a34a;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #ffffff;
+}
+
+.btnGreen:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 }
 
 .btnGray {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.btnGray:hover {
+  background: #e2e8f0;
 }
 
 .btnRed {
-  background: #fee2e2;
-  color: #dc2626;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
 }
 
-/* Delete button color guess */
+.btnRed:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
 
 .statusBadge {
   margin-top: 1rem;

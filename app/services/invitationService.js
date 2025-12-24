@@ -38,6 +38,27 @@ const handleResponse = async (response) => {
 };
 
 /**
+ * Get signed URL for viewing/reading an image from GCS
+ * @param {string} filename - Name of the file to view (or full path)
+ * @returns {Promise<string>} Signed URL for viewing the image
+ */
+export const getViewUrl = async (filename) => {
+    try {
+        const url = buildInvitationApiUrl(`/api/v1/invitations/view-url?filename=${encodeURIComponent(filename)}`);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+
+        const result = await handleResponse(response);
+        return result.data?.viewUrl || result.viewUrl;
+    } catch (error) {
+        console.error('Error getting view URL:', error);
+        throw error;
+    }
+};
+
+/**
  * Get signed URL for image upload
  * @param {string} filename - Name of the file to upload
  * @returns {Promise<Object>} Object containing uploadUrl and publicUrl

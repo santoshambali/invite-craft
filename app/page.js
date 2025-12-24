@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from './utils/auth';
-import { getUserInvitations, deleteInvitation } from './services/invitationService';
+import { getUserInvitations, deleteInvitation, getViewUrl } from './services/invitationService';
 import Header from './components/Header';
 import styles from './page.module.css';
 
@@ -23,7 +23,27 @@ export default function Dashboard() {
       try {
         setError(null);
         const data = await getUserInvitations();
-        setInvitations(data);
+        console.log('Dashboard invitations:', data);
+        
+        // Fetch signed view URLs for each invitation's image
+        const invitationsWithViewUrls = await Promise.all(
+          data.map(async (invitation) => {
+            if (invitation.imageUrl) {
+              try {
+                // Extract filename from the full URL
+                const filename = invitation.imageUrl.split('/').pop();
+                const viewUrl = await getViewUrl(filename);
+                return { ...invitation, viewUrl };
+              } catch (err) {
+                console.error('Failed to get view URL for:', invitation.imageUrl, err);
+                return invitation;
+              }
+            }
+            return invitation;
+          })
+        );
+        
+        setInvitations(invitationsWithViewUrls);
       } catch (err) {
         console.error('Failed to fetch invitations:', err);
         setError('Failed to load invitations. Please try again.');
@@ -89,43 +109,63 @@ export default function Dashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {invitations.map((invitation) => (
               <div key={invitation.id} className={styles.eventCard}>
-                {invitation.imageUrl ? (
-                  <img
-                    src={invitation.imageUrl}
-                    alt={invitation.title || 'Invitation'}
-                    className={styles.eventPreview}
-                    style={{ objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div
-                    className={styles.eventPreview}
-                    style={{ background: '#f9a8d4', color: '#333' }}
-                  >
-                    {invitation.eventType || 'Event'}<br />Preview
-                  </div>
-                )}
+                {/* Left Half - Preview Image */}
+                <div className={styles.eventPreviewSection}>
+                  {invitation.viewUrl || invitation.imageUrl ? (
+                    <img
+                      src={invitation.viewUrl || invitation.imageUrl}
+                      alt={invitation.title || 'Invitation'}
+                      className={styles.eventPreviewImage}
+                      onError={(e) => {
+                        console.error('Image failed to load:', invitation.imageUrl);
+                        e.target.onerror = null;
+                        e.target.src = '';
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<div class="${styles.eventPreviewPlaceholder}">${invitation.eventType || 'Event'}<br/>Preview</div>`;
+                      }}
+                    />
+                  ) : (
+                    <div className={styles.eventPreviewPlaceholder}>
+                      {invitation.eventType || 'Event'}<br />Preview
+                    </div>
+                  )}
+                </div>
 
-                <div className={styles.eventContent}>
-                  <h2 className={styles.eventTitle}>{invitation.title || 'Untitled Invitation'}</h2>
+                {/* Right Half - Event Details */}
+                <div className={styles.eventDetailsSection}>
+                  <div className={styles.eventHeader}>
+                    <h2 className={styles.eventTitle}>{invitation.title || 'Untitled Invitation'}</h2>
+                    <span className={`${styles.statusBadgeInline} ${invitation.status === 'DRAFT' ? styles.draft : ''}`}>
+                      {invitation.status || 'Draft'}
+                    </span>
+                  </div>
+
                   {invitation.eventType && <div className={styles.tag}>{invitation.eventType}</div>}
 
-                  <div className={styles.detailsRow}>
+                  <div className={styles.detailsGrid}>
                     <div className={styles.detailItem}>
-                      📅 {invitation.date ? new Date(invitation.date).toLocaleDateString() : 'TBD'}
+                      <span>📅</span>
+                      <span>{invitation.date ? new Date(invitation.date).toLocaleDateString() : 'Date not set'}</span>
                     </div>
                     <div className={styles.detailItem}>
-                      ⏰ {invitation.time || 'TBD'}
+                      <span>⏰</span>
+                      <span>{invitation.time || 'Time not set'}</span>
                     </div>
                     <div className={styles.detailItem}>
-                      📍 {invitation.location || 'TBD'}
+                      <span>📍</span>
+                      <span>{invitation.location || 'Location not set'}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span>🎨</span>
+                      <span>{invitation.templateId || 'Custom'}</span>
                     </div>
                   </div>
 
                   <div className={styles.actionRow}>
                     <button className={`${styles.actionBtn} ${styles.btnPurple}`} onClick={() => router.push(`/preview?id=${invitation.id}`)}>✏️ Edit</button>
-                    {invitation.imageUrl && (
+                    {(invitation.viewUrl || invitation.imageUrl) && (
                       <a 
-                        href={invitation.imageUrl} 
+                        href={invitation.viewUrl || invitation.imageUrl} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className={`${styles.actionBtn} ${styles.btnBlue}`}
@@ -133,9 +173,9 @@ export default function Dashboard() {
                         👁️ View
                       </a>
                     )}
-                    {invitation.imageUrl && (
+                    {(invitation.viewUrl || invitation.imageUrl) && (
                       <a 
-                        href={invitation.imageUrl} 
+                        href={invitation.viewUrl || invitation.imageUrl} 
                         download={`${invitation.title || 'invitation'}.png`}
                         className={`${styles.actionBtn} ${styles.btnGreen}`}
                       >
@@ -147,13 +187,6 @@ export default function Dashboard() {
                       alert('Link copied to clipboard!');
                     }}>🔗 Share</button>
                     <button className={`${styles.actionBtn} ${styles.btnRed}`} onClick={() => handleDelete(invitation.id)}>🗑️ Delete</button>
-                  </div>
-
-                  <div className={styles.statusBadge} style={{
-                    background: '#dcfce7',
-                    color: '#16a34a'
-                  }}>
-                    Published
                   </div>
                 </div>
               </div>

@@ -15,7 +15,7 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.brand} onClick={() => router.push('/')}>
-                InviteCraft
+                LAGU Invitations
             </div>
 
             <nav className={styles.nav}>

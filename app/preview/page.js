@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { toPng } from 'html-to-image';
 import Button from '../components/Button';
 import Toast from '../components/Toast';
+import { getInvitation, getViewUrl } from '../services/invitationService';
 import styles from './page.module.css';
 
 function PreviewContent() {
@@ -33,24 +34,57 @@ function PreviewContent() {
     };
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            let initialData = null;
+        const loadData = async () => {
+            if (typeof window !== 'undefined') {
+                let initialData = null;
 
-            // Scenario 1: Editing existing event
-            if (eventId) {
-                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
-                const found = allEvents.find(e => e.id === eventId);
-                if (found) initialData = found;
-            }
+                // Scenario 1: Editing existing invitation from backend
+                if (eventId) {
+                    try {
+                        const invitation = await getInvitation(eventId);
+                        if (invitation) {
+                            // Get signed URL for the image if it exists
+                            let templateImage = null;
+                            if (invitation.imageUrl) {
+                                try {
+                                    const filename = invitation.imageUrl.split('/').pop();
+                                    templateImage = await getViewUrl(filename);
+                                } catch (err) {
+                                    console.error('Failed to get view URL:', err);
+                                    templateImage = invitation.imageUrl;
+                                }
+                            }
+                            
+                            initialData = {
+                                id: invitation.id,
+                                eventId: invitation.eventId,
+                                title: invitation.title,
+                                eventType: invitation.eventType,
+                                date: invitation.date,
+                                time: invitation.time,
+                                location: invitation.location,
+                                templateId: invitation.templateId,
+                                category: invitation.templateId,
+                                templateImage: templateImage,
+                                imageUrl: invitation.imageUrl
+                            };
+                        }
+                    } catch (err) {
+                        console.error('Failed to fetch invitation from backend:', err);
+                        // Fallback to localStorage
+                        const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
+                        const found = allEvents.find(e => e.id === eventId);
+                        if (found) initialData = found;
+                    }
+                }
 
-            // Scenario 2: Creating new from template (fallback)
-            if (!initialData) {
-                const stored = localStorage.getItem('previewData');
-                if (stored) initialData = JSON.parse(stored);
-            }
+                // Scenario 2: Creating new from template (fallback)
+                if (!initialData) {
+                    const stored = localStorage.getItem('previewData');
+                    if (stored) initialData = JSON.parse(stored);
+                }
 
-            if (initialData) {
-                setTimeout(() => {
+                if (initialData) {
                     setData({
                         title: initialData.title || 'Event Title',
                         eventType: initialData.eventType || 'Celebration',
@@ -61,14 +95,16 @@ function PreviewContent() {
                         color: initialData.color || '#ffffff',
                         category: initialData.category || 'General',
                         templateImage: initialData.image || initialData.templateImage || null,
-                        id: initialData.id // Keep ID if editing
+                        id: initialData.id,
+                        eventId: initialData.eventId,
+                        templateId: initialData.templateId
                     });
-                    setLoading(false);
-                }, 0);
-            } else {
-                setTimeout(() => setLoading(false), 0);
+                }
+                setLoading(false);
             }
-        }
+        };
+
+        loadData();
     }, [eventId]);
 
     const handleChange = (e) => {
