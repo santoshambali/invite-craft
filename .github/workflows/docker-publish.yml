@@ -1,49 +1,46 @@
 name: Build and Publish Docker Image to GCP Artifact Registry
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
-    PROJECT_ID: ascendant-might-248610
-    REGION: asia-south1
-    REPO_NAME: app-images
-    IMAGE_NAME: invitecraft
+  PROJECT_ID: ascendant-might-248610
+  REGION: asia-south1
+  REPO_NAME: app-images
+  IMAGE_NAME: invitecraft
 
 jobs:
-    build-and-push:
-        runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Authenticate to Google Cloud
-              uses: google-github-actions/auth@v2
-              with:
-                  credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-            - name: Set up Cloud SDK
-              uses: google-github-actions/setup-gcloud@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Configure Docker to use gcloud as a credential helper
-              run: |
-                  gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCP_SA_KEY }}
 
-            - name: Build Docker image
-              run: |
-                  docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-
-            - name: Push Docker image
-              run: |
-                  docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-            - name: Tag and push latest
-              if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-              run: |
-                  docker tag ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:latest
-                  docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:latest
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:latest
