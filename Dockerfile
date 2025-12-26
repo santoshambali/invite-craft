@@ -10,10 +10,6 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production
 
-# Re-declare ARG for use in the build stage
-ARG NEXT_PUBLIC_API_BASE_URL
-ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
-
 # Copy source code
 COPY . .
 
@@ -38,11 +34,18 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copy public folder
 COPY --from=builder /app/public ./public
 
+# Copy entrypoint script for runtime env injection
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port
 EXPOSE 3000
 
 # Set environment to production
 ENV NODE_ENV=production
+
+# Use entrypoint script to inject runtime env vars
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Start the application
 CMD ["npm", "start"]

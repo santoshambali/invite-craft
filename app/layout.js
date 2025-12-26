@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import EnvInfo from "./components/EnvInfo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +20,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        {/* Load runtime environment configuration */}
+        <script src="/env-config.js" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
+        <EnvInfo />
       </body>
     </html>
   );

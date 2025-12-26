@@ -6,10 +6,22 @@
  */
 
 // Base URLs for different services
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+// Allow overriding via environment variables (e.g. from Docker Compose)
+// For runtime configuration in Docker, check window.__ENV__ first (server-side injected)
+const getEnvVar = (key, defaultValue) => {
+  // Client-side: check window.__ENV__ for runtime config
+  if (typeof window !== 'undefined' && window.__ENV__) {
+    return window.__ENV__[key] || defaultValue;
+  }
+  // Server-side or build-time: use process.env
+  return process.env[key] || defaultValue;
+};
+
+const API_BASE_URL = getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:8080');
+
 const INVITATION_API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  getEnvVar('NEXT_PUBLIC_INVITATION_API_BASE_URL', null) ||
+  getEnvVar('NEXT_PUBLIC_API_BASE_URL', 'http://localhost:8080');
 
 // API Endpoints configuration
 const API_ENDPOINTS = {
