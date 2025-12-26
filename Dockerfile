@@ -10,6 +10,10 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production
 
+# Re-declare ARG for use in the build stage
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 # Copy source code
 COPY . .
 
