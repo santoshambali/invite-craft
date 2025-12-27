@@ -26,6 +26,11 @@ const INVITATION_API_BASE_URL =
   getEnvVar("NEXT_PUBLIC_INVITATION_API_BASE_URL", null) ||
   getEnvVar("NEXT_PUBLIC_API_BASE_URL", "http://localhost:8080");
 
+const APP_BASE_URL = getEnvVar(
+  "NEXT_PUBLIC_APP_URL",
+  "http://localhost:3000"
+);
+
 // API Endpoints configuration
 const API_ENDPOINTS = {
   // Authentication endpoints
@@ -87,9 +92,7 @@ export const buildInvitationApiUrl = (endpoint) => {
   return `${INVITATION_API_BASE_URL}${endpoint}`;
 };
 
-const APP_BASE_URL =
-  getEnvVar("APP_URL", null) ||
-  getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+
 
 /**
  * Build share URL for frontend (uses APP_URL/NEXT_PUBLIC_APP_URL)
@@ -119,12 +122,13 @@ export const getApiConfig = () => {
 export const { AUTH, USERS, INVITATIONS, TEMPLATES, EVENTS } = API_ENDPOINTS;
 
 // Export base URLs
-export { API_BASE_URL, INVITATION_API_BASE_URL };
+export { API_BASE_URL, INVITATION_API_BASE_URL, APP_BASE_URL };
 
 // Default export
 export default {
   baseUrl: API_BASE_URL,
   invitationBaseUrl: INVITATION_API_BASE_URL,
+  appBaseUrl: APP_BASE_URL,
   endpoints: API_ENDPOINTS,
   buildApiUrl,
   buildInvitationApiUrl,
