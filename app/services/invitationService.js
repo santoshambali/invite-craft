@@ -259,6 +259,27 @@ export const getInvitation = async (id) => {
 };
 
 /**
+ * Get shareable URL for invitation
+ * @param {string} id - UUID of the invitation
+ * @returns {Promise<Object>} Share URL data with shareUrl, invitationId, title, imageUrl
+ */
+export const getShareUrl = async (id) => {
+  try {
+    const url = buildInvitationApiUrl(`/api/v1/invitations/${id}/share`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleResponse(response);
+    return result.data;
+  } catch (error) {
+    console.error("Error fetching share URL:", error);
+    throw error;
+  }
+};
+
+/**
  * Update an existing invitation
  * @param {string} id - UUID of the invitation
  * @param {Object} invitationData - Updated invitation data
@@ -469,6 +490,7 @@ export default {
   createInvitation,
   updateInvitation,
   getInvitation,
+  getShareUrl,
   getUserInvitations,
   deleteInvitation,
   saveInvitationWithImage,

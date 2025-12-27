@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from './utils/auth';
-import { getUserInvitations, deleteInvitation, getViewUrl } from './services/invitationService';
+import { getUserInvitations, deleteInvitation, getViewUrl, getShareUrl } from './services/invitationService';
 import Header from './components/Header';
+import ShareModal from './components/ShareModal';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -11,6 +12,8 @@ export default function Dashboard() {
   const [invitations, setInvitations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareData, setShareData] = useState(null);
 
   useEffect(() => {
     // Check authentication
@@ -24,7 +27,7 @@ export default function Dashboard() {
         setError(null);
         const data = await getUserInvitations();
         console.log('Dashboard invitations:', data);
-        
+
         // Fetch signed view URLs for each invitation's image
         const invitationsWithViewUrls = await Promise.all(
           data.map(async (invitation) => {
@@ -42,7 +45,7 @@ export default function Dashboard() {
             return invitation;
           })
         );
-        
+
         setInvitations(invitationsWithViewUrls);
       } catch (err) {
         console.error('Failed to fetch invitations:', err);
@@ -72,7 +75,7 @@ export default function Dashboard() {
     if (!confirm('Are you sure you want to delete this invitation?')) {
       return;
     }
-    
+
     try {
       await deleteInvitation(id);
       setInvitations(invitations.filter(inv => inv.id !== id));
@@ -82,9 +85,31 @@ export default function Dashboard() {
     }
   };
 
+  const handleShare = async (invitationId) => {
+    try {
+      const shareUrlData = await getShareUrl(invitationId);
+      setShareData(shareUrlData);
+      setShareModalOpen(true);
+    } catch (error) {
+      console.error('Error getting share URL:', error);
+      alert('Failed to get share link. Please try again.');
+    }
+  };
+
   return (
     <div className={styles.layout}>
       <Header />
+
+      {/* Share Modal */}
+      {shareData && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          shareUrl={shareData.shareUrl}
+          title={shareData.title}
+          invitationId={shareData.invitationId}
+        />
+      )}
 
       <main className={styles.mainContent}>
         {error && (
@@ -97,7 +122,7 @@ export default function Dashboard() {
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <h2>No invitations yet</h2>
             <p style={{ color: '#666', marginBottom: '1.5rem' }}>Create your first invitation to get started!</p>
-            <button 
+            <button
               className={`${styles.actionBtn} ${styles.btnPurple}`}
               onClick={() => router.push('/create')}
               style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
@@ -164,9 +189,9 @@ export default function Dashboard() {
                   <div className={styles.actionRow}>
                     <button className={`${styles.actionBtn} ${styles.btnPurple}`} onClick={() => router.push(`/preview?id=${invitation.id}`)}>✏️ Edit</button>
                     {(invitation.viewUrl || invitation.imageUrl) && (
-                      <a 
-                        href={invitation.viewUrl || invitation.imageUrl} 
-                        target="_blank" 
+                      <a
+                        href={invitation.viewUrl || invitation.imageUrl}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className={`${styles.actionBtn} ${styles.btnBlue}`}
                       >
@@ -174,18 +199,15 @@ export default function Dashboard() {
                       </a>
                     )}
                     {(invitation.viewUrl || invitation.imageUrl) && (
-                      <a 
-                        href={invitation.viewUrl || invitation.imageUrl} 
+                      <a
+                        href={invitation.viewUrl || invitation.imageUrl}
                         download={`${invitation.title || 'invitation'}.png`}
                         className={`${styles.actionBtn} ${styles.btnGreen}`}
                       >
                         ⬇️ Download
                       </a>
                     )}
-                    <button className={`${styles.actionBtn} ${styles.btnGray}`} onClick={() => {
-                      navigator.clipboard.writeText(invitation.imageUrl || window.location.href);
-                      alert('Link copied to clipboard!');
-                    }}>🔗 Share</button>
+                    <button className={`${styles.actionBtn} ${styles.btnGray}`} onClick={() => handleShare(invitation.id)}>📤 Share</button>
                     <button className={`${styles.actionBtn} ${styles.btnRed}`} onClick={() => handleDelete(invitation.id)}>🗑️ Delete</button>
                   </div>
                 </div>

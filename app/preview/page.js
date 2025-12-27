@@ -4,7 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { toPng } from "html-to-image";
 import Button from "../components/Button";
 import Toast from "../components/Toast";
-import { getInvitation, getViewUrl } from "../services/invitationService";
+import ShareModal from "../components/ShareModal";
+import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
 import styles from "./page.module.css";
 
 function PreviewContent() {
@@ -31,6 +32,8 @@ function PreviewContent() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareData, setShareData] = useState(null);
 
   const showToast = (msg, type = "success") => {
     setToast({ show: true, message: msg, type });
@@ -246,11 +249,40 @@ function PreviewContent() {
     }
   };
 
+  const handleShare = async () => {
+    // Check if invitation has been saved
+    const invitationId = data.invitationId || data.id;
+    if (!invitationId) {
+      showToast("Please save the invitation first before sharing", "warning");
+      return;
+    }
+
+    try {
+      const shareUrlData = await getShareUrl(invitationId);
+      setShareData(shareUrlData);
+      setShareModalOpen(true);
+    } catch (error) {
+      console.error("Error getting share URL:", error);
+      showToast("Failed to get share link. Please try again.", "error");
+    }
+  };
+
   if (loading) return <div className={styles.container}>Loading editor...</div>;
 
   return (
     <div className={styles.container}>
       <Toast visible={toast.show} message={toast.message} type={toast.type} />
+
+      {/* Share Modal */}
+      {shareData && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          shareUrl={shareData.shareUrl}
+          title={shareData.title}
+          invitationId={shareData.invitationId}
+        />
+      )}
 
       {/* Left: Editor Panel */}
       <div className={styles.editorPanel}>
@@ -396,11 +428,11 @@ function PreviewContent() {
                 <p>
                   {data.date
                     ? new Date(data.date).toLocaleDateString(undefined, {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
                     : "Date"}
                 </p>
                 <p>{data.time || "Time"}</p>
@@ -414,12 +446,15 @@ function PreviewContent() {
           <Button variant="secondary" onClick={handleDownload}>
             Download Image
           </Button>
+          <Button variant="secondary" onClick={handleShare}>
+            📤 Share
+          </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving
               ? "Saving..."
               : eventId || data.id
-              ? "Update Invitation"
-              : "Save Invitation"}
+                ? "Update Invitation"
+                : "Save Invitation"}
           </Button>
         </div>
       </div>

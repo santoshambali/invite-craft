@@ -1,0 +1,364 @@
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal */
+.modal {
+  background: white;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #f5f5f5;
+  color: #333;
+  transform: rotate(90deg);
+}
+
+/* Content */
+.content {
+  padding: 28px;
+  overflow-y: auto;
+  max-height: calc(90vh - 100px);
+}
+
+.description {
+  text-align: center;
+  color: #666;
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+}
+
+/* Native Share Button */
+.nativeShareButton {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.nativeShareButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.nativeShareButton:active {
+  transform: translateY(0);
+}
+
+.shareIcon {
+  font-size: 1.2rem;
+}
+
+/* Social Media Grid */
+.socialGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 480px) {
+  .socialGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.socialButton {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 16px;
+  padding: 20px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.socialButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--platform-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
+}
+
+.socialButton:hover::before {
+  opacity: 0.1;
+}
+
+.socialButton:hover {
+  border-color: var(--platform-color);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.socialButton:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.platformIcon {
+  font-size: 2rem;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.socialButton:hover .platformIcon {
+  transform: scale(1.2);
+}
+
+.platformName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+  z-index: 1;
+}
+
+/* Copy Link Section */
+.copySection {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  border-radius: 16px;
+  margin-top: 8px;
+}
+
+.urlContainer {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.urlInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: white;
+  color: #333;
+  font-family: monospace;
+  transition: all 0.2s ease;
+}
+
+.urlInput:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.copyButton {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.copyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.copyButton:active {
+  transform: translateY(0);
+}
+
+.copyButton.copied {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .modal {
+    width: 95%;
+    border-radius: 20px;
+  }
+
+  .header {
+    padding: 20px 24px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .content {
+    padding: 24px;
+  }
+
+  .socialButton {
+    padding: 16px 10px;
+  }
+
+  .platformIcon {
+    font-size: 1.8rem;
+  }
+
+  .platformName {
+    font-size: 0.8rem;
+  }
+
+  .urlInput {
+    font-size: 0.85rem;
+    padding: 10px 12px;
+  }
+
+  .copyButton {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .modal {
+    background: #1a1a1a;
+    color: #fff;
+  }
+
+  .header {
+    border-bottom-color: #333;
+  }
+
+  .closeButton {
+    color: #aaa;
+  }
+
+  .closeButton:hover {
+    background: #2a2a2a;
+    color: #fff;
+  }
+
+  .description {
+    color: #aaa;
+  }
+
+  .socialButton {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .platformName {
+    color: #fff;
+  }
+
+  .copySection {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  }
+
+  .urlInput {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #fff;
+  }
+}
