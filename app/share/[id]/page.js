@@ -1,250 +1,77 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { getInvitation, getViewUrl } from "../../services/invitationService";
-import {
-    shareOnWhatsApp,
-    shareOnFacebook,
-    shareOnTwitter,
-    shareOnLinkedIn,
-    shareOnTelegram,
-    shareViaEmail,
-    copyToClipboard,
-    shareNative,
-    isNativeShareSupported,
-} from "../../utils/shareUtils";
-import styles from "./page.module.css";
+import ShareContent from "./ShareContent";
+import { INVITATION_API_BASE_URL } from "../../config/api";
 
-export default function SharePage() {
-    const params = useParams();
-    const invitationId = params.id;
+// Helper to get API URL on server side
+// Since execution is on server (node), we can use the localhost URL directly if needed, 
+// or the environment variable. 
+// For this local setup, http://localhost:8080 is fine.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 
-    const [invitation, setInvitation] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [imageUrl, setImageUrl] = useState(null);
-    const [copied, setCopied] = useState(false);
+export async function generateMetadata({ params }) {
+    // Await params if it's a promise (Next.js 15+ change, safe to await in 13/14 too)
+    const resolvedParams = await params;
+    const id = resolvedParams.id;
 
-    useEffect(() => {
-        const loadInvitation = async () => {
-            try {
-                const data = await getInvitation(invitationId);
-                setInvitation(data);
-
-                // Get signed URL for the image if it exists
-                if (data.imageUrl) {
-                    try {
-                        const filename = data.imageUrl.split("/").pop();
-                        const signedUrl = await getViewUrl(filename);
-                        setImageUrl(signedUrl);
-                    } catch (err) {
-                        console.error("Failed to get view URL:", err);
-                        setImageUrl(data.imageUrl);
-                    }
-                }
-            } catch (err) {
-                console.error("Error loading invitation:", err);
-                setError("Invitation not found or has been removed.");
-            } finally {
-                setLoading(false);
+    try {
+        // Fetch public share data from backend
+        // We use the new /share endpoint which returns ShareUrlResponse
+        const response = await fetch(`${API_BASE_URL}/api/v1/invitations/${id}/share`, {
+            cache: 'no-store',
+            headers: {
+                'Content-Type': 'application/json'
             }
-        };
-
-        if (invitationId) {
-            loadInvitation();
-        }
-    }, [invitationId]);
-
-    const handleCopy = async () => {
-        const success = await copyToClipboard(window.location.href);
-        if (success) {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
-    const handleNativeShare = async () => {
-        const shareText = `You're invited! ${invitation?.title || "Check out this invitation"}`;
-        await shareNative({
-            title: invitation?.title || "Invitation",
-            text: shareText,
-            url: window.location.href,
         });
-    };
 
-    if (loading) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.loader}>
-                    <div className={styles.spinner}></div>
-                    <p>Loading invitation...</p>
-                </div>
-            </div>
-        );
+        if (!response.ok) {
+            return {
+                title: 'Invitation Not Found - Lagu Invitations',
+                description: 'The invitation you are looking for does not exist or has been removed.'
+            };
+        }
+
+        const result = await response.json();
+        const invitation = result.data; // ShareUrlResponse wrapper
+
+        // Handle image URL
+        // If it's a GS path or internal path, we might need a fallback.
+        // But if the backend provides a publicly accessible URL (like a signed URL or public bucket), it works.
+        const imageUrl = invitation.imageUrl || '/images/default-invite-card.png';
+
+        return {
+            title: `You're Invited: ${invitation.title}`,
+            description: `You are cordially invited to ${invitation.title}. Click to see the details.`,
+            openGraph: {
+                title: invitation.title,
+                description: `You are cordially invited to ${invitation.title}. Click to see the details.`,
+                url: invitation.shareUrl,
+                siteName: 'Lagu Invitations',
+                images: [
+                    {
+                        url: imageUrl,
+                        width: 1200, // Standard OG size
+                        height: 630,
+                        alt: invitation.title,
+                    },
+                ],
+                locale: 'en_US',
+                type: 'website',
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: invitation.title,
+                description: `You are cordially invited to ${invitation.title}.`,
+                images: [imageUrl],
+            },
+        };
+    } catch (error) {
+        console.error("Error generating metadata:", error);
+        return {
+            title: 'Invitation - Lagu Invitations',
+            description: 'You are cordially invited check out this invitation!',
+        };
     }
+}
 
-    if (error || !invitation) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.error}>
-                    <div className={styles.errorIcon}>⚠️</div>
-                    <h1>Oops!</h1>
-                    <p>{error || "Invitation not found"}</p>
-                    <a href="/" className={styles.homeLink}>
-                        Go to Homepage
-                    </a>
-                </div>
-            </div>
-        );
-    }
-
-    const shareText = `You're invited! ${invitation.title || "Check out this invitation"}`;
-    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-
-    return (
-        <div className={styles.container}>
-            {/* Invitation Card */}
-            <div className={styles.invitationWrapper}>
-                <div
-                    className={styles.invitationCard}
-                    style={{
-                        background: imageUrl
-                            ? `url(${imageUrl}) center/cover no-repeat`
-                            : "#ffffff",
-                    }}
-                >
-                    {imageUrl && (
-                        <div className={styles.overlay}></div>
-                    )}
-
-                    <div className={styles.cardContent}>
-                        <div className={styles.inviteText}>You Are Cordially Invited To</div>
-
-                        <h1 className={styles.eventTitle}>{invitation.title}</h1>
-
-                        <div className={styles.eventDetails}>
-                            <p className={styles.eventType}>{invitation.eventType}</p>
-                            <hr className={styles.divider} />
-                        </div>
-
-                        <div className={styles.dateTimeLocation}>
-                            {invitation.date && (
-                                <p className={styles.date}>
-                                    {new Date(invitation.date).toLocaleDateString(undefined, {
-                                        weekday: "long",
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    })}
-                                </p>
-                            )}
-                            {invitation.time && <p className={styles.time}>{invitation.time}</p>}
-                            {invitation.location && (
-                                <p className={styles.location}>{invitation.location}</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Share Section */}
-                <div className={styles.shareSection}>
-                    <h2 className={styles.shareTitle}>Share this invitation</h2>
-
-                    {/* Native Share Button (Mobile) */}
-                    {isNativeShareSupported() && (
-                        <button className={styles.nativeShareButton} onClick={handleNativeShare}>
-                            <span className={styles.shareIcon}>📤</span>
-                            Share via...
-                        </button>
-                    )}
-
-                    {/* Social Media Buttons */}
-                    <div className={styles.socialButtons}>
-                        <button
-                            className={styles.socialButton}
-                            onClick={() => shareOnWhatsApp(currentUrl, shareText)}
-                            style={{ "--color": "#25D366" }}
-                        >
-                            <span className={styles.icon}>📱</span>
-                            <span>WhatsApp</span>
-                        </button>
-
-                        <button
-                            className={styles.socialButton}
-                            onClick={() => shareOnFacebook(currentUrl)}
-                            style={{ "--color": "#1877F2" }}
-                        >
-                            <span className={styles.icon}>📘</span>
-                            <span>Facebook</span>
-                        </button>
-
-                        <button
-                            className={styles.socialButton}
-                            onClick={() => shareOnTwitter(currentUrl, shareText)}
-                            style={{ "--color": "#1DA1F2" }}
-                        >
-                            <span className={styles.icon}>🐦</span>
-                            <span>Twitter</span>
-                        </button>
-
-                        <button
-                            className={styles.socialButton}
-                            onClick={() => shareOnLinkedIn(currentUrl)}
-                            style={{ "--color": "#0A66C2" }}
-                        >
-                            <span className={styles.icon}>💼</span>
-                            <span>LinkedIn</span>
-                        </button>
-
-                        <button
-                            className={styles.socialButton}
-                            onClick={() => shareOnTelegram(currentUrl, shareText)}
-                            style={{ "--color": "#0088cc" }}
-                        >
-                            <span className={styles.icon}>✈️</span>
-                            <span>Telegram</span>
-                        </button>
-
-                        <button
-                            className={styles.socialButton}
-                            onClick={() =>
-                                shareViaEmail(currentUrl, invitation.title || "Invitation", shareText)
-                            }
-                            style={{ "--color": "#EA4335" }}
-                        >
-                            <span className={styles.icon}>📧</span>
-                            <span>Email</span>
-                        </button>
-                    </div>
-
-                    {/* Copy Link */}
-                    <div className={styles.copyContainer}>
-                        <input
-                            type="text"
-                            value={currentUrl}
-                            readOnly
-                            className={styles.urlInput}
-                            onClick={(e) => e.target.select()}
-                        />
-                        <button
-                            className={`${styles.copyButton} ${copied ? styles.copied : ""}`}
-                            onClick={handleCopy}
-                        >
-                            {copied ? "✓ Copied!" : "📋 Copy Link"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className={styles.footer}>
-                <p>
-                    Create your own beautiful invitations at{" "}
-                    <a href="/" className={styles.brandLink}>
-                        InviteCraft
-                    </a>
-                </p>
-            </div>
-        </div>
-    );
+export default function Page() {
+    return <ShareContent />;
 }

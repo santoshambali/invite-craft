@@ -88,6 +88,19 @@ export const buildInvitationApiUrl = (endpoint) => {
 };
 
 /**
+ * Build share URL for frontend (uses API_BASE_URL/NEXT_PUBLIC_API_BASE_URL)
+ * @param {string} id - Invitation ID
+ * @returns {string} Full Share URL
+ */
+export const buildShareUrl = (id) => {
+  // Use API_BASE_URL which is configured via NEXT_PUBLIC_API_BASE_URL
+  const baseUrl = API_BASE_URL.endsWith("/")
+    ? API_BASE_URL.slice(0, -1)
+    : API_BASE_URL;
+  return `${baseUrl}/share/${id}`;
+};
+
+/**
  * Get API configuration
  * @returns {object} API configuration object
  */
@@ -111,4 +124,5 @@ export default {
   endpoints: API_ENDPOINTS,
   buildApiUrl,
   buildInvitationApiUrl,
+  buildShareUrl,
 };

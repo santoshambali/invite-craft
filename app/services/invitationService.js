@@ -7,8 +7,11 @@
  * - Uploading images via signed URLs
  */
 
-import { buildInvitationApiUrl } from "../config/api";
+import { buildInvitationApiUrl, buildShareUrl } from "../config/api";
 import { getAccessToken, getUserId } from "../utils/auth";
+
+/**
+ * Get authorization headers
 
 /**
  * Get authorization headers
@@ -272,7 +275,12 @@ export const getShareUrl = async (id) => {
     });
 
     const result = await handleResponse(response);
-    return result.data;
+    const data = result.data;
+
+    // Use centralized logic from api.js to set the correct share URL
+    data.shareUrl = buildShareUrl(id);
+
+    return data;
   } catch (error) {
     console.error("Error fetching share URL:", error);
     throw error;
