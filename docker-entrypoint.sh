@@ -14,7 +14,8 @@ cat > /app/public/env-config.js << EOF
 // This file is generated at container startup with actual environment values
 window.__ENV__ = {
   NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}",
-  NEXT_PUBLIC_INVITATION_API_BASE_URL: "${NEXT_PUBLIC_INVITATION_API_BASE_URL:-}"
+  NEXT_PUBLIC_INVITATION_API_BASE_URL: "${NEXT_PUBLIC_INVITATION_API_BASE_URL:-}",
+  NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}"
 };
 EOF
 
