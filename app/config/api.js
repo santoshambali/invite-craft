@@ -87,16 +87,20 @@ export const buildInvitationApiUrl = (endpoint) => {
   return `${INVITATION_API_BASE_URL}${endpoint}`;
 };
 
+const APP_BASE_URL =
+  getEnvVar("APP_URL", null) ||
+  getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+
 /**
- * Build share URL for frontend (uses API_BASE_URL/NEXT_PUBLIC_API_BASE_URL)
+ * Build share URL for frontend (uses APP_URL/NEXT_PUBLIC_APP_URL)
  * @param {string} id - Invitation ID
  * @returns {string} Full Share URL
  */
 export const buildShareUrl = (id) => {
-  // Use API_BASE_URL which is configured via NEXT_PUBLIC_API_BASE_URL
-  const baseUrl = API_BASE_URL.endsWith("/")
-    ? API_BASE_URL.slice(0, -1)
-    : API_BASE_URL;
+  // Use APP_BASE_URL to ensure share links point to the frontend application
+  const baseUrl = APP_BASE_URL.endsWith("/")
+    ? APP_BASE_URL.slice(0, -1)
+    : APP_BASE_URL;
   return `${baseUrl}/share/${id}`;
 };
 
