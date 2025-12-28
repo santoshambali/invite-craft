@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import ShareContent from "./ShareContent";
 import { INVITATION_API_BASE_URL } from "../../config/api";
 
