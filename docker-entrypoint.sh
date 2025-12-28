@@ -15,7 +15,8 @@ cat > /app/public/env-config.js << EOF
 window.__ENV__ = {
   NEXT_PUBLIC_API_BASE_URL: "${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}",
   NEXT_PUBLIC_INVITATION_API_BASE_URL: "${NEXT_PUBLIC_INVITATION_API_BASE_URL:-}",
-  NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}"
+  NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}",
+  AI_SERVICE_URL: "${AI_SERVICE_URL:-http://localhost:3000}"
 };
 EOF
 
