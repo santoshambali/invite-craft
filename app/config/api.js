@@ -28,6 +28,11 @@ const INVITATION_API_BASE_URL =
 
 const APP_BASE_URL = getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
+const AI_SERVICE_URL = getEnvVar(
+  "NEXT_PUBLIC_AI_SERVICE_URL",
+  "http://localhost:8000"
+);
+
 // API Endpoints configuration
 const API_ENDPOINTS = {
   // Authentication endpoints
