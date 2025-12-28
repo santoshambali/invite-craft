@@ -7,7 +7,14 @@
  * - Uploading images via signed URLs
  */
 
-import { buildInvitationApiUrl, buildShareUrl } from "../config/api";
+import {
+  buildInvitationApiUrl,
+  buildShareUrl,
+  buildApiUrl,
+  buildAiApiUrl,
+  AI,
+} from "../config/api";
+
 import { getAccessToken, getUserId } from "../utils/auth";
 
 /**
@@ -164,6 +171,42 @@ export const uploadInvitationImage = async (
 };
 
 /**
+ * Generate invitation image using AI
+ * @param {Object} invitationData - Full event details for image generation
+ * @returns {Promise<string>} URL of the generated image
+ */
+export const generateInvitationImage = async (invitationData) => {
+  try {
+    const url = buildAiApiUrl(AI.GENERATE_IMAGE);
+    // Assuming the API expects query parameters based on typical FastAPI/Swagger structure "generate_invitation_image_generate_invitation_image_post"
+    // Usually accepts a JSON body or query params. I will try JSON body first as it is a POST.
+    // If "prompt" is the key.
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Add auth headers if needed, but maybe this AI service is open or uses same token?
+        // I'll add auth headers just in case.
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(invitationData),
+    });
+
+    const result = await handleResponse(response);
+    // Handle the specific response structure from the AI service
+    if (result.gcs_urls && Array.isArray(result.gcs_urls) && result.gcs_urls.length > 0) {
+      return result.gcs_urls[0];
+    }
+
+    // Fallbacks for other potential formats
+    return result.url || result.image_url || result.imageUrl || result;
+  } catch (error) {
+    console.error("Error generating AI invitation image:", error);
+    throw error;
+  }
+};
+
+/**
  * Create a new invitation
  * @param {Object} invitationData - Invitation data
  * @param {string} invitationData.eventId - UUID of the event
@@ -190,11 +233,15 @@ export const createInvitation = async (invitationData) => {
 
 /**
  * Get all invitations for the authenticated user
+ * @param {string} [userId] - Optional userId to filter invitations
  * @returns {Promise<Array>} List of invitations
  */
-export const getUserInvitations = async () => {
+export const getUserInvitations = async (userId) => {
   try {
-    const url = buildInvitationApiUrl("/api/v1/invitations");
+    let url = buildInvitationApiUrl("/api/v1/invitations");
+    if (userId) {
+      url += `?userId=${encodeURIComponent(userId)}`;
+    }
     console.log("Fetching invitations from:", url);
     const response = await fetch(url, {
       method: "GET",
@@ -503,4 +550,5 @@ export default {
   deleteInvitation,
   saveInvitationWithImage,
   updateInvitationWithImage,
+  generateInvitationImage,
 };

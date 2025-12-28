@@ -5,7 +5,7 @@ import { toPng } from "html-to-image";
 import Button from "../components/Button";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
-import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
+import { getInvitation, getViewUrl, getShareUrl, generateInvitationImage } from "../services/invitationService";
 import styles from "./page.module.css";
 
 function PreviewContent() {
@@ -34,6 +34,10 @@ function PreviewContent() {
   const [saving, setSaving] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
+
+  // AI Generation State
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [generatingAi, setGeneratingAi] = useState(false);
 
   const showToast = (msg, type = "success") => {
     setToast({ show: true, message: msg, type });
@@ -267,6 +271,39 @@ function PreviewContent() {
     }
   };
 
+  const handleGenerateAiImage = async () => {
+    if (!aiPrompt.trim()) {
+      showToast("Please enter a prompt for the AI", "warning");
+      return;
+    }
+
+    setGeneratingAi(true);
+    try {
+      // Construct payload matching the API requirement
+      const payload = {
+        title: data.title || "My Event",
+        date: data.date || "TBD",
+        location: data.location || "TBD",
+        description: aiPrompt, // Use the user's prompt as description/style hint
+        style: "Modern and Vibrant", // You could add a UI selector for this
+        event_type: data.eventType || "General",
+      };
+
+      const imageUrl = await generateInvitationImage(payload);
+      if (imageUrl) {
+        setData((prev) => ({ ...prev, templateImage: imageUrl }));
+        showToast("AI Background Generated!");
+      } else {
+        throw new Error("No image URL returned");
+      }
+    } catch (error) {
+      console.error("AI Generation Error:", error);
+      showToast("Failed to generate image. Please try again.", "error");
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
+
   if (loading) return <div className={styles.container}>Loading editor...</div>;
 
   return (
@@ -349,6 +386,27 @@ function PreviewContent() {
                 value={data.location}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <label className={styles.label}>AI Background Generator</label>
+            <div className={styles.inputGroup}>
+              <textarea
+                className={styles.input}
+                placeholder="Describe your theme (e.g., 'Watercolor floral wedding in spring pastel colors')"
+                rows={3}
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                style={{ resize: "vertical", minHeight: "80px" }}
+              />
+              <Button
+                onClick={handleGenerateAiImage}
+                disabled={generatingAi}
+                style={{ width: "100%", marginTop: "0.5rem" }}
+              >
+                {generatingAi ? "✨ Generating..." : "Generate Background ✨"}
+              </Button>
             </div>
           </div>
         </div>

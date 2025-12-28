@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { isAuthenticated } from './utils/auth';
+import { isAuthenticated, getUserId } from './utils/auth';
 import { getUserInvitations, deleteInvitation, getViewUrl, getShareUrl } from './services/invitationService';
 import Header from './components/Header';
 import ShareModal from './components/ShareModal';
@@ -25,7 +25,8 @@ export default function Dashboard() {
     const fetchInvitations = async () => {
       try {
         setError(null);
-        const data = await getUserInvitations();
+        const userId = getUserId();
+        const data = await getUserInvitations(userId);
         console.log('Dashboard invitations:', data);
 
         // Fetch signed view URLs for each invitation's image
