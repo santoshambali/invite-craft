@@ -1,28 +1,41 @@
-/* Container */
+/* Container - Premium Dark Gradient */
 .container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     padding: 40px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Glassmorphism Base */
+.glassPanel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
 }
 
 /* Loading State */
 .loader {
-    text-align: center;
-    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
 }
 
 .spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #38bdf8;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
+    animation: spin 0.8s ease-in-out infinite;
 }
 
 @keyframes spin {
@@ -32,65 +45,71 @@
 }
 
 .loader p {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1rem;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
 }
 
 /* Error State */
 .error {
-    background: white;
+    composes: glassPanel;
     padding: 60px 40px;
-    border-radius: 24px;
     text-align: center;
-    max-width: 500px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 480px;
 }
 
 .errorIcon {
-    font-size: 4rem;
-    margin-bottom: 20px;
+    font-size: 3.5rem;
+    margin-bottom: 24px;
+    opacity: 0.8;
 }
 
 .error h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     margin: 0 0 16px 0;
-    color: #333;
+    color: #f8fafc;
+    font-weight: 700;
 }
 
 .error p {
-    color: #666;
+    color: #cbd5e1;
     margin: 0 0 32px 0;
-    font-size: 1.1rem;
+    line-height: 1.6;
 }
 
 .homeLink {
-    display: inline-block;
+    display: inline-flex;
     padding: 12px 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: #38bdf8;
+    color: #0f172a;
     text-decoration: none;
-    border-radius: 12px;
+    border-radius: 99px;
     font-weight: 600;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .homeLink:hover {
+    background: #7dd3fc;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4);
 }
 
 /* Invitation Wrapper */
 .invitationWrapper {
     width: 100%;
-    max-width: 600px;
-    animation: fadeInUp 0.6s ease-out;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px);
     }
 
     to {
@@ -99,112 +118,204 @@
     }
 }
 
-/* Invitation Card */
+/* Invitation Card - Now creates a separation between Image and Details */
 .invitationCard {
-    background: white;
-    border-radius: 24px;
-    padding: 60px 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    margin-bottom: 32px;
     position: relative;
-    overflow: hidden;
-    min-height: 500px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.85);
-    z-index: 0;
-}
-
-.cardContent {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    color: #1a1a1a;
     width: 100%;
+    max-width: 600px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    transition: transform 0.4s ease;
+    background: transparent;
+    /* Changed from white to allow image to be independent */
+}
+
+.invitationCard:hover {
+    transform: translateY(-5px);
+}
+
+/* Only Image Mode - Main View */
+.invitationImage {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 20px;
+}
+
+/* Text Fallback (if no image or overlaid) */
+.fallbackCard {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    color: #1e293b;
+    padding: 60px 40px;
+    text-align: center;
+    border-radius: 20px;
 }
 
 .inviteText {
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 0.8rem;
-    margin-bottom: 3rem;
-    opacity: 0.7;
+    letter-spacing: 3px;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-weight: 600;
 }
 
 .eventTitle {
-    font-family: "Times New Roman", Times, serif;
+    font-family: 'Playfair Display', serif;
+    /* Or system serif */
     font-size: 3rem;
-    margin: 0 0 1rem 0;
+    margin: 0 0 1.5rem 0;
     line-height: 1.1;
-    font-weight: 700;
+    color: #0f172a;
+    background: linear-gradient(45deg, #0f172a, #334155);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .eventDetails {
     margin: 2rem 0;
-}
-
-.eventType {
-    font-weight: bold;
-    font-size: 1.2rem;
-    margin: 0 0 0.5rem 0;
-}
-
-.divider {
-    width: 50px;
-    border: none;
-    border-top: 2px solid rgba(0, 0, 0, 0.1);
-    margin: 1rem auto;
-}
-
-.dateTimeLocation {
-    font-size: 1.1rem;
-    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .date,
 .time,
 .location {
-    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    color: #475569;
 }
 
 .location {
-    margin-top: 1rem;
+    font-weight: 500;
+    margin-top: 8px;
 }
 
 /* Share Section */
 .shareSection {
-    background: white;
-    border-radius: 24px;
+    composes: glassPanel;
     padding: 32px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.shareHeader {
+    text-align: center;
 }
 
 .shareTitle {
-    text-align: center;
-    font-size: 1.5rem;
-    margin: 0 0 24px 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #f8fafc;
+}
+
+.shareSubtitle {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Social Icon Grid */
+.socialButtons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.socialButton {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.socialButton:hover {
+    transform: translateY(-4px);
+    background: var(--color);
+    border-color: var(--color);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.4);
+}
+
+.socialButton:active {
+    transform: translateY(-2px);
+}
+
+/* Copy Link Section */
+.copyContainer {
+    position: relative;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.urlInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    color: #94a3b8;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    min-width: 0;
+    /* allows text overflow ellipsis */
+}
+
+.urlInput:focus {
+    outline: none;
+    color: #f8fafc;
+}
+
+.copyButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #f8fafc;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.copyButton:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
+.copyButton.copied {
+    background: #10b981;
+    color: white;
 }
 
 /* Native Share Button */
 .nativeShareButton {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: rgba(255, 255, 255, 0.1);
     color: white;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     font-size: 1rem;
     font-weight: 600;
@@ -213,240 +324,48 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 24px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .nativeShareButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.shareIcon {
-    font-size: 1.2rem;
-}
-
-/* Social Buttons */
-.socialButtons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-@media (max-width: 600px) {
-    .socialButtons {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-.socialButton {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 16px 12px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #333;
-    position: relative;
-    overflow: hidden;
-}
-
-.socialButton::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--color);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 0;
-}
-
-.socialButton:hover::before {
-    opacity: 0.1;
-}
-
-.socialButton:hover {
-    border-color: var(--color);
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.socialButton:active {
-    transform: translateY(-2px) scale(1.02);
-}
-
-.icon {
-    font-size: 2rem;
-    position: relative;
-    z-index: 1;
-    transition: transform 0.3s ease;
-}
-
-.socialButton:hover .icon {
-    transform: scale(1.2);
-}
-
-.socialButton span:last-child {
-    position: relative;
-    z-index: 1;
-}
-
-/* Copy Container */
-.copyContainer {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
-}
-
-.urlInput {
-    flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    background: #f5f5f5;
-    color: #333;
-    font-family: monospace;
-    transition: all 0.2s ease;
-}
-
-.urlInput:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.copyButton {
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.copyButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
-
-.copyButton:active {
-    transform: translateY(0);
-}
-
-.copyButton.copied {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    animation: pulse 0.5s ease;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* Footer */
 .footer {
-    margin-top: 32px;
     text-align: center;
-    color: white;
-    font-size: 0.95rem;
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-top: auto;
+    padding-top: 40px;
 }
 
 .brandLink {
-    color: white;
-    font-weight: 700;
+    color: #94a3b8;
     text-decoration: none;
-    border-bottom: 2px solid white;
-    transition: all 0.2s ease;
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
 .brandLink:hover {
-    opacity: 0.8;
+    color: #38bdf8;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
     .container {
         padding: 20px 16px;
     }
 
     .invitationCard {
-        padding: 40px 24px;
-        min-height: 400px;
+        border-radius: 16px;
     }
 
     .eventTitle {
-        font-size: 2.2rem;
+        font-size: 2.25rem;
     }
 
     .shareSection {
-        padding: 24px;
-    }
-
-    .shareTitle {
-        font-size: 1.3rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .invitationCard {
-        padding: 32px 20px;
-    }
-
-    .eventTitle {
-        font-size: 1.8rem;
-    }
-
-    .inviteText {
-        font-size: 0.7rem;
-    }
-
-    .dateTimeLocation {
-        font-size: 1rem;
-    }
-
-    .socialButton {
-        padding: 12px 8px;
-    }
-
-    .icon {
-        font-size: 1.6rem;
-    }
-
-    .socialButton span:last-child {
-        font-size: 0.75rem;
-    }
-
-    .urlInput {
-        font-size: 0.8rem;
-        padding: 10px 12px;
-    }
-
-    .copyButton {
-        padding: 10px 16px;
-        font-size: 0.8rem;
+        padding: 24px 20px;
     }
 }

@@ -44,12 +44,6 @@ export default function ShareContent() {
                 }
             } catch (err) {
                 console.error("Error loading invitation:", err);
-                // setError("Invitation not found or has been removed.");
-                // For preview purposes, suppress error if we are just loading client side and server side already rendered meta
-                // But actually, we need data for the UI.
-
-                // If this fails, it might be due to auth.
-                // But let's assume it works as per previous status.
                 setError("Invitation not found or has been removed.");
             } finally {
                 setLoading(false);
@@ -109,106 +103,109 @@ export default function ShareContent() {
 
     return (
         <div className={styles.container}>
-            {/* Invitation Card */}
+            {/* Invitation Wrapper */}
             <div className={styles.invitationWrapper}>
-                <div
-                    className={styles.invitationCard}
-                    style={{
-                        background: imageUrl
-                            ? `url(${imageUrl}) center/cover no-repeat`
-                            : "#ffffff",
-                    }}
-                >
-                    {imageUrl && (
-                        <div className={styles.overlay}></div>
+
+                {/* Visual Card */}
+                <div className={`${styles.invitationCard} ${!imageUrl ? styles.fallbackCard : ''}`}>
+                    {imageUrl ? (
+                        <img
+                            src={imageUrl}
+                            alt={invitation.title}
+                            className={styles.invitationImage}
+                        />
+                    ) : (
+                        // Fallback Text Card (only shown if no image)
+                        <div className={styles.cardContent}>
+                            <div className={styles.inviteText}>You Are Cordially Invited To</div>
+                            <h1 className={styles.eventTitle}>{invitation.title}</h1>
+
+                            <div className={styles.eventDetails}>
+                                {invitation.eventType && <p className={styles.eventType}>{invitation.eventType}</p>}
+                                <hr className={styles.divider} style={{ width: '40px', borderColor: 'rgba(0,0,0,0.1)', margin: '16px auto' }} />
+
+                                {invitation.date && (
+                                    <p className={styles.date}>
+                                        {new Date(invitation.date).toLocaleDateString(undefined, {
+                                            weekday: "long",
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
+                                    </p>
+                                )}
+                                {invitation.time && <p className={styles.time}>{invitation.time}</p>}
+                                {invitation.location && <p className={styles.location}>{invitation.location}</p>}
+                            </div>
+                        </div>
                     )}
-
-                    <div className={styles.cardContent}>
-                        <div className={styles.inviteText}>You Are Cordially Invited To</div>
-
-                        <h1 className={styles.eventTitle}>{invitation.title}</h1>
-
-                        <div className={styles.eventDetails}>
-                            <p className={styles.eventType}>{invitation.eventType}</p>
-                            <hr className={styles.divider} />
-                        </div>
-
-                        <div className={styles.dateTimeLocation}>
-                            {invitation.date && (
-                                <p className={styles.date}>
-                                    {new Date(invitation.date).toLocaleDateString(undefined, {
-                                        weekday: "long",
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    })}
-                                </p>
-                            )}
-                            {invitation.time && <p className={styles.time}>{invitation.time}</p>}
-                            {invitation.location && (
-                                <p className={styles.location}>{invitation.location}</p>
-                            )}
-                        </div>
-                    </div>
                 </div>
+
+                {/* If there IS an image, we still might want to show details below it for clarity? 
+                    Let's only do it if the user scrolls or maybe just keep it clean. 
+                    For now, I'll assume the image contains the text. 
+                */}
 
                 {/* Share Section */}
                 <div className={styles.shareSection}>
-                    <h2 className={styles.shareTitle}>Share this invitation</h2>
+                    <div className={styles.shareHeader}>
+                        <h2 className={styles.shareTitle}>Share Preview</h2>
+                        <p className={styles.shareSubtitle}>Invite friends and family</p>
+                    </div>
 
                     {/* Native Share Button (Mobile) */}
                     {isNativeShareSupported() && (
                         <button className={styles.nativeShareButton} onClick={handleNativeShare}>
-                            <span className={styles.shareIcon}>📤</span>
-                            Share via...
+                            <span style={{ fontSize: '1.2rem' }}>📤</span>
+                            Share Native
                         </button>
                     )}
 
-                    {/* Social Media Buttons */}
+                    {/* Social Media Icons */}
                     <div className={styles.socialButtons}>
                         <button
                             className={styles.socialButton}
                             onClick={() => shareOnWhatsApp(currentUrl, shareText)}
                             style={{ "--color": "#25D366" }}
+                            title="WhatsApp"
                         >
-                            <span className={styles.icon}>📱</span>
-                            <span>WhatsApp</span>
+                            <span>💬</span>
                         </button>
 
                         <button
                             className={styles.socialButton}
                             onClick={() => shareOnFacebook(currentUrl)}
                             style={{ "--color": "#1877F2" }}
+                            title="Facebook"
                         >
-                            <span className={styles.icon}>📘</span>
-                            <span>Facebook</span>
+                            <span>📘</span>
                         </button>
 
                         <button
                             className={styles.socialButton}
                             onClick={() => shareOnTwitter(currentUrl, shareText)}
                             style={{ "--color": "#1DA1F2" }}
+                            title="X (Twitter)"
                         >
-                            <span className={styles.icon}>🐦</span>
-                            <span>Twitter</span>
+                            <span>🐦</span>
                         </button>
 
                         <button
                             className={styles.socialButton}
                             onClick={() => shareOnLinkedIn(currentUrl)}
                             style={{ "--color": "#0A66C2" }}
+                            title="LinkedIn"
                         >
-                            <span className={styles.icon}>💼</span>
-                            <span>LinkedIn</span>
+                            <span>💼</span>
                         </button>
 
                         <button
                             className={styles.socialButton}
                             onClick={() => shareOnTelegram(currentUrl, shareText)}
                             style={{ "--color": "#0088cc" }}
+                            title="Telegram"
                         >
-                            <span className={styles.icon}>✈️</span>
-                            <span>Telegram</span>
+                            <span>✈️</span>
                         </button>
 
                         <button
@@ -217,9 +214,9 @@ export default function ShareContent() {
                                 shareViaEmail(currentUrl, invitation.title || "Invitation", shareText)
                             }
                             style={{ "--color": "#EA4335" }}
+                            title="Email"
                         >
-                            <span className={styles.icon}>📧</span>
-                            <span>Email</span>
+                            <span>📧</span>
                         </button>
                     </div>
 
@@ -236,7 +233,7 @@ export default function ShareContent() {
                             className={`${styles.copyButton} ${copied ? styles.copied : ""}`}
                             onClick={handleCopy}
                         >
-                            {copied ? "✓ Copied!" : "📋 Copy Link"}
+                            {copied ? "Copied" : "Copy"}
                         </button>
                     </div>
                 </div>
@@ -245,7 +242,7 @@ export default function ShareContent() {
             {/* Footer */}
             <div className={styles.footer}>
                 <p>
-                    Create your own beautiful invitations at{" "}
+                    Powered by{" "}
                     <a href="/" className={styles.brandLink}>
                         InviteCraft
                     </a>
