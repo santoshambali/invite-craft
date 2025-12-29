@@ -26,7 +26,7 @@ export default function CreatePage() {
                             </Card>
                         </Link>
 
-                        <Link href="/templates">
+                        <Link href="/create/templates">
                             <Card interactive className={styles.optionCard}>
                                 <div className={styles.icon}>🎨</div>
                                 <h2 className={styles.cardTitle}>Browse Templates</h2>

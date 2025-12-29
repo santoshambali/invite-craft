@@ -71,7 +71,7 @@
 /* Template Card */
 .templateCard {
     background: white;
-    border-radius: var(--radius-lg);
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s, box-shadow 0.2s;
@@ -88,9 +88,46 @@
 }
 
 .previewArea {
-    height: 200px;
+    height: 350px;
+    /* Taller for better preview */
     width: 100%;
     position: relative;
+    overflow: hidden;
+    /* Ensure zoom effect doesn't break radius */
+}
+
+/* Overlay on Hover */
+.previewOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.templateCard:hover .previewOverlay {
+    opacity: 1;
+}
+
+.useButton {
+    background: white;
+    color: black;
+    padding: 0.75rem 1.5rem;
+    border-radius: 99px;
+    font-weight: 600;
+    transform: translateY(10px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.templateCard:hover .useButton {
+    transform: translateY(0);
 }
 
 .premiumBadge {
@@ -111,16 +148,18 @@
 .cardFooter {
     padding: 1.25rem;
     background: white;
+    border-top: 1px solid #f3f4f6;
 }
 
 .templateName {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--dash-text-primary);
+    color: #111827;
+    /* Darker text */
     margin-bottom: 0.25rem;
 }
 
 .templateCategory {
     font-size: 0.85rem;
-    color: var(--dash-text-secondary);
+    color: #6b7280;
 }

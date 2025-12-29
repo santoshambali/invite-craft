@@ -235,27 +235,7 @@ function BirthdayEditorContent() {
 
                 <div className={styles.formContent}>
 
-                    {/* Theme Selector */}
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <div className={styles.sectionIcon}>🎨</div>
-                            <span className={styles.label}>Choose a Theme</span>
-                        </div>
-                        <div className={styles.themeGrid}>
-                            {THEMES.map(theme => (
-                                <div
-                                    key={theme.id}
-                                    className={`${styles.themeOption} ${selectedThemeId === theme.id ? styles.active : ''}`}
-                                    onClick={() => setSelectedThemeId(theme.id)}
-                                    style={{ background: theme.bg }}
-                                >
-                                    <div className={styles.themePreview} style={{ color: theme.textColor || theme.accent }}>
-                                        {theme.id === selectedThemeId && '✓'}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    {/* Theme Selector Removed as per request */}
 
                     <div className={styles.section}>
                         <div className={styles.sectionHeader}>

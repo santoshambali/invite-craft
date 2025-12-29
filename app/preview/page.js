@@ -5,7 +5,7 @@ import { toPng } from "html-to-image";
 import Button from "../components/Button";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
-import { getInvitation, getViewUrl, getShareUrl, generateInvitationImage } from "../services/invitationService";
+import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
 import styles from "./page.module.css";
 
 function PreviewContent() {
@@ -35,9 +35,7 @@ function PreviewContent() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
 
-  // AI Generation State
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [generatingAi, setGeneratingAi] = useState(false);
+
 
   const showToast = (msg, type = "success") => {
     setToast({ show: true, message: msg, type });
@@ -112,6 +110,7 @@ function PreviewContent() {
             id: initialData.id,
             eventId: initialData.eventId,
             templateId: initialData.templateId,
+            config: initialData.config,
           });
         }
         setLoading(false);
@@ -271,38 +270,7 @@ function PreviewContent() {
     }
   };
 
-  const handleGenerateAiImage = async () => {
-    if (!aiPrompt.trim()) {
-      showToast("Please enter a prompt for the AI", "warning");
-      return;
-    }
 
-    setGeneratingAi(true);
-    try {
-      // Construct payload matching the API requirement
-      const payload = {
-        title: data.title || "My Event",
-        date: data.date || "TBD",
-        location: data.location || "TBD",
-        description: aiPrompt, // Use the user's prompt as description/style hint
-        style: "Modern and Vibrant", // You could add a UI selector for this
-        event_type: data.eventType || "General",
-      };
-
-      const imageUrl = await generateInvitationImage(payload);
-      if (imageUrl) {
-        setData((prev) => ({ ...prev, templateImage: imageUrl }));
-        showToast("AI Background Generated!");
-      } else {
-        throw new Error("No image URL returned");
-      }
-    } catch (error) {
-      console.error("AI Generation Error:", error);
-      showToast("Failed to generate image. Please try again.", "error");
-    } finally {
-      setGeneratingAi(false);
-    }
-  };
 
   if (loading) return <div className={styles.container}>Loading editor...</div>;
 
@@ -389,26 +357,7 @@ function PreviewContent() {
             </div>
           </div>
 
-          <div className={styles.section}>
-            <label className={styles.label}>AI Background Generator</label>
-            <div className={styles.inputGroup}>
-              <textarea
-                className={styles.input}
-                placeholder="Describe your theme (e.g., 'Watercolor floral wedding in spring pastel colors')"
-                rows={3}
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                style={{ resize: "vertical", minHeight: "80px" }}
-              />
-              <Button
-                onClick={handleGenerateAiImage}
-                disabled={generatingAi}
-                style={{ width: "100%", marginTop: "0.5rem" }}
-              >
-                {generatingAi ? "✨ Generating..." : "Generate Background ✨"}
-              </Button>
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -422,12 +371,18 @@ function PreviewContent() {
             style={{
               background: data.templateImage
                 ? `url(${data.templateImage}) center/cover no-repeat`
-                : data.color,
+                : (data.config?.background || data.color),
+              color: data.config?.color || "#1a1a1a",
+              fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
+              textAlign: data.config?.textAlign || 'center',
               position: "relative",
+              display: 'flex',
+              flexDirection: 'column',
+              ...data.config?.layout?.container
             }}
           >
-            {/* Overlay for better text readability when using template image */}
-            {data.templateImage && (
+            {/* Overlay for better text readability when using template image BUT NOT custom config (custom config handles its own contrast) */}
+            {data.templateImage && !data.config && (
               <div
                 style={{
                   position: "absolute",
@@ -443,47 +398,63 @@ function PreviewContent() {
 
             <div
               className={styles.cardContent}
-              style={{ color: "#1a1a1a", position: "relative", zIndex: 1 }}
+              style={{
+                position: "relative",
+                zIndex: 1,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
             >
+              {/* Event Type / Uppercase Header */}
               <div
                 style={{
                   textTransform: "uppercase",
                   letterSpacing: "2px",
                   fontSize: "0.8rem",
-                  marginBottom: "3rem",
-                  opacity: 0.7,
+                  opacity: 0.8,
+                  marginBottom: '1rem',
+                  ...data.config?.layout?.eventType
                 }}
               >
-                You Are Cordially Invited To
+                {data.eventType || "You Are Invited"}
               </div>
 
+              {/* Title */}
               <h1
                 style={{
-                  fontFamily: '"Times New Roman", Times, serif',
                   fontSize: "3rem",
-                  marginBottom: "1rem",
                   lineHeight: "1.1",
+                  margin: "0 0 1rem 0",
+                  ...data.config?.layout?.title
                 }}
               >
                 {data.title}
               </h1>
 
-              <div style={{ fontSize: "1.2rem", margin: "auto 0 2rem" }}>
-                <p style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
-                  {data.eventType}
-                </p>
-                <hr
-                  style={{
-                    width: "50px",
-                    border: "none",
-                    borderTop: "2px solid rgba(0,0,0,0.1)",
-                    margin: "1rem auto",
-                  }}
-                />
-              </div>
+              {/* Divider if no custom config or if explicitly requested (could be added to config later) */}
+              {!data.config && (
+                <div style={{ fontSize: "1.2rem", margin: "auto 0 2rem" }}>
+                  <hr
+                    style={{
+                      width: "50px",
+                      border: "none",
+                      borderTop: "2px solid rgba(0,0,0,0.1)",
+                      margin: "1rem auto",
+                    }}
+                  />
+                </div>
+              )}
 
-              <div style={{ fontSize: "1.1rem", lineHeight: "1.6" }}>
-                <p>
+              {/* Details Section */}
+              <div style={{
+                fontSize: "1.1rem",
+                lineHeight: "1.6",
+                marginTop: 'auto',
+                ...data.config?.layout?.details
+              }}>
+                <p style={{ fontWeight: 'bold' }}>
                   {data.date
                     ? new Date(data.date).toLocaleDateString(undefined, {
                       weekday: "long",
@@ -494,7 +465,7 @@ function PreviewContent() {
                     : "Date"}
                 </p>
                 <p>{data.time || "Time"}</p>
-                <p style={{ marginTop: "1rem" }}>{data.location}</p>
+                <p style={{ marginTop: "0.5rem" }}>{data.location}</p>
               </div>
             </div>
           </div>
