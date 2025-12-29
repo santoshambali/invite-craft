@@ -1,18 +1,17 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import styles from './page.module.css';
+import Card from './Card';
+import Button from './Button';
+import styles from './CreateOptionsModal.module.css';
 
-export default function CreatePage() {
-    const router = useRouter();
+export default function CreateOptionsModal({ isOpen, onClose }) {
+    if (!isOpen) return null;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.modal}>
+        <div className={styles.overlay} onClick={onClose}>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <button
-                    onClick={() => router.back()}
+                    onClick={onClose}
                     className={styles.closeButton}
                     aria-label="Close modal"
                 >
@@ -26,7 +25,7 @@ export default function CreatePage() {
                 <p className={styles.subheading}>How would you like to start designing?</p>
 
                 <div className={styles.grid}>
-                    <Link href="/create/ai">
+                    <Link href="/create/ai" onClick={onClose} style={{ textDecoration: 'none', height: '100%' }}>
                         <Card interactive className={styles.optionCard}>
                             <div className={styles.cardContent}>
                                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={styles.icon}>
@@ -45,7 +44,7 @@ export default function CreatePage() {
                         </Card>
                     </Link>
 
-                    <Link href="/create/templates">
+                    <Link href="/create/templates" onClick={onClose} style={{ textDecoration: 'none', height: '100%' }}>
                         <Card interactive className={styles.optionCard}>
                             <div className={styles.cardContent}>
                                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={styles.icon}>

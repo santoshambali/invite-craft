@@ -5,6 +5,7 @@ import { isAuthenticated, getUserId } from './utils/auth';
 import { getUserInvitations, deleteInvitation, getViewUrl, getShareUrl } from './services/invitationService';
 import Header from './components/Header';
 import ShareModal from './components/ShareModal';
+import CreateOptionsModal from './components/CreateOptionsModal';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -13,6 +14,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
 
   useEffect(() => {
@@ -113,6 +115,12 @@ export default function Dashboard() {
     <div className={styles.layout}>
       <Header />
 
+      {/* Create Options Modal */}
+      <CreateOptionsModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+      />
+
       {/* Share Modal */}
       {shareData && (
         <ShareModal
@@ -125,12 +133,12 @@ export default function Dashboard() {
       )}
 
       <main className={styles.mainContent}>
-        <div className={styles.pageHeader}>
+        {/* <div className={styles.pageHeader}>
           <div className={styles.welcomeSection}>
             <h1>Dashboard</h1>
             <p>Manage your events and invitations</p>
           </div>
-        </div>
+        </div> */}
 
         {error && (
           <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '12px', marginBottom: '2rem' }}>
@@ -140,7 +148,7 @@ export default function Dashboard() {
 
         <div className={styles.gridContainer}>
           {/* Create New Card */}
-          <div className={styles.createCard} onClick={() => router.push('/create')}>
+          <div className={styles.createCard} onClick={() => setCreateModalOpen(true)}>
             <div className={styles.createIcon}>+</div>
             <span className={styles.createText}>Create Invitation</span>
           </div>
@@ -200,17 +208,19 @@ export default function Dashboard() {
                 {/* Actions */}
                 <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
                   <button
-                    className={styles.actionBtn + ' ' + styles.btnAccent}
+                    className={styles.btnIcon}
                     onClick={(e) => { e.stopPropagation(); handleEdit(invitation); }}
+                    title="Edit"
                   >
-                    ✏️ Edit
+                    ✏️
                   </button>
 
                   <button
-                    className={styles.actionBtn + ' ' + styles.btnPrimary}
+                    className={styles.btnIcon}
                     onClick={(e) => handleShare(e, invitation.id)}
+                    title="Share"
                   >
-                    📤 Share
+                    📤
                   </button>
 
                   {(invitation.viewUrl || invitation.imageUrl) && (

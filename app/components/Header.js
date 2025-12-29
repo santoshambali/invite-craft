@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './Header.module.css';
+import CreateOptionsModal from './CreateOptionsModal';
 
 export default function Header() {
     const router = useRouter();
@@ -14,6 +15,7 @@ export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const dropdownRef = useRef(null);
 
@@ -37,9 +39,10 @@ export default function Header() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Close mobile menu on route change
+    // Close mobile menu and modals on route change
     useEffect(() => {
         setIsMobileMenuOpen(false);
+        setIsCreateModalOpen(false);
     }, [pathname]);
 
     const handleLogout = async () => {
@@ -54,12 +57,7 @@ export default function Header() {
         return 'U';
     };
 
-    const navItems = [
-        { name: 'Dashboard', path: '/' },
-        { name: 'Templates', path: '/templates' },
-        { name: 'Profile', path: '/profile' },
-        { name: 'Settings', path: '/settings' },
-    ];
+    const navItems = [];
 
     // Check if we are on an auth page
     const isAuthPage = pathname === '/login' || pathname === '/register';
@@ -89,22 +87,12 @@ export default function Header() {
                 ) : (
                     <>
                         {/* Desktop Navigation */}
-                        <nav className={styles.navDesktop}>
-                            {navItems.map((item) => (
-                                <Link key={item.path} href={item.path} style={{ textDecoration: 'none' }}>
-                                    <div className={`${styles.navItem} ${pathname === item.path ? styles.active : ''}`}>
-                                        {item.name}
-                                    </div>
-                                </Link>
-                            ))}
-                        </nav>
+
 
                         {/* Actions */}
                         <div className={styles.actions}>
                             {/* Create Button (Desktop) */}
-                            <Link href="/create" className={styles.createButton}>
-                                <span>+</span> New Invitation
-                            </Link>
+
 
                             {/* Profile Dropdown (Desktop) */}
                             {isAuthenticated && (
@@ -160,15 +148,7 @@ export default function Header() {
             {/* Mobile Menu Overlay - Only for non-auth pages */}
             {!isAuthPage && (
                 <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-                    {navItems.map((item) => (
-                        <Link key={item.path} href={item.path} className={styles.mobileNavLink}>
-                            {item.name}
-                        </Link>
-                    ))}
-                    <div style={{ height: '1px', background: '#f1f5f9', margin: '1rem 0' }}></div>
-                    <Link href="/create" className={styles.mobileNavLink} style={{ color: 'var(--primary-color)' }}>
-                        + New Invitation
-                    </Link>
+
                     {isAuthenticated && (
                         <div className={styles.mobileNavLink} onClick={handleLogout} style={{ color: '#ef4444' }}>
                             Logout
@@ -176,6 +156,8 @@ export default function Header() {
                     )}
                 </div>
             )}
+
+            <CreateOptionsModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
         </header>
     );
 }
