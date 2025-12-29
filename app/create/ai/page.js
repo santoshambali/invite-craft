@@ -1,97 +1,453 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Card from '../../components/Card';
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import {
+    generateInvitationImage,
+    saveInvitationWithImage,
+    updateInvitationWithImage,
+    getShareUrl
+} from '../../services/invitationService';
+import Toast from '../../components/Toast';
+import ShareModal from '../../components/ShareModal';
 import styles from './page.module.css';
 
 export default function AICreatePage() {
     const router = useRouter();
+    const imageRef = useRef(null);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
+    const [savedInvitation, setSavedInvitation] = useState(null);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareData, setShareData] = useState(null);
+    const [toast, setToast] = useState({
+        show: false,
+        message: '',
+        type: 'success'
+    });
+
     const [formData, setFormData] = useState({
         eventType: '',
         title: '',
         date: '',
+        time: '',
         location: '',
-        theme: ''
+        description: '',
+        designStyle: ''
     });
+
+    const eventTypes = [
+        { id: 'party', label: 'Party', icon: '🎉' },
+        { id: 'birthday', label: 'Birthday', icon: '🎂' },
+        { id: 'corporate', label: 'Corporate', icon: '💼' },
+        { id: 'party', label: 'Party', icon: '🎊' },
+        { id: 'conference', label: 'Conference', icon: '📊' }
+    ];
+
+    const designStyles = [
+        { id: 'formal', label: 'Formal', description: 'Elegant and professional' },
+        { id: 'casual', label: 'Casual', description: 'Relaxed and friendly' },
+        { id: 'modern', label: 'Modern', description: 'Clean and contemporary' },
+        { id: 'vintage', label: 'Vintage', description: 'Classic and timeless' }
+    ];
+
+    const showToast = (msg, type = 'success') => {
+        setToast({ show: true, message: msg, type });
+        setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleEventTypeSelect = (type) => {
+        setFormData({ ...formData, eventType: type });
+    };
+
+    const handleDesignStyleSelect = (style) => {
+        setFormData({ ...formData, designStyle: style });
+    };
+
+    const handleGenerate = async (e) => {
         e.preventDefault();
         setLoading(true);
-        // Mimic API delay
-        setTimeout(() => {
-            // In a real app, we'd pass this data to an API
-            // For now, we'll store in localStorage to pass to preview
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('previewData', JSON.stringify({
-                    ...formData,
-                    isAI: true,
-                    // Mocking a generated design ID or content
-                    designId: 'ai-generated-' + Date.now()
-                }));
+
+        try {
+            // Generate AI invitation image
+            const imageUrl = await generateInvitationImage({
+                event_type: formData.eventType,
+                title: formData.title,
+                date: formData.date,
+                time: formData.time,
+                location: formData.location,
+                description: formData.description,
+                style: formData.designStyle
+            });
+
+            setGeneratedImageUrl(imageUrl);
+            showToast('Invitation generated successfully!');
+        } catch (error) {
+            console.error('Error generating invitation:', error);
+            showToast('Failed to generate invitation. Please try again.', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!generatedImageUrl) {
+            showToast('Please generate an invitation first', 'warning');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            // Convert the image URL to a data URL
+            let imageDataUrl;
+
+            try {
+                // Fetch the image and convert to data URL
+                const response = await fetch(generatedImageUrl);
+                const blob = await response.blob();
+
+                // Convert blob to data URL
+                imageDataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (fetchError) {
+                console.error('Error fetching image:', fetchError);
+                // If fetch fails, try using the URL directly
+                imageDataUrl = generatedImageUrl;
             }
-            router.push('/preview');
-        }, 1500);
+
+            let result;
+
+            if (savedInvitation?.id) {
+                // Update existing invitation
+                result = await updateInvitationWithImage(
+                    savedInvitation.id,
+                    {
+                        ...formData,
+                        templateId: 'ai-generated',
+                        category: 'ai',
+                        eventType: formData.eventType
+                    },
+                    imageDataUrl
+                );
+                showToast('Invitation updated successfully!');
+            } else {
+                // Save new invitation
+                result = await saveInvitationWithImage(
+                    {
+                        ...formData,
+                        templateId: 'ai-generated',
+                        category: 'ai',
+                        eventType: formData.eventType
+                    },
+                    imageDataUrl
+                );
+                showToast('Invitation saved successfully!');
+            }
+
+            setSavedInvitation(result);
+
+            // Also save to localStorage for backward compatibility
+            if (typeof window !== 'undefined') {
+                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
+                const savedEvent = {
+                    ...formData,
+                    id: result.id || Date.now().toString(),
+                    invitationId: result.id,
+                    imageUrl: result.imageUrl,
+                    status: result.status || 'Draft',
+                    createdAt: result.createdAt || new Date().toISOString(),
+                    templateId: 'ai-generated',
+                    category: 'ai'
+                };
+
+                const existingIndex = allEvents.findIndex(e => e.id === savedEvent.id);
+                if (existingIndex >= 0) {
+                    // Update existing
+                    allEvents[existingIndex] = savedEvent;
+                } else {
+                    // Create new
+                    allEvents.unshift(savedEvent);
+                }
+                localStorage.setItem('myEvents', JSON.stringify(allEvents));
+            }
+        } catch (error) {
+            console.error('Error saving invitation:', error);
+            showToast(error.message || 'Failed to save invitation. Please try again.', 'error');
+
+            // Fallback to localStorage-only save
+            if (typeof window !== 'undefined') {
+                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
+                const dateId = Date.now().toString();
+                const newEvent = {
+                    ...formData,
+                    id: dateId,
+                    status: 'Draft',
+                    templateId: 'ai-generated',
+                    category: 'ai',
+                    imageUrl: generatedImageUrl
+                };
+                allEvents.unshift(newEvent);
+                localStorage.setItem('myEvents', JSON.stringify(allEvents));
+                setSavedInvitation({ id: dateId });
+                showToast('Saved locally (offline mode)', 'warning');
+            }
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDownload = async () => {
+        if (!generatedImageUrl) {
+            showToast('Please generate an invitation first', 'warning');
+            return;
+        }
+
+        try {
+            // Create a temporary link to download the image
+            const link = document.createElement('a');
+            link.href = generatedImageUrl;
+            link.download = `${formData.title || 'invitation'}.png`;
+
+            // For cross-origin images, we need to fetch and convert to blob
+            const response = await fetch(generatedImageUrl);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            link.href = blobUrl;
+            link.click();
+
+            // Clean up
+            URL.revokeObjectURL(blobUrl);
+            showToast('Download started!');
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            showToast('Failed to download image', 'error');
+        }
+    };
+
+    const handleShare = async () => {
+        if (!savedInvitation?.id) {
+            showToast('Please save the invitation first before sharing', 'warning');
+            return;
+        }
+
+        try {
+            const shareUrlData = await getShareUrl(savedInvitation.id);
+            setShareData(shareUrlData);
+            setShareModalOpen(true);
+        } catch (error) {
+            console.error('Error getting share URL:', error);
+            showToast('Failed to get share link. Please try again.', 'error');
+        }
     };
 
     return (
         <div className={styles.container}>
-            <Card className={styles.formCard}>
-                <h1 className={styles.heading}>Describe Your Event</h1>
-                <form onSubmit={handleSubmit}>
-                    <Input
-                        label="Event Type"
-                        name="eventType"
-                        placeholder="Birthday, Wedding, etc."
-                        value={formData.eventType}
-                        onChange={handleChange}
-                        required
-                    />
-                    <Input
-                        label="Invitation Title"
-                        name="title"
-                        placeholder="Sarah's 30th Birthday Bash"
-                        value={formData.title}
-                        onChange={handleChange}
-                        required
-                    />
-                    <Input
-                        label="Date & Time"
-                        name="date"
-                        type="datetime-local"
-                        value={formData.date}
-                        onChange={handleChange}
-                        required
-                    />
-                    <Input
-                        label="Location"
-                        name="location"
-                        placeholder="123 Party Lane, Fun City"
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
-                    />
-                    <Input
-                        label="Theme / Vibe"
-                        name="theme"
-                        placeholder="Elegant, Tropical, Cyberpunk..."
-                        value={formData.theme}
-                        onChange={handleChange}
-                    />
+            <Toast visible={toast.show} message={toast.message} type={toast.type} />
 
-                    <div className={styles.actions}>
-                        <Button type="submit">
-                            {loading ? 'Generating...' : 'Generate Invitation ✨'}
-                        </Button>
+            {/* Share Modal */}
+            {shareData && (
+                <ShareModal
+                    isOpen={shareModalOpen}
+                    onClose={() => setShareModalOpen(false)}
+                    shareUrl={shareData.shareUrl}
+                    title={shareData.title}
+                    invitationId={shareData.invitationId}
+                />
+            )}
+
+            <div className={styles.formWrapper}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>AI Invitation Generator</h1>
+                    <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
+                </div>
+
+                <form onSubmit={handleGenerate} className={styles.form}>
+                    {/* Invitation Details Section */}
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <span className={styles.sectionIcon}>✨</span>
+                            <h2 className={styles.sectionTitle}>Invitation Details</h2>
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>
+                                <span className={styles.labelIcon}>📝</span>
+                                Event Title
+                            </label>
+                            <input
+                                type="text"
+                                name="title"
+                                placeholder="e.g., Summer Garden Party"
+                                value={formData.title}
+                                onChange={handleChange}
+                                className={styles.input}
+                                required
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>
+                                <span className={styles.labelIcon}>📅</span>
+                                Date & Time
+                            </label>
+                            <input
+                                type="text"
+                                name="date"
+                                placeholder="e.g., Saturday, June 15th at 6:00 PM"
+                                value={formData.date}
+                                onChange={handleChange}
+                                className={styles.input}
+                                required
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>
+                                <span className={styles.labelIcon}>📍</span>
+                                Location
+                            </label>
+                            <input
+                                type="text"
+                                name="location"
+                                placeholder="e.g., 123 Garden Street, Springfield"
+                                value={formData.location}
+                                onChange={handleChange}
+                                className={styles.input}
+                                required
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>Description</label>
+                            <textarea
+                                name="description"
+                                placeholder="Add any additional details about the event..."
+                                value={formData.description}
+                                onChange={handleChange}
+                                className={styles.textarea}
+                                rows="3"
+                            />
+                        </div>
                     </div>
+
+                    {/* Event Type Section */}
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <h2 className={styles.sectionTitle}>Event Type</h2>
+                        </div>
+                        <div className={styles.eventTypeGrid}>
+                            {eventTypes.map((type) => (
+                                <button
+                                    key={type.id}
+                                    type="button"
+                                    onClick={() => handleEventTypeSelect(type.id)}
+                                    className={`${styles.eventTypeCard} ${formData.eventType === type.id ? styles.selected : ''
+                                        }`}
+                                >
+                                    <span className={styles.eventTypeIcon}>{type.icon}</span>
+                                    <span className={styles.eventTypeLabel}>{type.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Design Style Section */}
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <span className={styles.sectionIcon}>🎨</span>
+                            <h2 className={styles.sectionTitle}>Design Style</h2>
+                        </div>
+                        <div className={styles.designStyleGrid}>
+                            {designStyles.map((style) => (
+                                <button
+                                    key={style.id}
+                                    type="button"
+                                    onClick={() => handleDesignStyleSelect(style.id)}
+                                    className={`${styles.designStyleCard} ${formData.designStyle === style.id ? styles.selected : ''
+                                        }`}
+                                >
+                                    <div className={styles.designStyleContent}>
+                                        <h3 className={styles.designStyleLabel}>{style.label}</h3>
+                                        <p className={styles.designStyleDescription}>{style.description}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Generate Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={styles.generateButton}
+                    >
+                        <span className={styles.buttonIcon}>✨</span>
+                        {loading ? 'Generating Invitation...' : 'Generate Invitation'}
+                    </button>
                 </form>
-            </Card>
+
+                {/* Preview Section */}
+                <div className={styles.previewSection}>
+                    <h2 className={styles.previewTitle}>Preview</h2>
+                    <div className={styles.previewBox}>
+                        {generatedImageUrl ? (
+                            <img
+                                ref={imageRef}
+                                src={generatedImageUrl}
+                                alt="Generated Invitation"
+                                className={styles.previewImage}
+                            />
+                        ) : (
+                            <div className={styles.previewPlaceholder}>
+                                <span className={styles.placeholderIcon}>⭐</span>
+                                <p className={styles.placeholderText}>Your invitation will appear here</p>
+                                <p className={styles.placeholderSubtext}>Fill in the details and click generate</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Action Buttons - Show only when invitation is generated */}
+                    {generatedImageUrl && (
+                        <div className={styles.actionButtons}>
+                            <button
+                                onClick={handleDownload}
+                                className={styles.actionButton}
+                                type="button"
+                            >
+                                <span className={styles.actionIcon}>⬇️</span>
+                                Download
+                            </button>
+                            <button
+                                onClick={handleShare}
+                                className={styles.actionButton}
+                                disabled={!savedInvitation}
+                                type="button"
+                            >
+                                <span className={styles.actionIcon}>📤</span>
+                                Share
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className={`${styles.actionButton} ${styles.primaryAction}`}
+                                disabled={saving}
+                                type="button"
+                            >
+                                <span className={styles.actionIcon}>💾</span>
+                                {saving ? 'Saving...' : savedInvitation ? 'Update' : 'Save'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
