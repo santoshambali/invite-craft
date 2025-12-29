@@ -6,6 +6,7 @@ import {
     shareOnTwitter,
     shareOnLinkedIn,
     shareOnTelegram,
+    shareOnInstagram,
     shareViaEmail,
     copyToClipboard,
     shareNative,
@@ -13,9 +14,45 @@ import {
 } from "../utils/shareUtils";
 import styles from "./ShareModal.module.css";
 
+// SVG Icons
+const Icons = {
+    WhatsApp: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+    ),
+    Facebook: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    ),
+    X: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" stroke="none"></path></svg>
+    ),
+    LinkedIn: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+    ),
+    Instagram: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    ),
+    Telegram: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    ),
+    Email: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+    ),
+    Copy: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+    ),
+    Check: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"></polyline></svg>
+    ),
+    Close: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    ),
+    Share: (props) => (
+        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+    )
+};
+
 export default function ShareModal({ isOpen, onClose, shareUrl, title, invitationId }) {
     const [copied, setCopied] = useState(false);
-    const [showTooltip, setShowTooltip] = useState(false);
 
     if (!isOpen) return null;
 
@@ -36,7 +73,6 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
             url: shareUrl,
         });
         if (!success) {
-            // Fallback to copy if native share fails
             handleCopy();
         }
     };
@@ -44,38 +80,51 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
     const socialPlatforms = [
         {
             name: "WhatsApp",
-            icon: "📱",
+            Icon: Icons.WhatsApp,
             color: "#25D366",
+            bg: "#dcf8c6",
             action: () => shareOnWhatsApp(shareUrl, shareText),
         },
         {
             name: "Facebook",
-            icon: "📘",
+            Icon: Icons.Facebook,
             color: "#1877F2",
+            bg: "#e7f3ff",
             action: () => shareOnFacebook(shareUrl),
         },
         {
-            name: "Twitter",
-            icon: "🐦",
-            color: "#1DA1F2",
+            name: "X",
+            Icon: Icons.X,
+            color: "#000000",
+            bg: "#e7e7e7",
             action: () => shareOnTwitter(shareUrl, shareText),
         },
         {
             name: "LinkedIn",
-            icon: "💼",
+            Icon: Icons.LinkedIn,
             color: "#0A66C2",
+            bg: "#e1f0f8",
             action: () => shareOnLinkedIn(shareUrl),
         },
         {
+            name: "Instagram",
+            Icon: Icons.Instagram,
+            color: "#E1306C",
+            bg: "#fce9ef",
+            action: () => shareOnInstagram(shareUrl),
+        },
+        {
             name: "Telegram",
-            icon: "✈️",
+            Icon: Icons.Telegram,
             color: "#0088cc",
+            bg: "#e0f2fa",
             action: () => shareOnTelegram(shareUrl, shareText),
         },
         {
             name: "Email",
-            icon: "📧",
+            Icon: Icons.Email,
             color: "#EA4335",
+            bg: "#fce8e6",
             action: () => shareViaEmail(shareUrl, title || "Invitation", shareText),
         },
     ];
@@ -85,20 +134,24 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.header}>
                     <h2 className={styles.title}>Share Invitation</h2>
-                    <button className={styles.closeButton} onClick={onClose}>
-                        ✕
+                    <button
+                        className={styles.closeButton}
+                        onClick={onClose}
+                        aria-label="Close modal"
+                    >
+                        <Icons.Close size={20} />
                     </button>
                 </div>
 
                 <div className={styles.content}>
                     <p className={styles.description}>
-                        Share this beautiful invitation with your guests
+                        Share this invitation with your friends and family directly from here.
                     </p>
 
-                    {/* Native Share Button (Mobile) */}
+                    {/* Native Share Button (Mobile friendly but shown always as primary action if supported) */}
                     {isNativeShareSupported() && (
                         <button className={styles.nativeShareButton} onClick={handleNativeShare}>
-                            <span className={styles.shareIcon}>📤</span>
+                            <Icons.Share size={20} />
                             Share via...
                         </button>
                     )}
@@ -110,9 +163,14 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
                                 key={platform.name}
                                 className={styles.socialButton}
                                 onClick={platform.action}
-                                style={{ "--platform-color": platform.color }}
+                                style={{
+                                    "--platform-color": platform.color,
+                                    "--platform-bg": platform.bg
+                                }}
                             >
-                                <span className={styles.platformIcon}>{platform.icon}</span>
+                                <div className={styles.iconContainer}>
+                                    <platform.Icon size={24} />
+                                </div>
                                 <span className={styles.platformName}>{platform.name}</span>
                             </button>
                         ))}
@@ -127,14 +185,14 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
                                 readOnly
                                 className={styles.urlInput}
                                 onClick={(e) => e.target.select()}
+                                aria-label="Share URL"
                             />
                             <button
                                 className={`${styles.copyButton} ${copied ? styles.copied : ""}`}
                                 onClick={handleCopy}
-                                onMouseEnter={() => setShowTooltip(true)}
-                                onMouseLeave={() => setShowTooltip(false)}
                             >
-                                {copied ? "✓ Copied!" : "📋 Copy"}
+                                {copied ? <Icons.Check size={18} /> : <Icons.Copy size={18} />}
+                                {copied ? "Copied" : "Copy"}
                             </button>
                         </div>
                     </div>

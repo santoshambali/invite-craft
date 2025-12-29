@@ -84,7 +84,7 @@ export const copyToClipboard = async (url) => {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-      
+
       try {
         document.execCommand('copy');
         document.body.removeChild(textArea);
@@ -131,12 +131,22 @@ export const isNativeShareSupported = () => {
   return typeof navigator !== 'undefined' && !!navigator.share;
 };
 
+/**
+ * Share on Instagram
+ * Note: Instagram does not support direct web sharing via URL.
+ * We open Instagram for the user to paste the link or upload content manually.
+ */
+export const shareOnInstagram = () => {
+  window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+};
+
 export default {
   shareOnWhatsApp,
   shareOnFacebook,
   shareOnTwitter,
   shareOnLinkedIn,
   shareOnTelegram,
+  shareOnInstagram,
   shareViaEmail,
   copyToClipboard,
   shareNative,
