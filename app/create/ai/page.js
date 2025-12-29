@@ -297,13 +297,27 @@ export default function AICreatePage() {
                         <div className={styles.formGroup}>
                             <label className={styles.label}>
                                 <span className={styles.labelIcon}>📅</span>
-                                Date & Time
+                                Date
                             </label>
                             <input
-                                type="text"
+                                type="date"
                                 name="date"
-                                placeholder="e.g., Saturday, June 15th at 6:00 PM"
                                 value={formData.date}
+                                onChange={handleChange}
+                                className={styles.input}
+                                required
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label className={styles.label}>
+                                <span className={styles.labelIcon}>🕐</span>
+                                Time
+                            </label>
+                            <input
+                                type="time"
+                                name="time"
+                                value={formData.time}
                                 onChange={handleChange}
                                 className={styles.input}
                                 required
