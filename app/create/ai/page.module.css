@@ -5,6 +5,7 @@
     flex-direction: column;
     overflow: hidden;
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf4 100%);
+    padding-top: var(--header-height);
 }
 
 .container {

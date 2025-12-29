@@ -1,6 +1,7 @@
 /* app/templates/page.module.css */
 .container {
     padding: 2rem 1.5rem;
+    padding-top: calc(var(--header-height) + 2rem);
     max-width: 1440px;
     margin: 0 auto;
     min-height: 100vh;

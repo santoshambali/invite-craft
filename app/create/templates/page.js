@@ -31,7 +31,7 @@ export default function TemplatesPage() {
     return (
         <div className={styles.container}>
             <div className={styles.modal}>
-                <button
+                {/* <button
                     onClick={() => router.back()}
                     className={styles.backButton}
                     aria-label="Go back"
@@ -40,12 +40,12 @@ export default function TemplatesPage() {
                         <path d="M19 12H5" />
                         <path d="M12 19l-7-7 7-7" />
                     </svg>
-                </button>
+                </button> */}
 
-                <header className={styles.header}>
+                {/* <header className={styles.header}>
                     <h1 className={styles.heading}>Choose a Template</h1>
                     <p className={styles.subtitle}>Start with a beautiful, professionally designed template</p>
-                </header>
+                </header> */}
 
                 <div className={styles.filters}>
                     {TEMPLATE_CATEGORIES.map(cat => (

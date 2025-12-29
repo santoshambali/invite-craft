@@ -4,6 +4,7 @@
     display: flex;
     background-color: var(--bg-app);
     overflow: hidden;
+    padding-top: var(--header-height);
     /* Prevent body scroll if panel scrolls */
 }
 
@@ -16,7 +17,7 @@
     border-right: 1px solid var(--glass-border);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - var(--header-height));
     overflow-y: auto;
     position: relative;
     z-index: 20;

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useInvitations } from '../contexts/InvitationContext';
 import styles from './Header.module.css';
 import CreateOptionsModal from './CreateOptionsModal';
 
@@ -11,6 +12,7 @@ export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
     const { logout, user, isAuthenticated } = useAuth();
+    const { invitationCount } = useInvitations();
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -91,6 +93,14 @@ export default function Header() {
 
                         {/* Actions */}
                         <div className={styles.actions}>
+                            {/* Invitation Count Badge */}
+                            {isAuthenticated && (
+                                <div className={styles.invitationBadge} title="Total Invitations">
+                                    <span className={styles.badgeIcon}>💌</span>
+                                    <span className={styles.badgeCount}>{invitationCount}</span>
+                                </div>
+                            )}
+
                             {/* Create Button (Desktop) */}
 
 

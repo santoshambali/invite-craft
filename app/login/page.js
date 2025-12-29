@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Header from '../components/Header';
+
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Toast from '../components/Toast';
@@ -126,7 +126,7 @@ function LoginForm() {
 
     return (
         <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Header />
+
             <div className={styles.container}>
                 <Toast message={toast.message} visible={toast.visible} type={toast.type} />
 

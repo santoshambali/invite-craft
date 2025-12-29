@@ -1,7 +1,8 @@
 /* components/Header.module.css */
 .header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
     z-index: 1000;
     width: 100%;
     height: var(--header-height);
@@ -132,6 +133,36 @@
     background: var(--primary-hover);
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+}
+
+/* Invitation Badge */
+.invitationBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--glass-border);
+    transition: var(--transition-fast);
+    cursor: default;
+    user-select: none;
+}
+
+.invitationBadge:hover {
+    background: white;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.badgeIcon {
+    font-size: 1rem;
+}
+
+.badgeCount {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-color);
 }
 
 /* User Menu */

@@ -6,12 +6,14 @@ import Button from "../components/Button";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
 import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
+import { useInvitations } from "../contexts/InvitationContext";
 import styles from "./page.module.css";
 
 function PreviewContent() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get("id");
   const cardRef = useRef(null);
+  const { refreshInvitations } = useInvitations();
 
   const [toast, setToast] = useState({
     show: false,
@@ -198,6 +200,9 @@ function PreviewContent() {
           }));
         }
       }
+
+      // Refresh global invitation count
+      refreshInvitations();
 
       showToast("Invitation saved successfully!");
     } catch (error) {

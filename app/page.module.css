@@ -12,6 +12,7 @@
   max-width: 1440px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
+  padding-top: calc(var(--header-height) + 2rem);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -25,26 +26,27 @@
   align-items: flex-end;
   margin-top: 1rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .welcomeSection h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 .welcomeSection p {
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   max-width: 600px;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 /* --- Grid Layout --- */
@@ -71,32 +73,31 @@
 
 /* --- Card Design --- */
 .card {
-  background: var(--bg-surface);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--backdrop-blur));
   border-radius: var(--radius-xl);
   overflow: hidden;
   position: relative;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-normal);
+  box-shadow: var(--shadow-md);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl);
-  border-color: rgba(99, 102, 241, 0.1);
-}
-
-.card:hover .cardImage {
-  transform: scale(1.08);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.3);
+  z-index: 10;
 }
 
 /* Image Section */
 .cardImageWrapper {
   width: 100%;
   aspect-ratio: 16/10;
-  background: var(--bg-surface-hover);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -109,9 +110,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 50%);
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.6), transparent);
   opacity: 0;
-  transition: var(--transition-normal);
+  transition: opacity 0.3s ease;
 }
 
 .card:hover .cardImageWrapper::after {
@@ -122,7 +123,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.8s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.card:hover .cardImage {
+  transform: scale(1.1);
 }
 
 .cardPlaceholder {
@@ -137,7 +142,6 @@
   letter-spacing: 0.1em;
   padding: 1rem;
   text-align: center;
-  opacity: 0.7;
 }
 
 /* Content Section */
@@ -146,7 +150,8 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 1rem;
+  gap: 1.25rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 100%);
 }
 
 .cardHeader {
@@ -160,196 +165,187 @@
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.4;
+  line-height: 1.3;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.card:hover .cardTitle {
+  color: var(--primary-color);
 }
 
 /* Badges */
-.statusBadge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-full);
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.statusPublished {
-  background-color: var(--status-success-bg);
-  color: var(--status-success);
-}
-
-.statusDraft {
-  background-color: var(--status-warning-bg);
-  color: var(--status-warning);
-}
 
 .eventTypeTag {
-  align-self: flex-start;
-  display: inline-flex;
-  font-size: 0.75rem;
-  color: var(--primary-color);
-  background-color: var(--primary-light);
-  padding: 0.35rem 0.85rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.4rem 0.85rem;
   border-radius: var(--radius-full);
-  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.2) 100%);
+  color: var(--primary-color);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
 }
 
 /* Meta Data Grid */
 .cardMeta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   margin-top: auto;
   padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .metaItem {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.75rem;
+  transition: transform 0.2s ease;
+}
+
+.card:hover .metaItem {
+  transform: translateX(4px);
 }
 
 .metaIcon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.6;
-  filter: grayscale(1);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Actions Footer */
 .cardActions {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.5rem;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
 }
 
-.actionBtn {
-  display: inline-flex;
+.actionGroup {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.6rem;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  text-decoration: none;
   gap: 0.5rem;
-  white-space: nowrap;
 }
 
-/* Primary Action (Share) goes first now */
-.btnPrimary {
-  /* grid-column: 1 / 2; - removed as we use flex now */
-  background-color: var(--text-primary);
-  color: white;
+.card:hover .cardActions {
+  opacity: 1;
 }
 
-.btnPrimary:hover {
-  background-color: #1e293b;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Edit Button as Icon */
 .btnIcon {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 auto;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: transparent;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: white;
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition-fast);
+  transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .btnIcon:hover {
-  background: var(--bg-surface-hover);
-  color: var(--primary-color);
-  border-color: var(--primary-light);
-}
-
-.btnAccent {
-  /* Used for Edit now maybe? Or highlight */
-  background: var(--primary-light);
-  color: var(--primary-color);
+  transform: translateY(-4px) scale(1.1);
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
 .btnIconDelete:hover {
-  background: var(--status-error-bg);
-  color: var(--status-error);
-  border-color: transparent;
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* --- Create Card --- */
 .createCard {
-  background: rgba(255, 255, 255, 0.6);
-  border: 2px dashed rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border: 2px dashed rgba(99, 102, 241, 0.2);
   border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  min-height: 480px;
-  /* Match approximate height of other cards */
-  transition: var(--transition-normal);
-  text-decoration: none;
+  min-height: 400px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   gap: 1.5rem;
   position: relative;
   overflow: hidden;
 }
 
+.createCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-gradient);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 0;
+}
+
 .createCard:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: var(--primary-color);
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-12px);
+  border-style: solid;
+  border-color: transparent;
+  box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.2);
+}
+
+.createCard:hover::before {
+  opacity: 0.05;
 }
 
 .createIcon {
-  width: 64px;
-  height: 64px;
-  background: var(--primary-light);
+  width: 72px;
+  height: 72px;
+  background: white;
   color: var(--primary-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  box-shadow: 0 0 0 8px rgba(224, 231, 255, 0.4);
-  transition: var(--transition-fast);
+  font-size: 2.25rem;
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1;
 }
 
 .createCard:hover .createIcon {
   transform: scale(1.1) rotate(90deg);
   background: var(--primary-color);
   color: white;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.3);
 }
 
 .createText {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  z-index: 1;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* --- Empty State --- */
@@ -361,9 +357,11 @@
   justify-content: center;
   padding: 6rem 2rem;
   text-align: center;
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--backdrop-blur));
   border-radius: var(--radius-xl);
-  border: 2px dashed rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 /* --- Responsive --- */
@@ -374,7 +372,7 @@
 
   .gridContainer {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
   }
 
   .pageHeader {

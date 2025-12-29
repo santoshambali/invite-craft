@@ -11,7 +11,7 @@ import {
 } from '../../services/invitationService';
 import Toast from '../../components/Toast';
 import ShareModal from '../../components/ShareModal';
-import Header from '../../components/Header';
+
 import styles from './page.module.css';
 
 function AICreatePageContent() {
@@ -328,7 +328,7 @@ function AICreatePageContent() {
 
     return (
         <div className={styles.mainLayout}>
-            <Header />
+
             <div className={styles.container}>
                 <Toast visible={toast.show} message={toast.message} type={toast.type} />
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Header from '../components/Header';
+
 import styles from './page.module.css';
 import { useRouter } from 'next/navigation';
 
@@ -90,7 +90,7 @@ export default function TemplatesPage() {
 
     return (
         <div>
-            <Header />
+
             <div className={styles.container}>
                 <h1 className={styles.title}>Browse Templates</h1>
                 <p className={styles.subtitle}>Start with a professionally designed template</p>
