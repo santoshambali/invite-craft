@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
     generateInvitationImage,
@@ -14,7 +14,7 @@ import ShareModal from '../../components/ShareModal';
 import Header from '../../components/Header';
 import styles from './page.module.css';
 
-export default function AICreatePage() {
+function AICreatePageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
@@ -45,7 +45,7 @@ export default function AICreatePage() {
         { id: 'party', label: 'Party', icon: '🎉' },
         { id: 'birthday', label: 'Birthday', icon: '🎂' },
         { id: 'corporate', label: 'Corporate', icon: '💼' },
-        { id: 'party', label: 'Party', icon: '🎊' },
+        { id: 'party_alt', label: 'Party', icon: '🎊' }, // Changed id to be unique
         { id: 'conference', label: 'Conference', icon: '📊' }
     ];
 
@@ -105,8 +105,6 @@ export default function AICreatePage() {
                             url = await getViewUrl(url);
                         } else if (url.includes('storage.googleapis.com') && !url.includes('X-Goog-Signature')) {
                             // Assuming we might need to refresh it, but let's try direct first.
-                            // Actually dashboard logic extracts filename and calls getViewUrl.
-                            // Let's replicate dashboard logic if safe.
                             const filename = url.split('/').pop();
                             try {
                                 const signedUrl = await getViewUrl(filename);
@@ -553,5 +551,13 @@ export default function AICreatePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function AICreatePage() {
+    return (
+        <Suspense fallback={<div>Loading editor...</div>}>
+            <AICreatePageContent />
+        </Suspense>
     );
 }
