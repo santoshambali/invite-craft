@@ -346,13 +346,14 @@ export default function AICreatePage() {
                 )}
 
                 <div className={styles.formWrapper}>
-                    <div className={styles.header}>
-                        <h1 className={styles.title}>AI Invitation Generator</h1>
-                        <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
-                    </div>
-
                     <div className={styles.splitLayout}>
                         <form onSubmit={handleGenerate} className={styles.form}>
+                            {/* Header moved inside scrollable form */}
+                            <div className={styles.header}>
+                                <h1 className={styles.title}>AI Invitation Generator</h1>
+                                <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
+                            </div>
+
                             {/* Invitation Details Section */}
                             <div className={styles.section}>
                                 <div className={styles.sectionHeader}>
