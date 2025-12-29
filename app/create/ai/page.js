@@ -1,11 +1,13 @@
 'use client';
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
     generateInvitationImage,
     saveInvitationWithImage,
     updateInvitationWithImage,
-    getShareUrl
+    getShareUrl,
+    getInvitation,
+    getViewUrl
 } from '../../services/invitationService';
 import Toast from '../../components/Toast';
 import ShareModal from '../../components/ShareModal';
@@ -14,6 +16,8 @@ import styles from './page.module.css';
 
 export default function AICreatePage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
     const imageRef = useRef(null);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -56,6 +60,80 @@ export default function AICreatePage() {
         setToast({ show: true, message: msg, type });
         setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
     };
+
+    // Fetch existing invitation if editing
+    useEffect(() => {
+        const fetchInvitation = async () => {
+            if (!id) return;
+
+            setLoading(true);
+            try {
+                const invitation = await getInvitation(id);
+
+                // Format date and time for inputs
+                let formattedDate = '';
+                if (invitation.date) {
+                    const d = new Date(invitation.date);
+                    if (!isNaN(d.getTime())) {
+                        formattedDate = d.toISOString().split('T')[0];
+                    }
+                }
+
+                let formattedTime = '';
+                if (invitation.time) {
+                    // Assuming time comes as HH:mm:ss or similar
+                    formattedTime = invitation.time.substring(0, 5);
+                }
+
+                setFormData({
+                    eventType: invitation.eventType || '',
+                    title: invitation.title || '',
+                    date: formattedDate,
+                    time: formattedTime,
+                    location: invitation.location || '',
+                    description: invitation.description || '', // Note: description might not be persisted by backend yet
+                    designStyle: invitation.designStyle || 'modern' // Default fallback
+                });
+
+                // Handle Image
+                if (invitation.imageUrl) {
+                    try {
+                        let url = invitation.imageUrl;
+                        // Determine if we need a signed view URL
+                        // Simple heuristic: if it looks like a gs path or simple filename
+                        if (!url.startsWith('http')) {
+                            url = await getViewUrl(url);
+                        } else if (url.includes('storage.googleapis.com') && !url.includes('X-Goog-Signature')) {
+                            // Assuming we might need to refresh it, but let's try direct first.
+                            // Actually dashboard logic extracts filename and calls getViewUrl.
+                            // Let's replicate dashboard logic if safe.
+                            const filename = url.split('/').pop();
+                            try {
+                                const signedUrl = await getViewUrl(filename);
+                                url = signedUrl;
+                            } catch (e) {
+                                // fallback to original url
+                            }
+                        }
+                        setGeneratedImageUrl(url);
+                    } catch (e) {
+                        console.error("Error getting view URL", e);
+                        setGeneratedImageUrl(invitation.imageUrl);
+                    }
+                }
+
+                setSavedInvitation(invitation);
+
+            } catch (error) {
+                console.error('Error fetching invitation:', error);
+                showToast('Failed to load invitation details', 'error');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInvitation();
+    }, [id]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

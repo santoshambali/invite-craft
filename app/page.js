@@ -188,7 +188,18 @@ export default function Dashboard() {
                   </div>
 
                   <div className={styles.actionRow}>
-                    <button className={`${styles.actionBtn} ${styles.btnPurple}`} onClick={() => router.push(`/preview?id=${invitation.id}`)}>✏️ Edit</button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.btnPurple}`}
+                      onClick={() => {
+                        if (invitation.templateId === 'ai-generated') {
+                          router.push(`/create/ai?id=${invitation.id}`);
+                        } else {
+                          router.push(`/preview?id=${invitation.id}`);
+                        }
+                      }}
+                    >
+                      ✏️ Edit
+                    </button>
                     {(invitation.viewUrl || invitation.imageUrl) && (
                       <a
                         href={invitation.viewUrl || invitation.imageUrl}
