@@ -45,7 +45,7 @@ function AICreatePageContent() {
         { id: 'party', label: 'Party', icon: '🎉' },
         { id: 'birthday', label: 'Birthday', icon: '🎂' },
         { id: 'corporate', label: 'Corporate', icon: '💼' },
-        { id: 'party_alt', label: 'Party', icon: '🎊' }, // Changed id to be unique
+        { id: 'celebration', label: 'Celebration', icon: '🎊' },
         { id: 'conference', label: 'Conference', icon: '📊' }
     ];
 
@@ -401,7 +401,6 @@ function AICreatePageContent() {
                                         value={formData.time}
                                         onChange={handleChange}
                                         className={styles.input}
-                                        required
                                     />
                                 </div>
 
@@ -417,7 +416,6 @@ function AICreatePageContent() {
                                         value={formData.location}
                                         onChange={handleChange}
                                         className={styles.input}
-                                        required
                                     />
                                 </div>
 
