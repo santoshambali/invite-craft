@@ -496,7 +496,12 @@ export default function AICreatePage() {
                         <div className={styles.previewSection}>
                             <h2 className={styles.previewTitle}>Preview</h2>
                             <div className={styles.previewBox}>
-                                {generatedImageUrl ? (
+                                {loading ? (
+                                    <div className={styles.loadingState}>
+                                        <div className={styles.spinner}></div>
+                                        <p className={styles.loadingText}>Creating your masterpiece...</p>
+                                    </div>
+                                ) : generatedImageUrl ? (
                                     <img
                                         ref={imageRef}
                                         src={generatedImageUrl}
