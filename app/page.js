@@ -27,7 +27,6 @@ export default function Dashboard() {
         setError(null);
         const userId = getUserId();
         const data = await getUserInvitations(userId);
-        console.log('Dashboard invitations:', data);
 
         // Fetch signed view URLs for each invitation's image
         const invitationsWithViewUrls = await Promise.all(
@@ -59,20 +58,8 @@ export default function Dashboard() {
     fetchInvitations();
   }, [router]);
 
-  if (isLoading) {
-    return (
-      <div className={styles.layout}>
-        <Header />
-        <main className={styles.mainContent}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-            Loading invitations...
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation(); // Prevent card click
     if (!confirm('Are you sure you want to delete this invitation?')) {
       return;
     }
@@ -86,7 +73,8 @@ export default function Dashboard() {
     }
   };
 
-  const handleShare = async (invitationId) => {
+  const handleShare = async (e, invitationId) => {
+    e.stopPropagation();
     try {
       const shareUrlData = await getShareUrl(invitationId);
       setShareData(shareUrlData);
@@ -96,6 +84,30 @@ export default function Dashboard() {
       alert('Failed to get share link. Please try again.');
     }
   };
+
+  const handleEdit = (invitation) => {
+    if (invitation.templateId === 'ai-generated') {
+      router.push(`/create/ai?id=${invitation.id}`);
+    } else {
+      router.push(`/preview?id=${invitation.id}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles.layout}>
+        <Header />
+        <main className={styles.mainContent}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✨</div>
+              <p style={{ color: '#64748b' }}>Loading your beautiful invitations...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.layout}>
@@ -113,120 +125,138 @@ export default function Dashboard() {
       )}
 
       <main className={styles.mainContent}>
+        <div className={styles.pageHeader}>
+          <div className={styles.welcomeSection}>
+            <h1>Dashboard</h1>
+            <p>Manage your events and invitations</p>
+          </div>
+        </div>
+
         {error && (
-          <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '8px', marginBottom: '1rem' }}>
+          <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '12px', marginBottom: '2rem' }}>
             {error}
           </div>
         )}
 
-        {invitations.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <h2>No invitations yet</h2>
-            <p style={{ color: '#666', marginBottom: '1.5rem' }}>Create your first invitation to get started!</p>
-            <button
-              className={`${styles.actionBtn} ${styles.btnPurple}`}
-              onClick={() => router.push('/create')}
-              style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}
-            >
-              Create Invitation
-            </button>
+        <div className={styles.gridContainer}>
+          {/* Create New Card */}
+          <div className={styles.createCard} onClick={() => router.push('/create')}>
+            <div className={styles.createIcon}>+</div>
+            <span className={styles.createText}>Create Invitation</span>
           </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {invitations.map((invitation) => (
-              <div key={invitation.id} className={styles.eventCard}>
-                {/* Left Half - Preview Image */}
-                <div className={styles.eventPreviewSection}>
-                  {invitation.viewUrl || invitation.imageUrl ? (
-                    <img
-                      src={invitation.viewUrl || invitation.imageUrl}
-                      alt={invitation.title || 'Invitation'}
-                      className={styles.eventPreviewImage}
-                      onError={(e) => {
-                        console.error('Image failed to load:', invitation.imageUrl);
-                        e.target.onerror = null;
-                        e.target.src = '';
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = `<div class="${styles.eventPreviewPlaceholder}">${invitation.eventType || 'Event'}<br/>Preview</div>`;
-                      }}
-                    />
-                  ) : (
-                    <div className={styles.eventPreviewPlaceholder}>
-                      {invitation.eventType || 'Event'}<br />Preview
-                    </div>
-                  )}
+
+          {/* Invitation Cards */}
+          {invitations.map((invitation) => (
+            <div key={invitation.id} className={styles.card} onClick={() => handleEdit(invitation)}>
+
+              {/* Image / Preview */}
+              <div className={styles.cardImageWrapper}>
+                {invitation.viewUrl || invitation.imageUrl ? (
+                  <img
+                    src={invitation.viewUrl || invitation.imageUrl}
+                    alt={invitation.title || 'Invitation'}
+                    className={styles.cardImage}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<div class="${styles.cardPlaceholder}"><span>${invitation.eventType || 'Event'}</span><span>Preview</span></div>`;
+                    }}
+                  />
+                ) : (
+                  <div className={styles.cardPlaceholder}>
+                    <span style={{ fontSize: '2rem' }}>🎨</span>
+                    <span>{invitation.eventType || 'No Preview'}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className={styles.cardContent}>
+                <div className={styles.cardHeader}>
+                  <h3 className={styles.cardTitle}>{invitation.title || 'Untitled Invitation'}</h3>
+                  <span className={`${styles.statusBadge} ${(!invitation.status || invitation.status === 'DRAFT') ? styles.statusDraft : styles.statusPublished}`}>
+                    {invitation.status || 'Draft'}
+                  </span>
                 </div>
 
-                {/* Right Half - Event Details */}
-                <div className={styles.eventDetailsSection}>
-                  <div className={styles.eventHeader}>
-                    <h2 className={styles.eventTitle}>{invitation.title || 'Untitled Invitation'}</h2>
-                    <span className={`${styles.statusBadgeInline} ${invitation.status === 'DRAFT' ? styles.draft : ''}`}>
-                      {invitation.status || 'Draft'}
-                    </span>
+                {invitation.eventType && <span className={styles.eventTypeTag}>{invitation.eventType}</span>}
+
+                <div className={styles.cardMeta}>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaIcon}>📅</span>
+                    {invitation.date ? new Date(invitation.date).toLocaleDateString(undefined, {
+                      year: 'numeric', month: 'short', day: 'numeric'
+                    }) : 'Date not set'}
                   </div>
-
-                  {invitation.eventType && <div className={styles.tag}>{invitation.eventType}</div>}
-
-                  <div className={styles.detailsGrid}>
-                    <div className={styles.detailItem}>
-                      <span>📅</span>
-                      <span>{invitation.date ? new Date(invitation.date).toLocaleDateString() : 'Date not set'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span>⏰</span>
-                      <span>{invitation.time || 'Time not set'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span>📍</span>
-                      <span>{invitation.location || 'Location not set'}</span>
-                    </div>
-                    <div className={styles.detailItem}>
-                      <span>🎨</span>
-                      <span>{invitation.templateId || 'Custom'}</span>
-                    </div>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaIcon}>⏰</span>
+                    {invitation.time || 'Time not set'}
                   </div>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaIcon}>📍</span>
+                    {invitation.location || 'Location not set'}
+                  </div>
+                </div>
 
-                  <div className={styles.actionRow}>
-                    <button
-                      className={`${styles.actionBtn} ${styles.btnPurple}`}
-                      onClick={() => {
-                        if (invitation.templateId === 'ai-generated') {
-                          router.push(`/create/ai?id=${invitation.id}`);
-                        } else {
-                          router.push(`/preview?id=${invitation.id}`);
-                        }
-                      }}
+                {/* Actions */}
+                <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={styles.actionBtn + ' ' + styles.btnAccent}
+                    onClick={(e) => { e.stopPropagation(); handleEdit(invitation); }}
+                  >
+                    ✏️ Edit
+                  </button>
+
+                  <button
+                    className={styles.actionBtn + ' ' + styles.btnPrimary}
+                    onClick={(e) => handleShare(e, invitation.id)}
+                  >
+                    📤 Share
+                  </button>
+
+                  {(invitation.viewUrl || invitation.imageUrl) && (
+                    <a
+                      href={invitation.viewUrl || invitation.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.btnIcon}
+                      title="View"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      ✏️ Edit
-                    </button>
-                    {(invitation.viewUrl || invitation.imageUrl) && (
-                      <a
-                        href={invitation.viewUrl || invitation.imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`${styles.actionBtn} ${styles.btnBlue}`}
-                      >
-                        👁️ View
-                      </a>
-                    )}
-                    {(invitation.viewUrl || invitation.imageUrl) && (
-                      <a
-                        href={invitation.viewUrl || invitation.imageUrl}
-                        download={`${invitation.title || 'invitation'}.png`}
-                        className={`${styles.actionBtn} ${styles.btnGreen}`}
-                      >
-                        ⬇️ Download
-                      </a>
-                    )}
-                    <button className={`${styles.actionBtn} ${styles.btnGray}`} onClick={() => handleShare(invitation.id)}>📤 Share</button>
-                    <button className={`${styles.actionBtn} ${styles.btnRed}`} onClick={() => handleDelete(invitation.id)}>🗑️ Delete</button>
-                  </div>
+                      👁️
+                    </a>
+                  )}
+
+                  {(invitation.viewUrl || invitation.imageUrl) && (
+                    <a
+                      href={invitation.viewUrl || invitation.imageUrl}
+                      download={`${invitation.title || 'invitation'}.png`}
+                      className={styles.btnIcon}
+                      title="Download"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      ⬇️
+                    </a>
+                  )}
+
+                  <button
+                    className={styles.btnIcon + ' ' + styles.btnIconDelete}
+                    onClick={(e) => handleDelete(e, invitation.id)}
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+
+        {invitations.length === 0 && !isLoading && !error && (
+          <div style={{ textAlign: 'center', marginTop: '3rem', color: '#94a3b8' }}>
+            <p>Start by creating your first invitation above!</p>
           </div>
         )}
+
       </main>
     </div>
   );
