@@ -1,0 +1,414 @@
+"use client";
+import { useEffect, useState, useRef, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toPng } from "html-to-image";
+import Button from "../../components/Button";
+import Toast from "../../components/Toast";
+import ShareModal from "../../components/ShareModal";
+import { getInvitation, getViewUrl, getShareUrl } from "../../services/invitationService";
+import styles from "./page.module.css";
+
+// Theme configurations
+const THEMES = [
+    {
+        id: 'pastel',
+        name: 'Pastel Dream',
+        color: '#fff1f2',
+        font: "'Comic Sans MS', 'Chalkboard SE', sans-serif",
+        accent: '#fb7185',
+        bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)'
+    },
+    {
+        id: 'space',
+        name: 'Space Explorer',
+        color: '#0f172a',
+        font: "'Courier New', Courier, monospace",
+        accent: '#818cf8',
+        bg: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        textColor: '#ffffff'
+    },
+    {
+        id: 'garden',
+        name: 'Garden Party',
+        color: '#f0fdf4',
+        font: "'Times New Roman', serif",
+        accent: '#4ade80',
+        bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'
+    },
+    {
+        id: 'royal',
+        name: 'Royal Gold',
+        color: '#fffbeb',
+        font: "serif",
+        accent: '#d97706',
+        bg: 'radial-gradient(circle, #fffbeb 0%, #fef3c7 100%)'
+    },
+    {
+        id: 'modern',
+        name: 'Bold Modern',
+        color: '#ffffff',
+        font: "'Inter', sans-serif",
+        accent: '#000000',
+        bg: '#ffffff'
+    },
+    {
+        id: 'unicorn',
+        name: 'Magic Rainbow',
+        color: '#ffffff',
+        font: "'Verdana', sans-serif",
+        accent: '#c084fc',
+        bg: 'linear-gradient(to bottom right, #eff6ff, #f3e8ff, #fce7f3)'
+    },
+    {
+        id: 'premium_abstract',
+        name: 'Premium Abstract',
+        color: '#ffffff',
+        font: "'Inter', sans-serif",
+        accent: '#6366f1',
+        bg: 'url(/templates/modern_birthday_bg.png) center/cover no-repeat'
+    }
+];
+
+function BirthdayEditorContent() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const eventId = searchParams.get("id");
+    const cardRef = useRef(null);
+
+    // States
+    const [toast, setToast] = useState({ show: false, message: "", type: "success" });
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareData, setShareData] = useState(null);
+
+    const [selectedThemeId, setSelectedThemeId] = useState('pastel');
+
+    const [data, setData] = useState({
+        title: "Sarah's 5th Birthday",
+        eventType: "Join the Party!",
+        date: "",
+        time: "",
+        location: "",
+        theme: "",
+        category: "Birthday",
+        templateImage: null,
+    });
+
+    const showToast = (msg, type = "success") => {
+        setToast({ show: true, message: msg, type });
+        setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+    };
+
+    const currentTheme = THEMES.find(t => t.id === selectedThemeId) || THEMES[0];
+
+    useEffect(() => {
+        const loadData = async () => {
+            if (typeof window !== "undefined") {
+                let initialData = null;
+
+                // Load existing invitation
+                if (eventId) {
+                    try {
+                        const invitation = await getInvitation(eventId);
+                        if (invitation) {
+                            let templateImage = null;
+                            if (invitation.imageUrl) {
+                                // Try to load image if available
+                                templateImage = invitation.imageUrl;
+                            }
+
+                            initialData = {
+                                ...invitation,
+                                templateImage
+                            };
+
+                            // Try to infer theme from saved data if stored in specific field, else default
+                            // For now simpler to default or strict logic if we saved themeId
+                        }
+                    } catch (err) {
+                        console.error("Fetch error:", err);
+                    }
+                }
+
+                if (!initialData) {
+                    const stored = localStorage.getItem("previewData");
+                    if (stored) initialData = JSON.parse(stored);
+                }
+
+                if (initialData) {
+                    setData(prev => ({
+                        ...prev,
+                        title: initialData.title || "Happy Birthday!",
+                        eventType: initialData.eventType || "You are invited",
+                        date: initialData.date || "",
+                        time: initialData.time || "",
+                        location: initialData.location || "",
+                        templateImage: initialData.image || initialData.templateImage || null,
+                        id: initialData.id,
+                        eventId: initialData.eventId,
+                    }));
+                }
+                setLoading(false);
+            }
+        };
+        loadData();
+    }, [eventId]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        if (!cardRef.current) return;
+        setSaving(true);
+        try {
+            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+            const { saveInvitationWithImage, updateInvitationWithImage } =
+                await import("../../services/invitationService");
+
+            const eventData = {
+                ...data,
+                eventId: data.eventId || data.id,
+                templateId: `birthday-${selectedThemeId}`,
+            };
+
+            const isUpdate = data.invitationId || data.id;
+            let result;
+
+            if (isUpdate) {
+                result = await updateInvitationWithImage(data.invitationId || data.id, eventData, dataUrl);
+            } else {
+                result = await saveInvitationWithImage(eventData, dataUrl);
+            }
+
+            showToast("Invitation saved successfully!");
+            // Update local storage if needed ...
+        } catch (error) {
+            console.error(error);
+            showToast("Failed to save.", "error");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDownload = async () => {
+        if (cardRef.current) {
+            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+            const link = document.createElement("a");
+            link.download = `birthday-invite-${Date.now()}.png`;
+            link.href = dataUrl;
+            link.click();
+        }
+    };
+
+    if (loading) return <div className={styles.container}></div>;
+
+    return (
+        <div className={styles.container}>
+            <Toast visible={toast.show} message={toast.message} type={toast.type} />
+
+            {/* Background decoration */}
+            <div style={{
+                position: 'fixed',
+                top: '-20%',
+                right: '-10%',
+                width: '600px',
+                height: '600px',
+                background: 'radial-gradient(circle, rgba(236,72,153,0.15) 0%, transparent 70%)',
+                pointerEvents: 'none',
+                zIndex: 0
+            }} />
+
+            {/* Editor Panel */}
+            <div className={styles.editorPanel}>
+                <div className={styles.editorHeader}>
+                    <div onClick={() => router.push('/templates')} className={styles.backLink}>
+                        <span style={{ fontSize: '1.2em' }}>‹</span> Back
+                    </div>
+                    <h1 className={styles.sectionTitle}>
+                        Design Party!
+                    </h1>
+                    <p className={styles.sectionSubtitle}>Customize the perfect birthday card.</p>
+                </div>
+
+                <div className={styles.formContent}>
+
+                    {/* Theme Selector */}
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionIcon}>🎨</div>
+                            <span className={styles.label}>Choose a Theme</span>
+                        </div>
+                        <div className={styles.themeGrid}>
+                            {THEMES.map(theme => (
+                                <div
+                                    key={theme.id}
+                                    className={`${styles.themeOption} ${selectedThemeId === theme.id ? styles.active : ''}`}
+                                    onClick={() => setSelectedThemeId(theme.id)}
+                                    style={{ background: theme.bg }}
+                                >
+                                    <div className={styles.themePreview} style={{ color: theme.textColor || theme.accent }}>
+                                        {theme.id === selectedThemeId && '✓'}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionIcon}>🎉</div>
+                            <span className={styles.label}>Event Details</span>
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <span className={styles.inputLabel}>Headline</span>
+                            <input
+                                className={styles.input}
+                                name="title"
+                                placeholder="Sarah's Birthday"
+                                value={data.title}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <span className={styles.inputLabel}>Sub-headline</span>
+                            <input
+                                className={styles.input}
+                                name="eventType"
+                                placeholder="Join us for cake!"
+                                value={data.eventType}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionIcon}>🕒</div>
+                            <span className={styles.label}>Time & Place</span>
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <span className={styles.inputLabel}>When</span>
+                            <input
+                                className={styles.input}
+                                type="date"
+                                name="date"
+                                value={data.date}
+                                onChange={handleChange}
+                            />
+                            <input
+                                className={styles.input}
+                                type="time"
+                                name="time"
+                                value={data.time}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className={styles.inputGroup}>
+                            <span className={styles.inputLabel}>Where</span>
+                            <input
+                                className={styles.input}
+                                name="location"
+                                placeholder="123 Party Lane, Fun City"
+                                value={data.location}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Preview Area */}
+            <div className={styles.previewArea}>
+                <div className={styles.canvas}>
+                    <div
+                        ref={cardRef}
+                        className={styles.card}
+                        style={{
+                            background: data.templateImage
+                                ? `url(${data.templateImage}) center/cover no-repeat`
+                                : currentTheme.bg,
+                            color: currentTheme.textColor || '#1a1a1a',
+                            fontFamily: currentTheme.font
+                        }}
+                    >
+                        {/* Decorative overlay for some themes could go here */}
+
+                        <div className={styles.cardContent}>
+                            {/* Header Decoration */}
+                            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>
+                                🎈
+                            </div>
+
+                            <div style={{
+                                textTransform: "uppercase",
+                                letterSpacing: "3px",
+                                fontSize: "0.9rem",
+                                marginBottom: "3rem",
+                                opacity: 0.7,
+                                fontWeight: 600
+                            }}>
+                                {data.eventType}
+                            </div>
+
+                            <h1 style={{
+                                fontSize: "3.5rem",
+                                marginBottom: "1.5rem",
+                                lineHeight: "1.1",
+                                color: currentTheme.textColor ? 'currentColor' : currentTheme.accent,
+                                textShadow: currentTheme.id === 'space' ? '0 0 10px rgba(129, 140, 248, 0.5)' : 'none'
+                            }}>
+                                {data.title}
+                            </h1>
+
+                            <div style={{
+                                width: "60px",
+                                height: "4px",
+                                background: currentTheme.textColor ? 'currentColor' : currentTheme.accent,
+                                margin: "0 auto 3rem",
+                                borderRadius: "2px",
+                                opacity: 0.5
+                            }} />
+
+                            <div style={{
+                                fontSize: "1.2rem",
+                                lineHeight: "1.8",
+                                background: currentTheme.id === 'space' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)',
+                                padding: "2rem",
+                                borderRadius: "1.5rem",
+                                backdropFilter: "blur(4px)"
+                            }}>
+                                <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                                    {data.date ? new Date(data.date).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : "Date TBD"}
+                                </p>
+                                <p style={{ marginBottom: '1rem' }}>
+                                    {data.time || "Time TBD"}
+                                </p>
+                                <p style={{ opacity: 0.9 }}>📍 {data.location || "Location TBD"}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={styles.floatingActions}>
+                    <Button variant="secondary" onClick={handleDownload} style={{ borderRadius: '99px' }}>
+                        ↓ Download
+                    </Button>
+                    <Button onClick={handleSave} disabled={saving} style={{ borderRadius: '99px', paddingLeft: '2rem', paddingRight: '2rem' }}>
+                        {saving ? "Saving..." : "Save Invitation"}
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function BirthdayPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <BirthdayEditorContent />
+        </Suspense>
+    );
+}

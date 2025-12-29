@@ -80,7 +80,12 @@ export default function TemplatesPage() {
         };
 
         localStorage.setItem('previewData', JSON.stringify(eventData));
-        router.push('/preview'); // Navigate to editor with this data
+
+        if (template.category === 'Birthday') {
+            router.push('/create/birthday');
+        } else {
+            router.push('/preview'); // Navigate to generic editor
+        }
     };
 
     return (
