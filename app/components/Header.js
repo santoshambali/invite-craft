@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
-import { logout } from '../utils/auth';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './Header.module.css';
 
 export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
+    const { logout, user, isAuthenticated } = useAuth();
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -43,7 +44,14 @@ export default function Header() {
 
     const handleLogout = async () => {
         await logout();
-        router.push('/login');
+    };
+
+    // Get user initials for avatar
+    const getUserInitial = () => {
+        if (user?.username) {
+            return user.username.charAt(0).toUpperCase();
+        }
+        return 'U';
     };
 
     const navItems = [
@@ -52,6 +60,11 @@ export default function Header() {
         { name: 'Profile', path: '/profile' },
         { name: 'Settings', path: '/settings' },
     ];
+
+    // Don't show header on login/register pages
+    if (pathname === '/login' || pathname === '/register') {
+        return null;
+    }
 
     return (
         <header className={`${styles.header} ${isScrolled ? styles.headerScrolled : ''}`}>
@@ -81,34 +94,46 @@ export default function Header() {
                     </Link>
 
                     {/* Profile Dropdown (Desktop) */}
-                    <div className={styles.userMenuWrapper} ref={dropdownRef}>
-                        <button
-                            className={styles.userAvatarBtn}
-                            onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                        >
-                            U
-                        </button>
+                    {isAuthenticated && (
+                        <div className={styles.userMenuWrapper} ref={dropdownRef}>
+                            <button
+                                className={styles.userAvatarBtn}
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                aria-label="User menu"
+                            >
+                                {getUserInitial()}
+                            </button>
 
-                        {isProfileDropdownOpen && (
-                            <div className={styles.dropdownMenu}>
-                                <Link href="/profile" className={styles.dropdownItem}>
-                                    👤 Profile
-                                </Link>
-                                <Link href="/settings" className={styles.dropdownItem}>
-                                    ⚙️ Settings
-                                </Link>
-                                <div className={styles.dropdownDivider} />
-                                <div className={`${styles.dropdownItem} ${styles.logoutItem}`} onClick={handleLogout}>
-                                    🚪 Logout
+                            {isProfileDropdownOpen && (
+                                <div className={styles.dropdownMenu}>
+                                    {user?.username && (
+                                        <>
+                                            <div className={styles.dropdownHeader}>
+                                                <p className={styles.dropdownUsername}>@{user.username}</p>
+                                            </div>
+                                            <div className={styles.dropdownDivider} />
+                                        </>
+                                    )}
+                                    <Link href="/profile" className={styles.dropdownItem}>
+                                        👤 Profile
+                                    </Link>
+                                    <Link href="/settings" className={styles.dropdownItem}>
+                                        ⚙️ Settings
+                                    </Link>
+                                    <div className={styles.dropdownDivider} />
+                                    <div className={`${styles.dropdownItem} ${styles.logoutItem}`} onClick={handleLogout}>
+                                        🚪 Logout
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Mobile Menu Toggle */}
                     <button
                         className={`${styles.mobileToggle} ${isMobileMenuOpen ? styles.open : ''}`}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label="Toggle mobile menu"
                     >
                         <span className={styles.bar}></span>
                         <span className={styles.bar}></span>
@@ -128,9 +153,11 @@ export default function Header() {
                 <Link href="/create" className={styles.mobileNavLink} style={{ color: 'var(--primary-color)' }}>
                     + New Invitation
                 </Link>
-                <div className={styles.mobileNavLink} onClick={handleLogout} style={{ color: '#ef4444' }}>
-                    Logout
-                </div>
+                {isAuthenticated && (
+                    <div className={styles.mobileNavLink} onClick={handleLogout} style={{ color: '#ef4444' }}>
+                        Logout
+                    </div>
+                )}
             </div>
         </header>
     );

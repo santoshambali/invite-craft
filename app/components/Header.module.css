@@ -208,6 +208,19 @@
     color: var(--primary-color);
 }
 
+.dropdownHeader {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--bg-surface-hover);
+    margin-bottom: 0.25rem;
+}
+
+.dropdownUsername {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
 .dropdownDivider {
     height: 1px;
     background: var(--bg-surface-hover);
