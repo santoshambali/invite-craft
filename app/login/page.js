@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Input from '../components/Input';
@@ -11,6 +11,14 @@ import { validateUsername } from '../services/authService';
 import styles from './page.module.css';
 
 export default function Login() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <LoginForm />
+        </Suspense>
+    );
+}
+
+function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { login, isAuthenticated } = useAuth();
