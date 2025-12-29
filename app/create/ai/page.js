@@ -9,6 +9,7 @@ import {
 } from '../../services/invitationService';
 import Toast from '../../components/Toast';
 import ShareModal from '../../components/ShareModal';
+import Header from '../../components/Header';
 import styles from './page.module.css';
 
 export default function AICreatePage() {
@@ -250,216 +251,221 @@ export default function AICreatePage() {
     };
 
     return (
-        <div className={styles.container}>
-            <Toast visible={toast.show} message={toast.message} type={toast.type} />
+        <div className={styles.mainLayout}>
+            <Header />
+            <div className={styles.container}>
+                <Toast visible={toast.show} message={toast.message} type={toast.type} />
 
-            {/* Share Modal */}
-            {shareData && (
-                <ShareModal
-                    isOpen={shareModalOpen}
-                    onClose={() => setShareModalOpen(false)}
-                    shareUrl={shareData.shareUrl}
-                    title={shareData.title}
-                    invitationId={shareData.invitationId}
-                />
-            )}
+                {/* Share Modal */}
+                {shareData && (
+                    <ShareModal
+                        isOpen={shareModalOpen}
+                        onClose={() => setShareModalOpen(false)}
+                        shareUrl={shareData.shareUrl}
+                        title={shareData.title}
+                        invitationId={shareData.invitationId}
+                    />
+                )}
 
-            <div className={styles.formWrapper}>
-                <div className={styles.header}>
-                    <h1 className={styles.title}>AI Invitation Generator</h1>
-                    <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
-                </div>
-
-                <form onSubmit={handleGenerate} className={styles.form}>
-                    {/* Invitation Details Section */}
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <span className={styles.sectionIcon}>✨</span>
-                            <h2 className={styles.sectionTitle}>Invitation Details</h2>
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>
-                                <span className={styles.labelIcon}>📝</span>
-                                Event Title
-                            </label>
-                            <input
-                                type="text"
-                                name="title"
-                                placeholder="e.g., Summer Garden Party"
-                                value={formData.title}
-                                onChange={handleChange}
-                                className={styles.input}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>
-                                <span className={styles.labelIcon}>📅</span>
-                                Date
-                            </label>
-                            <input
-                                type="date"
-                                name="date"
-                                value={formData.date}
-                                onChange={handleChange}
-                                className={styles.input}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>
-                                <span className={styles.labelIcon}>🕐</span>
-                                Time
-                            </label>
-                            <input
-                                type="time"
-                                name="time"
-                                value={formData.time}
-                                onChange={handleChange}
-                                className={styles.input}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>
-                                <span className={styles.labelIcon}>📍</span>
-                                Location
-                            </label>
-                            <input
-                                type="text"
-                                name="location"
-                                placeholder="e.g., 123 Garden Street, Springfield"
-                                value={formData.location}
-                                onChange={handleChange}
-                                className={styles.input}
-                                required
-                            />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label className={styles.label}>Description</label>
-                            <textarea
-                                name="description"
-                                placeholder="Add any additional details about the event..."
-                                value={formData.description}
-                                onChange={handleChange}
-                                className={styles.textarea}
-                                rows="3"
-                            />
-                        </div>
+                <div className={styles.formWrapper}>
+                    <div className={styles.header}>
+                        <h1 className={styles.title}>AI Invitation Generator</h1>
+                        <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
                     </div>
 
-                    {/* Event Type Section */}
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>Event Type</h2>
-                        </div>
-                        <div className={styles.eventTypeGrid}>
-                            {eventTypes.map((type) => (
-                                <button
-                                    key={type.id}
-                                    type="button"
-                                    onClick={() => handleEventTypeSelect(type.id)}
-                                    className={`${styles.eventTypeCard} ${formData.eventType === type.id ? styles.selected : ''
-                                        }`}
-                                >
-                                    <span className={styles.eventTypeIcon}>{type.icon}</span>
-                                    <span className={styles.eventTypeLabel}>{type.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    <div className={styles.splitLayout}>
+                        <form onSubmit={handleGenerate} className={styles.form}>
+                            {/* Invitation Details Section */}
+                            <div className={styles.section}>
+                                <div className={styles.sectionHeader}>
+                                    <span className={styles.sectionIcon}>✨</span>
+                                    <h2 className={styles.sectionTitle}>Invitation Details</h2>
+                                </div>
 
-                    {/* Design Style Section */}
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <span className={styles.sectionIcon}>🎨</span>
-                            <h2 className={styles.sectionTitle}>Design Style</h2>
-                        </div>
-                        <div className={styles.designStyleGrid}>
-                            {designStyles.map((style) => (
-                                <button
-                                    key={style.id}
-                                    type="button"
-                                    onClick={() => handleDesignStyleSelect(style.id)}
-                                    className={`${styles.designStyleCard} ${formData.designStyle === style.id ? styles.selected : ''
-                                        }`}
-                                >
-                                    <div className={styles.designStyleContent}>
-                                        <h3 className={styles.designStyleLabel}>{style.label}</h3>
-                                        <p className={styles.designStyleDescription}>{style.description}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>
+                                        <span className={styles.labelIcon}>📝</span>
+                                        Event Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        placeholder="e.g., Summer Garden Party"
+                                        value={formData.title}
+                                        onChange={handleChange}
+                                        className={styles.input}
+                                        required
+                                    />
+                                </div>
 
-                    {/* Generate Button */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={styles.generateButton}
-                    >
-                        <span className={styles.buttonIcon}>✨</span>
-                        {loading ? 'Generating Invitation...' : 'Generate Invitation'}
-                    </button>
-                </form>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>
+                                        <span className={styles.labelIcon}>📅</span>
+                                        Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        name="date"
+                                        value={formData.date}
+                                        onChange={handleChange}
+                                        className={styles.input}
+                                        required
+                                    />
+                                </div>
 
-                {/* Preview Section */}
-                <div className={styles.previewSection}>
-                    <h2 className={styles.previewTitle}>Preview</h2>
-                    <div className={styles.previewBox}>
-                        {generatedImageUrl ? (
-                            <img
-                                ref={imageRef}
-                                src={generatedImageUrl}
-                                alt="Generated Invitation"
-                                className={styles.previewImage}
-                            />
-                        ) : (
-                            <div className={styles.previewPlaceholder}>
-                                <span className={styles.placeholderIcon}>⭐</span>
-                                <p className={styles.placeholderText}>Your invitation will appear here</p>
-                                <p className={styles.placeholderSubtext}>Fill in the details and click generate</p>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>
+                                        <span className={styles.labelIcon}>🕐</span>
+                                        Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        name="time"
+                                        value={formData.time}
+                                        onChange={handleChange}
+                                        className={styles.input}
+                                        required
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>
+                                        <span className={styles.labelIcon}>📍</span>
+                                        Location
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="location"
+                                        placeholder="e.g., 123 Garden Street, Springfield"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                        className={styles.input}
+                                        required
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Description</label>
+                                    <textarea
+                                        name="description"
+                                        placeholder="Add any additional details about the event..."
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        className={styles.textarea}
+                                        rows="3"
+                                    />
+                                </div>
                             </div>
-                        )}
-                    </div>
 
-                    {/* Action Buttons - Show only when invitation is generated */}
-                    {generatedImageUrl && (
-                        <div className={styles.actionButtons}>
+                            {/* Event Type Section */}
+                            <div className={styles.section}>
+                                <div className={styles.sectionHeader}>
+                                    <h2 className={styles.sectionTitle}>Event Type</h2>
+                                </div>
+                                <div className={styles.eventTypeGrid}>
+                                    {eventTypes.map((type) => (
+                                        <button
+                                            key={type.id}
+                                            type="button"
+                                            onClick={() => handleEventTypeSelect(type.id)}
+                                            className={`${styles.eventTypeCard} ${formData.eventType === type.id ? styles.selected : ''
+                                                }`}
+                                        >
+                                            <span className={styles.eventTypeIcon}>{type.icon}</span>
+                                            <span className={styles.eventTypeLabel}>{type.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Design Style Section */}
+                            <div className={styles.section}>
+                                <div className={styles.sectionHeader}>
+                                    <span className={styles.sectionIcon}>🎨</span>
+                                    <h2 className={styles.sectionTitle}>Design Style</h2>
+                                </div>
+                                <div className={styles.designStyleGrid}>
+                                    {designStyles.map((style) => (
+                                        <button
+                                            key={style.id}
+                                            type="button"
+                                            onClick={() => handleDesignStyleSelect(style.id)}
+                                            className={`${styles.designStyleCard} ${formData.designStyle === style.id ? styles.selected : ''
+                                                }`}
+                                        >
+                                            <div className={styles.designStyleContent}>
+                                                <h3 className={styles.designStyleLabel}>{style.label}</h3>
+                                                <p className={styles.designStyleDescription}>{style.description}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Generate Button */}
                             <button
-                                onClick={handleDownload}
-                                className={styles.actionButton}
-                                type="button"
+                                type="submit"
+                                disabled={loading}
+                                className={styles.generateButton}
                             >
-                                <span className={styles.actionIcon}>⬇️</span>
-                                Download
+                                <span className={styles.buttonIcon}>✨</span>
+                                {loading ? 'Generating Invitation...' : 'Generate Invitation'}
                             </button>
-                            <button
-                                onClick={handleShare}
-                                className={styles.actionButton}
-                                disabled={!savedInvitation}
-                                type="button"
-                            >
-                                <span className={styles.actionIcon}>📤</span>
-                                Share
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                className={`${styles.actionButton} ${styles.primaryAction}`}
-                                disabled={saving}
-                                type="button"
-                            >
-                                <span className={styles.actionIcon}>💾</span>
-                                {saving ? 'Saving...' : savedInvitation ? 'Update' : 'Save'}
-                            </button>
+                        </form>
+
+                        {/* Preview Section */}
+                        <div className={styles.previewSection}>
+                            <h2 className={styles.previewTitle}>Preview</h2>
+                            <div className={styles.previewBox}>
+                                {generatedImageUrl ? (
+                                    <img
+                                        ref={imageRef}
+                                        src={generatedImageUrl}
+                                        alt="Generated Invitation"
+                                        className={styles.previewImage}
+                                    />
+                                ) : (
+                                    <div className={styles.previewPlaceholder}>
+                                        <span className={styles.placeholderIcon}>⭐</span>
+                                        <p className={styles.placeholderText}>Your invitation will appear here</p>
+                                        <p className={styles.placeholderSubtext}>Fill in the details and click generate</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Action Buttons - Show only when invitation is generated */}
+                            {generatedImageUrl && (
+                                <div className={styles.actionButtons}>
+                                    <button
+                                        onClick={handleDownload}
+                                        className={styles.actionButton}
+                                        type="button"
+                                    >
+                                        <span className={styles.actionIcon}>⬇️</span>
+                                        Download
+                                    </button>
+                                    <button
+                                        onClick={handleShare}
+                                        className={styles.actionButton}
+                                        disabled={!savedInvitation}
+                                        type="button"
+                                    >
+                                        <span className={styles.actionIcon}>📤</span>
+                                        Share
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        className={`${styles.actionButton} ${styles.primaryAction}`}
+                                        disabled={saving}
+                                        type="button"
+                                    >
+                                        <span className={styles.actionIcon}>💾</span>
+                                        {saving ? 'Saving...' : savedInvitation ? 'Update' : 'Save'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>
