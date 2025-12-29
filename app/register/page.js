@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Toast from '../components/Toast';
@@ -138,133 +139,136 @@ export default function Register() {
     };
 
     return (
-        <div className={styles.container}>
-            <Toast message={toast.message} visible={toast.visible} type={toast.type} />
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Header />
+            <div className={styles.container}>
+                <Toast message={toast.message} visible={toast.visible} type={toast.type} />
 
-            <div className={styles.card}>
-                <div className={styles.header}>
-                    <h1 className={styles.title}>Create Account</h1>
-                    <p className={styles.subtitle}>Join us and start crafting your invitations</p>
-                </div>
+                <div className={styles.card}>
+                    <div className={styles.header}>
+                        <h1 className={styles.title}>Create Account</h1>
+                        <p className={styles.subtitle}>Join us and start crafting your invitations</p>
+                    </div>
 
-                <form onSubmit={handleSubmit} className={styles.form} noValidate>
-                    <div className={styles.row}>
+                    <form onSubmit={handleSubmit} className={styles.form} noValidate>
+                        <div className={styles.row}>
+                            <div>
+                                <Input
+                                    label="First Name"
+                                    name="firstName"
+                                    placeholder="John"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                    autoComplete="given-name"
+                                    disabled={isLoading}
+                                />
+                                {errors.firstName && (
+                                    <p className={styles.errorText}>{errors.firstName}</p>
+                                )}
+                            </div>
+                            <div>
+                                <Input
+                                    label="Last Name"
+                                    name="lastName"
+                                    placeholder="Doe"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                    autoComplete="family-name"
+                                    disabled={isLoading}
+                                />
+                                {errors.lastName && (
+                                    <p className={styles.errorText}>{errors.lastName}</p>
+                                )}
+                            </div>
+                        </div>
+
                         <div>
                             <Input
-                                label="First Name"
-                                name="firstName"
-                                placeholder="John"
-                                value={formData.firstName}
+                                label="Username"
+                                name="username"
+                                placeholder="johndoe123"
+                                value={formData.username}
                                 onChange={handleChange}
-                                autoComplete="given-name"
+                                required={true}
+                                autoComplete="username"
                                 disabled={isLoading}
                             />
-                            {errors.firstName && (
-                                <p className={styles.errorText}>{errors.firstName}</p>
+                            {errors.username && (
+                                <p className={styles.errorText}>{errors.username}</p>
                             )}
                         </div>
+
                         <div>
                             <Input
-                                label="Last Name"
-                                name="lastName"
-                                placeholder="Doe"
-                                value={formData.lastName}
+                                label="Email Address"
+                                name="email"
+                                type="email"
+                                placeholder="john@example.com"
+                                value={formData.email}
                                 onChange={handleChange}
-                                autoComplete="family-name"
+                                required={true}
+                                autoComplete="email"
                                 disabled={isLoading}
                             />
-                            {errors.lastName && (
-                                <p className={styles.errorText}>{errors.lastName}</p>
+                            {errors.email && (
+                                <p className={styles.errorText}>{errors.email}</p>
                             )}
                         </div>
-                    </div>
 
-                    <div>
-                        <Input
-                            label="Username"
-                            name="username"
-                            placeholder="johndoe123"
-                            value={formData.username}
-                            onChange={handleChange}
-                            required={true}
-                            autoComplete="username"
+                        <div>
+                            <Input
+                                label="Password"
+                                name="password"
+                                type="password"
+                                placeholder="••••••••"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required={true}
+                                autoComplete="new-password"
+                                disabled={isLoading}
+                            />
+                            {errors.password && (
+                                <p className={styles.errorText}>{errors.password}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <Input
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                placeholder="••••••••"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required={true}
+                                autoComplete="new-password"
+                                disabled={isLoading}
+                            />
+                            {errors.confirmPassword && (
+                                <p className={styles.errorText}>{errors.confirmPassword}</p>
+                            )}
+                        </div>
+
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            className={styles.submitButton}
                             disabled={isLoading}
-                        />
-                        {errors.username && (
-                            <p className={styles.errorText}>{errors.username}</p>
-                        )}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <span className={styles.spinner}></span>
+                                    Creating Account...
+                                </>
+                            ) : (
+                                'Sign Up'
+                            )}
+                        </Button>
+                    </form>
+
+                    <div className={styles.footer}>
+                        <p>Already have an account? <Link href="/login" className={styles.link}>Sign in</Link></p>
                     </div>
-
-                    <div>
-                        <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required={true}
-                            autoComplete="email"
-                            disabled={isLoading}
-                        />
-                        {errors.email && (
-                            <p className={styles.errorText}>{errors.email}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <Input
-                            label="Password"
-                            name="password"
-                            type="password"
-                            placeholder="••••••••"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required={true}
-                            autoComplete="new-password"
-                            disabled={isLoading}
-                        />
-                        {errors.password && (
-                            <p className={styles.errorText}>{errors.password}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <Input
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="••••••••"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            required={true}
-                            autoComplete="new-password"
-                            disabled={isLoading}
-                        />
-                        {errors.confirmPassword && (
-                            <p className={styles.errorText}>{errors.confirmPassword}</p>
-                        )}
-                    </div>
-
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        className={styles.submitButton}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                <span className={styles.spinner}></span>
-                                Creating Account...
-                            </>
-                        ) : (
-                            'Sign Up'
-                        )}
-                    </Button>
-                </form>
-
-                <div className={styles.footer}>
-                    <p>Already have an account? <Link href="/login" className={styles.link}>Sign in</Link></p>
                 </div>
             </div>
         </div>
