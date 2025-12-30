@@ -562,10 +562,11 @@ function PreviewContent() {
                   className={styles.canvas}
                   style={{
                     transform: `scale(${scale})`,
-                    // Ensure we don't cause layout issues while scaling
+                    transformOrigin: 'top center',
                     width: '480px',
                     height: '680px',
-                    flexShrink: 0
+                    flexShrink: 0,
+                    marginBottom: `-${680 * (1 - scale)}px`
                   }}
                 >
                   {/* The Card - Ref added here */}

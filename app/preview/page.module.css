@@ -306,6 +306,28 @@
 }
 
 /* Mobile Tabs (unchanged generally, but ensuring visibility on mobile) */
+/* Tab Buttons */
+.tabButton {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tabButton.active {
+    color: #8b5cf6;
+}
+
 /* Mobile Tabs */
 .mobileTabs {
     display: none;
@@ -336,7 +358,10 @@
         height: auto;
         overflow: auto;
         display: block;
-        padding: 0;
+        padding-top: var(--header-height);
+        padding-bottom: 0;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .mainContent {
@@ -353,10 +378,10 @@
     }
 
     .splitLayout {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
         height: auto;
-        display: block;
     }
 
     .editorPanel {
@@ -365,11 +390,21 @@
         border-right: none;
         padding-right: 0;
         overflow: visible;
-        /* Mobile: use standard block layout */
         position: static;
         box-shadow: none;
         background: transparent;
         margin-bottom: 2rem;
+        display: flex;
+        /* Always show */
+        order: 1;
+        /* First */
+        border-bottom: 2px solid #f3f4f6;
+        padding-bottom: 2rem;
+    }
+
+    .editorPanel.active {
+        display: flex;
+        animation: none;
     }
 
     .header {
@@ -380,19 +415,41 @@
     .previewArea {
         position: static;
         height: auto;
-        min-height: 500px;
+        min-height: 600px;
+        /* Ensure space for scaler */
         width: 100%;
         padding: 0;
         overflow: visible;
-        border-top: 2px solid #f3f4f6;
-        padding-top: 3rem;
+        border-top: none;
+        padding-top: 1rem;
+        display: flex;
+        /* Always show */
+        order: 2;
+        /* Second */
+    }
+
+    .previewArea.active {
+        display: flex;
+        animation: none;
     }
 
     .previewWrapper {
         position: relative;
         inset: auto;
-        padding: 0 0 6rem 0;
-        /* Padding for fixed bottom bar on mobile maybe? */
+        padding: 2rem 0 4rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        height: auto;
+        width: 100%;
+    }
+
+    .canvas {
+        margin-bottom: 0;
+        /* The scale transform creates whitespace. 
+           We can try to reduce it slightly if needed, but for now 
+           just ensuring stacking is the priority. */
     }
 
     .actionBar {
@@ -400,15 +457,35 @@
         bottom: auto;
         transform: none;
         width: 100%;
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         opacity: 1;
         animation: none;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        backdrop-filter: none;
+    }
+
+    .btnIcon {
+        flex: none;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        padding: 0;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        background: white;
     }
 
     .btnIcon.primary {
-        grid-column: span 2;
+        grid-column: auto;
+    }
+
+    .mobileTabs {
+        display: none !important;
     }
 }
 
