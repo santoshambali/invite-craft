@@ -5,6 +5,7 @@ import { isAuthenticated, getUserId } from './utils/auth';
 import { getUserInvitations, deleteInvitation, getViewUrl, getShareUrl } from './services/invitationService';
 import ShareModal from './components/ShareModal';
 import CreateOptionsModal from './components/CreateOptionsModal';
+import GuestLanding from './components/GuestLanding';
 import { useInvitations } from './contexts/InvitationContext';
 import styles from './page.module.css';
 
@@ -16,11 +17,16 @@ export default function Dashboard() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
 
   useEffect(() => {
     // Check authentication
-    if (!isAuthenticated()) {
-      router.push('/login');
+    const authenticated = isAuthenticated();
+    setIsUserAuthenticated(authenticated);
+
+    if (!authenticated) {
+      // Show guest landing page instead of redirecting
+      setIsLoading(false);
       return;
     }
 
@@ -114,6 +120,11 @@ export default function Dashboard() {
         </main>
       </div>
     );
+  }
+
+  // Show guest landing page for non-authenticated users
+  if (!isUserAuthenticated) {
+    return <GuestLanding />;
   }
 
   return (

@@ -127,12 +127,37 @@
     text-decoration: none;
     transition: var(--transition-fast);
     box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .createButton:hover {
     background: var(--primary-hover);
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(99, 102, 241, 0.3);
+}
+
+.loginButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    border: 1px solid var(--glass-border);
+}
+
+.loginButton:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
 }
 
 /* Invitation Badge */

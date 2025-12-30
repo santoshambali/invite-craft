@@ -38,11 +38,32 @@ const getAuthHeaders = () => {
  * @returns {Promise<Object>} Parsed response data
  */
 const handleResponse = async (response) => {
-  const data = await response.json();
+  // Check if response has content
+  const contentType = response.headers.get("content-type");
+  const hasJson = contentType && contentType.includes("application/json");
+
+  let data = {};
+
+  // Only try to parse JSON if content-type indicates JSON
+  if (hasJson) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      // If JSON parsing fails, create error object
+      data = { error: { details: "Invalid response from server" } };
+    }
+  }
 
   if (!response.ok) {
+    // Special handling for 401 Unauthorized
+    if (response.status === 401) {
+      throw new Error(
+        "Authentication required. Please log in or ensure the API supports guest access."
+      );
+    }
+
     throw new Error(
-      data.error?.details || data.message || "API request failed"
+      data.error?.details || data.message || `API request failed with status ${response.status}`
     );
   }
 
@@ -417,18 +438,22 @@ const formatDateForBackend = (date) => {
 /**
  * Save invitation with image upload
  * This is a convenience method that handles both image upload and invitation creation
+ * Supports both authenticated users (with userId) and guest users (without userId)
  * @param {Object} eventData - Event data from the form
  * @param {string} imageDataUrl - Data URL of the invitation image
+ * @param {boolean} isGuest - Whether this is a guest user (optional, defaults to false)
  * @returns {Promise<Object>} Created invitation response
  */
-export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
+export const saveInvitationWithImage = async (eventData, imageDataUrl, isGuest = false) => {
   try {
     // Upload image first
     const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
 
-    // Get userId from JWT token
+    // Get userId from JWT token (optional for guests)
     const userId = getUserId();
-    if (!userId) {
+
+    // For non-guest users, require authentication
+    if (!isGuest && !userId) {
       throw new Error(
         "User not authenticated. Please log in to save invitations."
       );
@@ -437,7 +462,6 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
     // Create invitation with all required fields matching backend API schema
     const invitationData = {
       eventId: eventData.eventId || generateTempEventId(),
-      userId: userId,
       templateId: eventData.templateId || eventData.category || "custom",
       imageUrl: imageUrl,
       title: eventData.title || null,
@@ -447,6 +471,11 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
     };
+
+    // Only add userId if user is authenticated
+    if (userId) {
+      invitationData.userId = userId;
+    }
 
     // Remove null/undefined values to avoid sending empty fields
     Object.keys(invitationData).forEach((key) => {
@@ -460,6 +489,7 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
     return {
       ...invitation,
       eventData, // Include original event data for local storage fallback
+      isGuest: isGuest || !userId, // Mark as guest if no userId
     };
   } catch (error) {
     console.error("Error saving invitation with image:", error);
@@ -483,23 +513,28 @@ const generateTempEventId = () => {
 /**
  * Update invitation with image upload
  * This is a convenience method that handles both image upload and invitation update
+ * Supports both authenticated users (with userId) and guest users (without userId)
  * @param {string} id - Invitation ID to update
  * @param {Object} eventData - Event data from the form
  * @param {string} imageDataUrl - Data URL of the invitation image
+ * @param {boolean} isGuest - Whether this is a guest user (optional, defaults to false)
  * @returns {Promise<Object>} Updated invitation response
  */
 export const updateInvitationWithImage = async (
   id,
   eventData,
-  imageDataUrl
+  imageDataUrl,
+  isGuest = false
 ) => {
   try {
     // Upload image first
     const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
 
-    // Get userId from JWT token
+    // Get userId from JWT token (optional for guests)
     const userId = getUserId();
-    if (!userId) {
+
+    // For non-guest users, require authentication
+    if (!isGuest && !userId) {
       throw new Error(
         "User not authenticated. Please log in to update invitations."
       );
@@ -508,7 +543,6 @@ export const updateInvitationWithImage = async (
     // Update invitation with all required fields matching backend API schema
     const invitationData = {
       eventId: eventData.eventId || generateTempEventId(),
-      userId: userId,
       templateId: eventData.templateId || eventData.category || "custom",
       imageUrl: imageUrl,
       title: eventData.title || null,
@@ -518,6 +552,11 @@ export const updateInvitationWithImage = async (
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
     };
+
+    // Only add userId if user is authenticated
+    if (userId) {
+      invitationData.userId = userId;
+    }
 
     // Remove null/undefined values to avoid sending empty fields
     Object.keys(invitationData).forEach((key) => {
@@ -531,6 +570,7 @@ export const updateInvitationWithImage = async (
     return {
       ...invitation,
       eventData, // Include original event data for local storage fallback
+      isGuest: isGuest || !userId, // Mark as guest if no userId
     };
   } catch (error) {
     console.error("Error updating invitation with image:", error);

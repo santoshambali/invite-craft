@@ -1,6 +1,8 @@
 'use client';
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { isAuthenticated } from '../../utils/auth';
+import { useGuestInvitations } from '../../contexts/GuestInvitationContext';
 import {
     generateInvitationImage,
     saveInvitationWithImage,
@@ -19,6 +21,9 @@ function AICreatePageContent() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
     const imageRef = useRef(null);
+    const isAuth = isAuthenticated();
+    const { createGuestInvitation, updateGuestInvitation, getGuestInvitation } = useGuestInvitations();
+
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
@@ -68,7 +73,19 @@ function AICreatePageContent() {
 
             setLoading(true);
             try {
-                const invitation = await getInvitation(id);
+                let invitation;
+
+                if (isAuth) {
+                    invitation = await getInvitation(id);
+                } else {
+                    invitation = getGuestInvitation(id);
+                }
+
+                if (!invitation) {
+                    showToast('Invitation not found', 'error');
+                    router.push('/');
+                    return;
+                }
 
                 // Format date and time for inputs
                 let formattedDate = '';
@@ -131,7 +148,7 @@ function AICreatePageContent() {
         };
 
         fetchInvitation();
-    }, [id]);
+    }, [id, isAuth]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -200,81 +217,72 @@ function AICreatePageContent() {
                 imageDataUrl = generatedImageUrl;
             }
 
+            const eventData = {
+                ...formData,
+                templateId: 'ai-generated',
+                category: 'ai',
+                eventType: formData.eventType
+            };
+
             let result;
 
             if (savedInvitation?.id) {
                 // Update existing invitation
-                result = await updateInvitationWithImage(
-                    savedInvitation.id,
-                    {
-                        ...formData,
-                        templateId: 'ai-generated',
-                        category: 'ai',
-                        eventType: formData.eventType
-                    },
-                    imageDataUrl
-                );
+                if (isAuth) {
+                    result = await updateInvitationWithImage(
+                        savedInvitation.id,
+                        eventData,
+                        imageDataUrl
+                    );
+                } else {
+                    result = await updateGuestInvitation(
+                        savedInvitation.id,
+                        eventData,
+                        imageDataUrl
+                    );
+                }
                 showToast('Invitation updated successfully!');
             } else {
                 // Save new invitation
-                result = await saveInvitationWithImage(
-                    {
-                        ...formData,
-                        templateId: 'ai-generated',
-                        category: 'ai',
-                        eventType: formData.eventType
-                    },
-                    imageDataUrl
-                );
+                if (isAuth) {
+                    result = await saveInvitationWithImage(eventData, imageDataUrl);
+                } else {
+                    result = await createGuestInvitation(eventData, imageDataUrl);
+                }
                 showToast('Invitation saved successfully!');
             }
 
             setSavedInvitation(result);
 
-            // Also save to localStorage for backward compatibility
-            if (typeof window !== 'undefined') {
-                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
-                const savedEvent = {
-                    ...formData,
-                    id: result.id || Date.now().toString(),
-                    invitationId: result.id,
-                    imageUrl: result.imageUrl,
-                    status: result.status || 'Draft',
-                    createdAt: result.createdAt || new Date().toISOString(),
-                    templateId: 'ai-generated',
-                    category: 'ai'
-                };
-
-                const existingIndex = allEvents.findIndex(e => e.id === savedEvent.id);
-                if (existingIndex >= 0) {
-                    // Update existing
-                    allEvents[existingIndex] = savedEvent;
-                } else {
-                    // Create new
-                    allEvents.unshift(savedEvent);
-                }
-                localStorage.setItem('myEvents', JSON.stringify(allEvents));
-            }
         } catch (error) {
             console.error('Error saving invitation:', error);
-            showToast(error.message || 'Failed to save invitation. Please try again.', 'error');
 
-            // Fallback to localStorage-only save
-            if (typeof window !== 'undefined') {
-                const allEvents = JSON.parse(localStorage.getItem('myEvents') || '[]');
-                const dateId = Date.now().toString();
-                const newEvent = {
-                    ...formData,
-                    id: dateId,
-                    status: 'Draft',
-                    templateId: 'ai-generated',
-                    category: 'ai',
-                    imageUrl: generatedImageUrl
-                };
-                allEvents.unshift(newEvent);
-                localStorage.setItem('myEvents', JSON.stringify(allEvents));
-                setSavedInvitation({ id: dateId });
-                showToast('Saved locally (offline mode)', 'warning');
+            // Check if error is due to authentication requirement
+            if (error.message.includes('Authentication required') || error.message.includes('Unauthorized')) {
+                // Show friendly message for guest users
+                const shouldLogin = window.confirm(
+                    '🔐 Guest Mode Notice\n\n' +
+                    'To save invitations, you need to sign in or create an account.\n\n' +
+                    'Would you like to sign in now?\n\n' +
+                    '(Your invitation details will be saved and you can continue after signing in)'
+                );
+
+                if (shouldLogin) {
+                    // Save current state to sessionStorage
+                    if (typeof window !== 'undefined') {
+                        sessionStorage.setItem('pendingInvitation', JSON.stringify({
+                            formData,
+                            generatedImageUrl,
+                            returnUrl: '/create/ai'
+                        }));
+                    }
+                    router.push('/login');
+                    return;
+                }
+
+                showToast('Please sign in to save invitations', 'warning');
+            } else {
+                showToast(error.message || 'Failed to save invitation. Please try again.', 'error');
             }
         } finally {
             setSaving(false);

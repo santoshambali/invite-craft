@@ -3,6 +3,7 @@ import "./globals.css";
 import EnvInfo from "./components/EnvInfo";
 import { AuthProvider } from "./contexts/AuthContext";
 import { InvitationProvider } from "./contexts/InvitationContext";
+import { GuestInvitationProvider } from "./contexts/GuestInvitationContext";
 import Header from "./components/Header";
 
 const geistSans = Geist({
@@ -30,8 +31,10 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
           <InvitationProvider>
-            <Header />
-            {children}
+            <GuestInvitationProvider>
+              <Header />
+              {children}
+            </GuestInvitationProvider>
           </InvitationProvider>
         </AuthProvider>
         <EnvInfo />
