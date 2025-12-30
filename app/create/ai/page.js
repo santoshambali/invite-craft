@@ -180,10 +180,10 @@ function AICreatePageContent() {
             });
 
             setGeneratedImageUrl(imageUrl);
-            showToast('Invitation generated successfully!');
+            showToast('Card generated successfully!');
         } catch (error) {
             console.error('Error generating invitation:', error);
-            showToast('Failed to generate invitation. Please try again.', 'error');
+            showToast('Failed to generate card. Please try again.', 'error');
         } finally {
             setLoading(false);
         }
@@ -191,7 +191,7 @@ function AICreatePageContent() {
 
     const handleSave = async () => {
         if (!generatedImageUrl) {
-            showToast('Please generate an invitation first', 'warning');
+            showToast('Please generate a card first', 'warning');
             return;
         }
 
@@ -242,7 +242,7 @@ function AICreatePageContent() {
                         imageDataUrl
                     );
                 }
-                showToast('Invitation updated successfully!');
+                showToast('Card updated successfully!');
             } else {
                 // Save new invitation
                 if (isAuth) {
@@ -250,7 +250,7 @@ function AICreatePageContent() {
                 } else {
                     result = await createGuestInvitation(eventData, imageDataUrl);
                 }
-                showToast('Invitation saved successfully!');
+                showToast('Card saved successfully!');
             }
 
             setSavedInvitation(result);
@@ -263,9 +263,9 @@ function AICreatePageContent() {
                 // Show friendly message for guest users
                 const shouldLogin = window.confirm(
                     '🔐 Guest Mode Notice\n\n' +
-                    'To save invitations, you need to sign in or create an account.\n\n' +
+                    'To save cards, you need to sign in or create an account.\n\n' +
                     'Would you like to sign in now?\n\n' +
-                    '(Your invitation details will be saved and you can continue after signing in)'
+                    '(Your card details will be saved and you can continue after signing in)'
                 );
 
                 if (shouldLogin) {
@@ -281,9 +281,9 @@ function AICreatePageContent() {
                     return;
                 }
 
-                showToast('Please sign in to save invitations', 'warning');
+                showToast('Please sign in to save cards', 'warning');
             } else {
-                showToast(error.message || 'Failed to save invitation. Please try again.', 'error');
+                showToast(error.message || 'Failed to save card. Please try again.', 'error');
             }
         } finally {
             setSaving(false);
@@ -292,7 +292,7 @@ function AICreatePageContent() {
 
     const handleDownload = async () => {
         if (!generatedImageUrl) {
-            showToast('Please generate an invitation first', 'warning');
+            showToast('Please generate a card first', 'warning');
             return;
         }
 
@@ -300,7 +300,7 @@ function AICreatePageContent() {
             // Create a temporary link to download the image
             const link = document.createElement('a');
             link.href = generatedImageUrl;
-            link.download = `${formData.title || 'invitation'}.png`;
+            link.download = `${formData.title || 'card'}.png`;
 
             // For cross-origin images, we need to fetch and convert to blob
             const response = await fetch(generatedImageUrl);
@@ -321,7 +321,7 @@ function AICreatePageContent() {
 
     const handleShare = async () => {
         if (!savedInvitation?.id) {
-            showToast('Please save the invitation first before sharing', 'warning');
+            showToast('Please save the card first before sharing', 'warning');
             return;
         }
 
@@ -357,15 +357,15 @@ function AICreatePageContent() {
                         <form onSubmit={handleGenerate} className={styles.form}>
                             {/* Header moved inside scrollable form */}
                             <div className={styles.header}>
-                                <h1 className={styles.title}>AI Invitation Generator</h1>
-                                <p className={styles.subtitle}>Create beautiful invitation images in seconds</p>
+                                <h1 className={styles.title}>AI Card Generator</h1>
+                                <p className={styles.subtitle}>Create beautiful card images in seconds</p>
                             </div>
 
                             {/* Invitation Details Section */}
                             <div className={styles.section}>
                                 <div className={styles.sectionHeader}>
                                     <span className={styles.sectionIcon}>✨</span>
-                                    <h2 className={styles.sectionTitle}>Invitation Details</h2>
+                                    <h2 className={styles.sectionTitle}>Card Details</h2>
                                 </div>
 
                                 <div className={styles.formGroup}>
@@ -495,9 +495,9 @@ function AICreatePageContent() {
                                 {loading ? (
                                     <>
                                         <Spinner size="small" />
-                                        <span>Generating Invitation...</span>
+                                        <span>Generating Card...</span>
                                     </>
-                                ) : 'Generate Invitation'}
+                                ) : 'Generate Card'}
                             </button>
                         </form>
 
@@ -513,13 +513,13 @@ function AICreatePageContent() {
                                     <img
                                         ref={imageRef}
                                         src={generatedImageUrl}
-                                        alt="Generated Invitation"
+                                        alt="Generated Card"
                                         className={styles.previewImage}
                                     />
                                 ) : (
                                     <div className={styles.previewPlaceholder}>
                                         <span className={styles.placeholderIcon}>⭐</span>
-                                        <p className={styles.placeholderText}>Your invitation will appear here</p>
+                                        <p className={styles.placeholderText}>Your card will appear here</p>
                                         <p className={styles.placeholderSubtext}>Fill in the details and click generate</p>
                                     </div>
                                 )}

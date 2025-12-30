@@ -101,9 +101,9 @@ export default function ShareContent() {
     };
 
     const handleNativeShare = async () => {
-        const shareText = `You're invited! ${invitation?.title || "Check out this invitation"}`;
+        const shareText = `Check out this card! ${invitation?.title || "Check out this card"}`;
         await shareNative({
-            title: invitation?.title || "Invitation",
+            title: invitation?.title || "Card",
             text: shareText,
             url: window.location.href,
         });
@@ -112,7 +112,7 @@ export default function ShareContent() {
     if (loading) {
         return (
             <div className={styles.container}>
-                <Spinner fullPage text="Loading invitation..." />
+                <Spinner fullPage text="Loading card..." />
             </div>
         );
     }
@@ -123,7 +123,7 @@ export default function ShareContent() {
                 <div className={styles.error}>
                     <div className={styles.errorIcon}>⚠️</div>
                     <h1>Oops!</h1>
-                    <p>{error || "Invitation not found"}</p>
+                    <p>{error || "Card not found"}</p>
                     <a href="/" className={styles.homeLink}>
                         Go to Homepage
                     </a>
@@ -132,7 +132,7 @@ export default function ShareContent() {
         );
     }
 
-    const shareText = `You're invited! ${invitation.title || "Check out this invitation"}`;
+    const shareText = `Check out this card! ${invitation.title || "Check out this card"}`;
     const currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
     const socialPlatforms = [
@@ -176,7 +176,7 @@ export default function ShareContent() {
             name: "Email",
             Icon: Icons.Email,
             color: "#EA4335",
-            action: () => shareViaEmail(currentUrl, invitation.title || "Invitation", shareText),
+            action: () => shareViaEmail(currentUrl, invitation.title || "Card", shareText),
         },
     ];
 
@@ -198,7 +198,7 @@ export default function ShareContent() {
                         ) : (
                             // Fallback Text Card (only shown if no image)
                             <div className={styles.fallbackCard}>
-                                <div className={styles.inviteText}>You Are Cordially Invited To</div>
+                                <div className={styles.inviteText}>Greetings</div>
                                 <h1 className={styles.eventTitle}>{invitation.title}</h1>
 
                                 <div className={styles.eventDetails}>

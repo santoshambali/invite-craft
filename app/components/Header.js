@@ -99,7 +99,7 @@ export default function Header() {
                 {/* Brand */}
                 <div className={styles.brand} onClick={() => router.push('/')}>
                     <div className={styles.brandLogo}>L</div>
-                    <span className={styles.brandText}>LAGU Invitations</span>
+                    <span className={styles.brandText}>LAGU Cards</span>
                 </div>
 
                 {/* Simplified Header for Auth Pages */}

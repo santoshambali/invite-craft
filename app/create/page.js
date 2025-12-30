@@ -22,7 +22,7 @@ export default function CreatePage() {
                     </svg>
                 </button>
 
-                <h1 className={styles.heading}>Create Your Invitation</h1>
+                <h1 className={styles.heading}>Create Your Card</h1>
                 <p className={styles.subheading}>How would you like to start designing?</p>
 
                 <div className={styles.grid}>
@@ -38,7 +38,7 @@ export default function CreatePage() {
                                 </svg>
                                 <h2 className={styles.cardTitle}>Use AI Generation</h2>
                                 <p className={styles.cardDesc}>
-                                    Just tell us about your event and let our AI craft the perfect invitation for you in seconds.
+                                    Just tell us about your event and let our AI craft the perfect card for you in seconds.
                                 </p>
                                 <Button>Generate with AI</Button>
                             </div>

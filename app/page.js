@@ -120,7 +120,7 @@ export default function Dashboard() {
 
     if (!id) {
       console.error("No invitation ID provided to delete");
-      alert("Error: Cannot delete invitation with missing ID");
+      alert("Error: Cannot delete card with missing ID");
       return;
     }
 
@@ -136,10 +136,10 @@ export default function Dashboard() {
       await deleteInvitation(id);
       console.log("API call successful, updating state");
       setInvitations((prev) => prev.filter(inv => inv.id !== id));
-      showToast("Invitation deleted successfully", "success");
+      showToast("Card deleted successfully", "success");
     } catch (err) {
       console.error('Failed to delete invitation:', err);
-      alert(`Failed to delete invitation: ${err.message}`);
+      alert(`Failed to delete card: ${err.message}`);
     }
   };
 
@@ -195,7 +195,7 @@ export default function Dashboard() {
       <div className={styles.layout}>
         <main className={styles.mainContent}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-            <Spinner size="large" text="Loading your beautiful invitations..." />
+            <Spinner size="large" text="Loading your beautiful cards..." />
           </div>
         </main>
       </div>
@@ -247,7 +247,7 @@ export default function Dashboard() {
           {/* Create New Card */}
           <div className={styles.createCard} onClick={() => setCreateModalOpen(true)}>
             <div className={styles.createIcon}>+</div>
-            <span className={styles.createText}>Create Invitation</span>
+            <span className={styles.createText}>Create Card</span>
           </div>
 
           {/* Invitation Cards */}
@@ -259,7 +259,7 @@ export default function Dashboard() {
                 {invitation.viewUrl || invitation.imageUrl ? (
                   <img
                     src={invitation.viewUrl || invitation.imageUrl}
-                    alt={invitation.title || 'Invitation'}
+                    alt={invitation.title || 'Card'}
                     className={styles.cardImage}
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -277,7 +277,7 @@ export default function Dashboard() {
               {/* Content */}
               <div className={styles.cardContent}>
                 <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>{invitation.title || 'Untitled Invitation'}</h3>
+                  <h3 className={styles.cardTitle}>{invitation.title || 'Untitled Card'}</h3>
                   {invitation.eventType && (
                     <span className={styles.eventTypeTag}>
                       {invitation.eventType}
@@ -367,13 +367,13 @@ export default function Dashboard() {
         {/* Loading more indicator */}
         {isLoadingMore && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-            <Spinner size="medium" text="Loading more invitations..." />
+            <Spinner size="medium" text="Loading more cards..." />
           </div>
         )}
 
         {invitations.length === 0 && !isLoading && !error && (
           <div style={{ textAlign: 'center', marginTop: '3rem', color: '#94a3b8' }}>
-            <p>Start by creating your first invitation above!</p>
+            <p>Start by creating your first card above!</p>
           </div>
         )}
 

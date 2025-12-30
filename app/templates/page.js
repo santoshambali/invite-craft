@@ -77,7 +77,7 @@ export default function TemplatesPage() {
                                 {TEMPLATE_CATEGORIES.find(c => c.id === template.category)?.label || template.category}
                             </div>
                             <h3 className={styles.cardTitle}>{template.name}</h3>
-                            <p className={styles.cardDesc}>{template.description || `Beautiful ${template.category} invitation template.`}</p>
+                            <p className={styles.cardDesc}>{template.description || `Beautiful ${template.category} card template.`}</p>
                         </div>
                     </div>
                 ))}

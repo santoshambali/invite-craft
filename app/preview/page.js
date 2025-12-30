@@ -352,7 +352,7 @@ function PreviewContent() {
       }
 
       refreshInvitations();
-      showToast("Invitation saved successfully!");
+      showToast("Card saved successfully!");
       setJustSaved(true);
 
       // If this was a new invitation (no eventId in URL), update URL to include the new ID
@@ -362,7 +362,7 @@ function PreviewContent() {
     } catch (error) {
       console.error("Error saving invitation:", error);
       showToast(
-        error.message || "Failed to save invitation. Try again.",
+        error.message || "Failed to save card. Try again.",
         "error"
       );
     } finally {
@@ -389,7 +389,7 @@ function PreviewContent() {
   const handleShare = async () => {
     const invitationId = data.invitationId || data.id;
     if (!invitationId) {
-      showToast("Please save the invitation first before sharing", "warning");
+      showToast("Please save the card first before sharing", "warning");
       return;
     }
 
@@ -403,7 +403,7 @@ function PreviewContent() {
     }
   };
 
-  if (loading) return <div className={styles.container}><Spinner fullPage text="Loading invitation..." /></div>;
+  if (loading) return <div className={styles.container}><Spinner fullPage text="Loading card..." /></div>;
 
   // Get placeholders based on template category
   const placeholders = getPlaceholders(data.category?.toLowerCase() || 'default');
@@ -431,15 +431,15 @@ function PreviewContent() {
             <div className={`${styles.editorPanel} ${activeTab === 'edit' ? styles.active : ''}`}>
               <div className={styles.formContent}>
                 <div className={styles.header}>
-                  <h1 className={styles.title}>Customize Invitation</h1>
+                  <h1 className={styles.title}>Customize Card</h1>
                   <p className={styles.subtitle}>Personalize your event details below</p>
                 </div>
                 {isGenerated && (
                   <div className={styles.aiNotice}>
                     <div className={styles.aiIcon}>✨</div>
                     <div className={styles.aiText}>
-                      <h3>AI Generated Invitation</h3>
-                      <p>This invitation was created using AI. To change the design or details, please use the AI Generator.</p>
+                      <h3>AI Generated Card</h3>
+                      <p>This card was created using AI. To change the design or details, please use the AI Generator.</p>
                       <button
                         className={styles.editInAiBtn}
                         onClick={() => router.push(`/create/ai?id=${eventId}`)}
@@ -459,7 +459,7 @@ function PreviewContent() {
                     </div>
                     <div className={styles.successText}>
                       <h3>Saved Successfully!</h3>
-                      <p>Your invitation is ready to be shared.</p>
+                      <p>Your card is ready to be shared.</p>
                     </div>
                     <button
                       className={styles.dismissButton}
@@ -694,7 +694,7 @@ function PreviewContent() {
                   <button
                     className={styles.btnIcon}
                     onClick={handleDownload}
-                    title="Download Invitation"
+                    title="Download Card"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -705,7 +705,7 @@ function PreviewContent() {
                   <button
                     className={styles.btnIcon}
                     onClick={handleShare}
-                    title="Share Invitation"
+                    title="Share Card"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="18" cy="5" r="3" />
@@ -719,7 +719,7 @@ function PreviewContent() {
                     className={styles.btnIcon}
                     onClick={handleSave}
                     disabled={saving}
-                    title="Save Invitation"
+                    title="Save Card"
                   >
                     {saving ? (
                       <Spinner size="small" />

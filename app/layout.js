@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "LAGU Invitations - Create Beautiful Invitations",
-  description: "Create and share beautiful invitations with AI-powered design",
+  title: "LAGU Cards - Create Beautiful Cards",
+  description: "Create and share beautiful cards with AI-powered design",
 };
 
 export default function RootLayout({ children }) {

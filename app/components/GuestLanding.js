@@ -110,11 +110,11 @@ export default function GuestLanding() {
                 <div className={styles.hero}>
                     <div className={styles.heroContent}>
                         <h1 className={styles.title}>
-                            Create Beautiful Invitations
+                            Create Beautiful Cards
                             <span className={styles.titleGradient}> Instantly</span>
                         </h1>
                         <p className={styles.subtitle}>
-                            Design stunning invitations with AI or choose from our templates.
+                            Design stunning cards with AI or choose from our templates.
                             Start creating now!
                         </p>
 
@@ -126,12 +126,12 @@ export default function GuestLanding() {
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962l6.135-1.583A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0l1.581 6.135a2 2 0 0 0 1.437 1.437l6.135 1.583a.5.5 0 0 1 0 .962l-6.135 1.582c-.745.192-1.245.826-1.245 1.582v0" />
                                 </svg>
-                                Create Invitation
+                                Create Card
                             </button>
                         </div>
 
                         <p className={styles.note}>
-                            💡 Create invitations without signing up.
+                            💡 Create cards without signing up.
                         </p>
                     </div>
 
@@ -141,7 +141,7 @@ export default function GuestLanding() {
                             <div className={styles.regCardContent}>
                                 <div className={styles.regHeader}>
                                     <h3>Join LAGU</h3>
-                                    <p>Sign up to save your invitations</p>
+                                    <p>Sign up to save your cards</p>
                                 </div>
                                 <form onSubmit={handleRegister} className={styles.regForm}>
                                     <div className={styles.nameRow}>
@@ -226,7 +226,7 @@ export default function GuestLanding() {
                     <div className={styles.featureCard}>
                         <div className={styles.featureIcon}>✨</div>
                         <h3>AI-Powered Design</h3>
-                        <p>Let AI create stunning invitations based on your event details</p>
+                        <p>Let AI create stunning cards based on your event details</p>
                     </div>
 
                     <div className={styles.featureCard}>
@@ -238,7 +238,7 @@ export default function GuestLanding() {
                     <div className={styles.featureCard}>
                         <div className={styles.featureIcon}>📤</div>
                         <h3>Easy Sharing</h3>
-                        <p>Share your invitations instantly via link or social media</p>
+                        <p>Share your cards instantly via link or social media</p>
                     </div>
 
                     <div className={styles.featureCard}>
