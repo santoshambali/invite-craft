@@ -364,7 +364,7 @@
 /* Responsive */
 @media (max-width: 768px) {
     .container {
-        padding: 20px 16px;
+        padding: calc(var(--header-height) + 20px) 16px 20px;
     }
 
     .invitationCard {

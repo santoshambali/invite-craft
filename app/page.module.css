@@ -368,6 +368,7 @@
 @media (max-width: 768px) {
   .mainContent {
     padding: 1.5rem 1rem;
+    padding-top: calc(var(--header-height) + 1.5rem);
   }
 
   .gridContainer {

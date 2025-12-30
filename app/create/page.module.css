@@ -5,7 +5,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 2rem 1rem;
+    padding-top: var(--header-height);
     background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, var(--bg-app) 100%);
 }
 
