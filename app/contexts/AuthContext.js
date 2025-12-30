@@ -150,7 +150,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             // Always clear local auth data
             clearAuthData();
-            router.push('/login');
+            router.push('/');
         }
     }, [accessToken, clearAuthData, router]);
 
@@ -173,13 +173,13 @@ export const AuthProvider = ({ children }) => {
             } else {
                 // Refresh failed, logout user
                 clearAuthData();
-                router.push('/login');
+                router.push('/');
                 return { success: false };
             }
         } catch (error) {
             console.error('Token refresh error:', error);
             clearAuthData();
-            router.push('/login');
+            router.push('/');
             return { success: false };
         }
     }, [refreshToken, clearAuthData, router]);

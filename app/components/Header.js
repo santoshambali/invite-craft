@@ -11,13 +11,18 @@ import CreateOptionsModal from './CreateOptionsModal';
 export default function Header() {
     const router = useRouter();
     const pathname = usePathname();
-    const { logout, user, isAuthenticated } = useAuth();
+    const { login, logout, user, isAuthenticated } = useAuth();
     const { invitationCount } = useInvitations();
 
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    // Login State
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loginLoading, setLoginLoading] = useState(false);
 
     const dropdownRef = useRef(null);
 
@@ -51,6 +56,28 @@ export default function Header() {
         await logout();
     };
 
+    const handleQuickLogin = async (e) => {
+        e.preventDefault();
+        if (!username || !password) return;
+
+        setLoginLoading(true);
+        try {
+            const result = await login({ username, password });
+            if (result.success) {
+                setUsername('');
+                setPassword('');
+                // Optional: Redirect if needed, or just let AuthContext update state
+            } else {
+                alert(result.error || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An unexpected error occurred.');
+        } finally {
+            setLoginLoading(false);
+        }
+    };
+
     // Get user initials for avatar
     const getUserInitial = () => {
         if (user?.username) {
@@ -58,8 +85,6 @@ export default function Header() {
         }
         return 'U';
     };
-
-    const navItems = [];
 
     // Check if we are on an auth page
     const isAuthPage = pathname === '/login' || pathname === '/register';
@@ -87,21 +112,48 @@ export default function Header() {
                         )}
                     </div>
                 ) : !isAuthenticated ? (
-                    /* Guest User Header */
+                    /* Guest User Header with Inline Login */
                     <div className={styles.actions}>
+
+
+                        <form onSubmit={handleQuickLogin} className={styles.loginForm}>
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                className={styles.headerInput}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                className={styles.headerInput}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button type="submit" className={styles.headerLoginBtn} disabled={loginLoading}>
+                                {loginLoading ? '...' : (
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                        <polyline points="10 17 15 12 10 7"></polyline>
+                                        <line x1="15" y1="12" x2="3" y2="12"></line>
+                                    </svg>
+                                )}
+                            </button>
+                        </form>
+
+                        {/* Mobile Toggle */}
                         <button
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className={styles.createButton}
+                            className={`${styles.mobileToggle} ${isMobileMenuOpen ? styles.open : ''}`}
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            aria-label="Toggle mobile menu"
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            Create Invitation
+                            <span className={styles.bar}></span>
+                            <span className={styles.bar}></span>
+                            <span className={styles.bar}></span>
                         </button>
-                        <Link href="/login" className={styles.loginButton}>
-                            Sign In
-                        </Link>
                     </div>
                 ) : (
                     <>
@@ -117,9 +169,6 @@ export default function Header() {
                                     <span className={styles.badgeCount}>{invitationCount}</span>
                                 </div>
                             )}
-
-                            {/* Create Button (Desktop) */}
-
 
                             {/* Profile Dropdown (Desktop) */}
                             {isAuthenticated && (
@@ -172,9 +221,32 @@ export default function Header() {
                 )}
             </div>
 
-            {/* Mobile Menu Overlay - Only for non-auth pages */}
+            {/* Mobile Menu Overlay */}
             {!isAuthPage && (
                 <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
+
+                    {!isAuthenticated && (
+                        <div className={styles.mobileLoginSection}>
+                            <h3>Sign In</h3>
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                className={styles.mobileInput}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                className={styles.mobileInput}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button onClick={handleQuickLogin} className={styles.mobileLoginBtn} disabled={loginLoading}>
+                                {loginLoading ? 'Signing in...' : 'Sign In'}
+                            </button>
+                        </div>
+                    )}
 
                     {isAuthenticated && (
                         <div className={styles.mobileNavLink} onClick={handleLogout} style={{ color: '#ef4444' }}>

@@ -39,7 +39,7 @@ export const isAuthenticated = () => {
 export const getUserId = () => {
     const token = getAccessToken();
     if (!token) return null;
-    
+
     try {
         // Decode JWT payload (base64)
         const payload = token.split('.')[1];
@@ -70,6 +70,6 @@ export const logout = async () => {
 
     // Redirect to login
     if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        window.location.href = '/';
     }
 };
