@@ -9,11 +9,12 @@ import Button from '../components/Button';
 import Toast from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import { validateUsername } from '../services/authService';
+import Spinner from '../components/Spinner';
 import styles from './page.module.css';
 
 export default function Login() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className={styles.container}><Spinner fullPage text="Loading..." /></div>}>
             <LoginForm />
         </Suspense>
     );
@@ -178,7 +179,7 @@ function LoginForm() {
                         >
                             {isLoading ? (
                                 <>
-                                    <span className={styles.spinner}></span>
+                                    <Spinner size="small" />
                                     Signing In...
                                 </>
                             ) : (

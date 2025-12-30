@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useInvitations } from '../contexts/InvitationContext';
 import styles from './Header.module.css';
 import CreateOptionsModal from './CreateOptionsModal';
+import Spinner from './Spinner';
 
 export default function Header() {
     const router = useRouter();
@@ -137,7 +138,7 @@ export default function Header() {
                                 required
                             />
                             <button type="submit" className={styles.headerLoginBtn} disabled={loginLoading}>
-                                {loginLoading ? '...' : (
+                                {loginLoading ? <Spinner size="small" /> : (
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                                         <polyline points="10 17 15 12 10 7"></polyline>
@@ -246,7 +247,12 @@ export default function Header() {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                             <button onClick={handleQuickLogin} className={styles.mobileLoginBtn} disabled={loginLoading}>
-                                {loginLoading ? 'Signing in...' : 'Sign In'}
+                                {loginLoading ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                        <Spinner size="small" />
+                                        <span>Signing in...</span>
+                                    </div>
+                                ) : 'Sign In'}
                             </button>
                         </div>
                     )}

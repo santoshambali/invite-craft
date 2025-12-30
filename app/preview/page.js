@@ -8,6 +8,7 @@ import ShareModal from "../components/ShareModal";
 import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
 import { useInvitations } from "../contexts/InvitationContext";
 import { TEMPLATES } from "../config/templates";
+import Spinner from "../components/Spinner";
 import styles from "./page.module.css";
 
 // Helper function to get placeholders based on template category
@@ -377,7 +378,7 @@ function PreviewContent() {
     }
   };
 
-  if (loading) return <div className={styles.container}><div className={styles.spinner}></div></div>;
+  if (loading) return <div className={styles.container}><Spinner fullPage text="Loading invitation..." /></div>;
 
   // Get placeholders based on template category
   const placeholders = getPlaceholders(data.category?.toLowerCase() || 'default');
@@ -650,7 +651,7 @@ function PreviewContent() {
               title="Save Invitation"
             >
               {saving ? (
-                <span className={styles.spinner}></span>
+                <Spinner size="small" />
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
@@ -692,7 +693,7 @@ function PreviewContent() {
 
 export default function PreviewPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className={styles.container}><Spinner fullPage text="Loading..." /></div>}>
       <PreviewContent />
     </Suspense>
   );

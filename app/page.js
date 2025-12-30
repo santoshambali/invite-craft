@@ -7,6 +7,7 @@ import ShareModal from './components/ShareModal';
 import CreateOptionsModal from './components/CreateOptionsModal';
 import GuestLanding from './components/GuestLanding';
 import { useInvitations } from './contexts/InvitationContext';
+import Spinner from './components/Spinner';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -109,13 +110,9 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className={styles.layout}>
-
         <main className={styles.mainContent}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>✨</div>
-              <p style={{ color: '#64748b' }}>Loading your beautiful invitations...</p>
-            </div>
+            <Spinner size="large" text="Loading your beautiful invitations..." />
           </div>
         </main>
       </div>

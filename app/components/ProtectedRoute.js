@@ -10,6 +10,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import Spinner from './Spinner';
 
 export default function ProtectedRoute({ children }) {
     const router = useRouter();
@@ -33,21 +34,7 @@ export default function ProtectedRoute({ children }) {
                 minHeight: '100vh',
                 background: 'var(--bg-app)'
             }}>
-                <div style={{
-                    textAlign: 'center',
-                    color: 'var(--text-secondary)'
-                }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        border: '3px solid rgba(99, 102, 241, 0.2)',
-                        borderTopColor: 'var(--primary-color)',
-                        borderRadius: '50%',
-                        animation: 'spin 0.8s linear infinite',
-                        margin: '0 auto 1rem'
-                    }}></div>
-                    <p>Loading...</p>
-                </div>
+                <Spinner size="large" text="Loading..." />
             </div>
         );
     }

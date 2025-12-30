@@ -6,6 +6,7 @@ import Button from "../../components/Button";
 import Toast from "../../components/Toast";
 import ShareModal from "../../components/ShareModal";
 import { getInvitation, getViewUrl, getShareUrl } from "../../services/invitationService";
+import Spinner from "../../components/Spinner";
 import styles from "./page.module.css";
 
 // Theme configurations
@@ -197,7 +198,7 @@ function BirthdayEditorContent() {
         }
     };
 
-    if (loading) return <div className={styles.container}></div>;
+    if (loading) return <div className={styles.container}><Spinner fullPage text="Loading..." /></div>;
 
     return (
         <div className={styles.container}>
@@ -390,7 +391,12 @@ function BirthdayEditorContent() {
                         ↓ Download
                     </Button>
                     <Button onClick={handleSave} disabled={saving} style={{ borderRadius: '99px', paddingLeft: '2rem', paddingRight: '2rem' }}>
-                        {saving ? "Saving..." : "Save Invitation"}
+                        {saving ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Spinner size="small" />
+                                <span>Saving...</span>
+                            </div>
+                        ) : "Save Invitation"}
                     </Button>
                 </div>
             </div>
@@ -400,7 +406,7 @@ function BirthdayEditorContent() {
 
 export default function BirthdayPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className={styles.container}><Spinner fullPage text="Loading..." /></div>}>
             <BirthdayEditorContent />
         </Suspense>
     );

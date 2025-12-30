@@ -13,6 +13,7 @@ import {
 } from '../../services/invitationService';
 import Toast from '../../components/Toast';
 import ShareModal from '../../components/ShareModal';
+import Spinner from '../../components/Spinner';
 
 import styles from './page.module.css';
 
@@ -491,7 +492,12 @@ function AICreatePageContent() {
                                 className={styles.generateButton}
                             >
                                 <span className={styles.buttonIcon}>✨</span>
-                                {loading ? 'Generating Invitation...' : 'Generate Invitation'}
+                                {loading ? (
+                                    <>
+                                        <Spinner size="small" />
+                                        <span>Generating Invitation...</span>
+                                    </>
+                                ) : 'Generate Invitation'}
                             </button>
                         </form>
 
@@ -501,8 +507,7 @@ function AICreatePageContent() {
                             <div className={styles.previewBox}>
                                 {loading ? (
                                     <div className={styles.loadingState}>
-                                        <div className={styles.spinner}></div>
-                                        <p className={styles.loadingText}>Creating your masterpiece...</p>
+                                        <Spinner size="large" text="Creating your masterpiece..." />
                                     </div>
                                 ) : generatedImageUrl ? (
                                     <img
@@ -547,7 +552,12 @@ function AICreatePageContent() {
                                         type="button"
                                     >
                                         <span className={styles.actionIcon}>💾</span>
-                                        {saving ? 'Saving...' : savedInvitation ? 'Update' : 'Save'}
+                                        {saving ? (
+                                            <>
+                                                <Spinner size="small" style={{ borderTopColor: 'white' }} />
+                                                <span>Saving...</span>
+                                            </>
+                                        ) : savedInvitation ? 'Update' : 'Save'}
                                     </button>
                                 </div>
                             )}
@@ -561,7 +571,7 @@ function AICreatePageContent() {
 
 export default function AICreatePage() {
     return (
-        <Suspense fallback={<div>Loading editor...</div>}>
+        <Suspense fallback={<div className={styles.container}><Spinner fullPage text="Loading editor..." /></div>}>
             <AICreatePageContent />
         </Suspense>
     );

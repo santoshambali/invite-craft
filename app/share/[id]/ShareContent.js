@@ -15,6 +15,7 @@ import {
     isNativeShareSupported,
 } from "../../utils/shareUtils";
 import SharePreview from "../../components/SharePreview";
+import Spinner from "../../components/Spinner";
 import styles from "./page.module.css";
 
 // SVG Icons (Matching ShareModal)
@@ -111,10 +112,7 @@ export default function ShareContent() {
     if (loading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loader}>
-                    <div className={styles.spinner}></div>
-                    <p>Loading invitation...</p>
-                </div>
+                <Spinner fullPage text="Loading invitation..." />
             </div>
         );
     }
@@ -188,38 +186,41 @@ export default function ShareContent() {
             <div className={styles.invitationWrapper}>
 
                 {/* Visual Card */}
-                <div className={`${styles.invitationCard} ${!imageUrl ? styles.fallbackCard : ''}`}>
-                    {imageUrl ? (
-                        <img
-                            src={imageUrl}
-                            alt={invitation.title}
-                            className={styles.invitationImage}
-                        />
-                    ) : (
-                        // Fallback Text Card (only shown if no image)
-                        <div className={styles.cardContent}>
-                            <div className={styles.inviteText}>You Are Cordially Invited To</div>
-                            <h1 className={styles.eventTitle}>{invitation.title}</h1>
+                <div className={styles.invitationCard}>
+                    <div className={styles.floatingCard}>
+                        <div className={styles.cardGlow}></div>
+                        {imageUrl ? (
+                            <img
+                                src={imageUrl}
+                                alt={invitation.title}
+                                className={styles.invitationImage}
+                            />
+                        ) : (
+                            // Fallback Text Card (only shown if no image)
+                            <div className={styles.fallbackCard}>
+                                <div className={styles.inviteText}>You Are Cordially Invited To</div>
+                                <h1 className={styles.eventTitle}>{invitation.title}</h1>
 
-                            <div className={styles.eventDetails}>
-                                {invitation.eventType && <p className={styles.eventType}>{invitation.eventType}</p>}
-                                <hr className={styles.divider} style={{ width: '40px', borderColor: 'rgba(0,0,0,0.1)', margin: '16px auto' }} />
+                                <div className={styles.eventDetails}>
+                                    {invitation.eventType && <p className={styles.eventType}>{invitation.eventType}</p>}
+                                    <hr className={styles.divider} style={{ width: '40px', borderColor: 'rgba(0,0,0,0.1)', margin: '16px auto' }} />
 
-                                {invitation.date && (
-                                    <p className={styles.date}>
-                                        {new Date(invitation.date).toLocaleDateString(undefined, {
-                                            weekday: "long",
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "numeric",
-                                        })}
-                                    </p>
-                                )}
-                                {invitation.time && <p className={styles.time}>{invitation.time}</p>}
-                                {invitation.location && <p className={styles.location}>{invitation.location}</p>}
+                                    {invitation.date && (
+                                        <p className={styles.date}>
+                                            {new Date(invitation.date).toLocaleDateString(undefined, {
+                                                weekday: "long",
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            })}
+                                        </p>
+                                    )}
+                                    {invitation.time && <p className={styles.time}>{invitation.time}</p>}
+                                    {invitation.location && <p className={styles.location}>{invitation.location}</p>}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 {/* Share Section */}

@@ -9,6 +9,7 @@ import Toast from './Toast';
 import CreateOptionsModal from './CreateOptionsModal';
 import { useAuth } from '../contexts/AuthContext';
 import { validateEmail, validatePassword, validateUsername } from '../services/authService';
+import Spinner from './Spinner';
 import styles from './GuestLanding.module.css';
 
 export default function GuestLanding() {
@@ -205,7 +206,12 @@ export default function GuestLanding() {
                                         className={styles.regButton}
                                         disabled={isLoading}
                                     >
-                                        {isLoading ? 'Creating Account...' : 'Sign Up Free'}
+                                        {isLoading ? (
+                                            <>
+                                                <Spinner size="small" />
+                                                <span>Creating Account...</span>
+                                            </>
+                                        ) : 'Sign Up Free'}
                                     </Button>
                                 </form>
                                 <div className={styles.regFooter}>

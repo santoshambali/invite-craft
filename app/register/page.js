@@ -9,6 +9,7 @@ import Button from '../components/Button';
 import Toast from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import { validateEmail, validatePassword, validateUsername } from '../services/authService';
+import Spinner from '../components/Spinner';
 import styles from './page.module.css';
 
 export default function Register() {
@@ -257,7 +258,7 @@ export default function Register() {
                         >
                             {isLoading ? (
                                 <>
-                                    <span className={styles.spinner}></span>
+                                    <Spinner size="small" />
                                     Creating Account...
                                 </>
                             ) : (
