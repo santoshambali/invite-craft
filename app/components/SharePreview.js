@@ -12,8 +12,7 @@ import {
     shareNative,
     isNativeShareSupported,
 } from "../utils/shareUtils";
-import SharePreview from "./SharePreview";
-import styles from "./ShareModal.module.css";
+import styles from "./SharePreview.module.css";
 
 // SVG Icons
 const Icons = {
@@ -44,18 +43,13 @@ const Icons = {
     Check: (props) => (
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="20 6 9 17 4 12"></polyline></svg>
     ),
-    Close: (props) => (
-        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    ),
     Share: (props) => (
         <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
     )
 };
 
-export default function ShareModal({ isOpen, onClose, shareUrl, title, invitationId }) {
+export default function SharePreview({ shareUrl, title, showGlassBackground = true }) {
     const [copied, setCopied] = useState(false);
-
-    if (!isOpen) return null;
 
     const shareText = `You're invited! ${title || "Check out this invitation"}`;
 
@@ -68,14 +62,11 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
     };
 
     const handleNativeShare = async () => {
-        const success = await shareNative({
+        await shareNative({
             title: title || "Invitation",
             text: shareText,
             url: shareUrl,
         });
-        if (!success) {
-            handleCopy();
-        }
     };
 
     const socialPlatforms = [
@@ -83,74 +74,92 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
             name: "WhatsApp",
             Icon: Icons.WhatsApp,
             color: "#25D366",
-            bg: "#dcf8c6",
             action: () => shareOnWhatsApp(shareUrl, shareText),
         },
         {
             name: "Facebook",
             Icon: Icons.Facebook,
             color: "#1877F2",
-            bg: "#e7f3ff",
             action: () => shareOnFacebook(shareUrl),
         },
         {
             name: "X",
             Icon: Icons.X,
             color: "#000000",
-            bg: "#e7e7e7",
             action: () => shareOnTwitter(shareUrl, shareText),
         },
         {
             name: "LinkedIn",
             Icon: Icons.LinkedIn,
             color: "#0A66C2",
-            bg: "#e1f0f8",
             action: () => shareOnLinkedIn(shareUrl),
         },
         {
             name: "Instagram",
             Icon: Icons.Instagram,
             color: "#E1306C",
-            bg: "#fce9ef",
             action: () => shareOnInstagram(shareUrl),
         },
         {
             name: "Telegram",
             Icon: Icons.Telegram,
             color: "#0088cc",
-            bg: "#e0f2fa",
             action: () => shareOnTelegram(shareUrl, shareText),
         },
         {
             name: "Email",
             Icon: Icons.Email,
             color: "#EA4335",
-            bg: "#fce8e6",
             action: () => shareViaEmail(shareUrl, title || "Invitation", shareText),
         },
     ];
 
     return (
-        <div className={styles.overlay} onClick={onClose}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.header}>
-                    <h2 className={styles.title}>Share Invitation</h2>
-                    <button
-                        className={styles.closeButton}
-                        onClick={onClose}
-                        aria-label="Close modal"
-                    >
-                        <Icons.Close size={20} />
-                    </button>
-                </div>
+        <div className={`${styles.shareSection} ${showGlassBackground ? styles.glass : ""}`}>
+            <div className={styles.shareHeader}>
+                <h2 className={styles.shareTitle}>Share Preview</h2>
+                <p className={styles.shareSubtitle}>Invite friends and family</p>
+            </div>
 
-                <div className={styles.content}>
-                    <SharePreview
-                        shareUrl={shareUrl}
-                        title={title}
-                        showGlassBackground={false}
-                    />
-                </div>
+            {/* Native Share Button */}
+            {isNativeShareSupported() && (
+                <button className={styles.nativeShareButton} onClick={handleNativeShare}>
+                    <Icons.Share size={20} />
+                    <span>Share Native</span>
+                </button>
+            )}
+
+            {/* Social Media Icons */}
+            <div className={styles.socialButtons}>
+                {socialPlatforms.map((platform) => (
+                    <button
+                        key={platform.name}
+                        className={styles.socialButton}
+                        onClick={platform.action}
+                        style={{ "--color": platform.color }}
+                        title={platform.name}
+                    >
+                        <platform.Icon size={18} />
+                    </button>
+                ))}
+            </div>
+
+            {/* Copy Link */}
+            <div className={styles.copyContainer}>
+                <input
+                    type="text"
+                    value={shareUrl}
+                    readOnly
+                    className={styles.urlInput}
+                    onClick={(e) => e.target.select()}
+                />
+                <button
+                    className={`${styles.copyButton} ${copied ? styles.copied : ""}`}
+                    onClick={handleCopy}
+                >
+                    {copied ? <Icons.Check size={16} /> : <Icons.Copy size={16} />}
+                    <span style={{ marginLeft: 6 }}>{copied ? "Copied" : "Copy"}</span>
+                </button>
             </div>
         </div>
     );

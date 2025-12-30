@@ -5,7 +5,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
+  /* Slightly darker for modal focus */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -18,43 +19,52 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
   }
 
   to {
     opacity: 1;
-    backdrop-filter: blur(12px);
   }
 }
 
-/* Modal */
+/* Modal - Liquid Glass Style */
 .modal {
-  background: var(--bg-surface);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.5) 100%);
+  backdrop-filter: blur(30px);
+  /* Even more blur for modal */
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
   border-radius: 28px;
   width: 90%;
-  max-width: 520px;
+  max-width: 400px;
+  /* Aligned with SharePreview constraints */
   max-height: 90vh;
   overflow: hidden;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 8px 10px -6px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
-@supports (backdrop-filter: blur(20px)) {
-  .modal {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
+.modal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(30px) scale(0.95);
     opacity: 0;
   }
 
@@ -69,19 +79,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 32px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.5);
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 5;
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin: 0;
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1e293b;
   letter-spacing: -0.02em;
 }
 
@@ -90,391 +98,7 @@
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
-  color: var(--text-secondary);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-
-.closeButton:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--text-primary);
-  transform: rotate(90deg);
-}
-
-/* Content */
-.content {
-  padding: 32px;
-  overflow-y: auto;
-  max-height: calc(90vh - 90px);
-}
-
-.description {
-  text-align: center;
-  color: var(--text-secondary);
-  margin: 0 0 32px 0;
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-/* Native Share Button */
-.nativeShareButton {
-  width: 100%;
-  padding: 18px;
-  background: var(--accent-gradient);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 32px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.nativeShareButton::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.nativeShareButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-}
-
-.nativeShareButton:hover::after {
-  opacity: 1;
-}
-
-.nativeShareButton:active {
-  transform: translateY(0);
-}
-
-/* Social Media Grid */
-.socialGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-@media (max-width: 480px) {
-  .socialGrid {
-    grid-template-columns: repeat(3, 1fr);
-    /* Keep 3 for compactness if possible, or 2 if too small */
-  }
-}
-
-.socialButton {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 20px;
-  padding: 24px 12px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.socialButton:hover {
-  border-color: transparent;
-  transform: translateY(-4px);
-  box-shadow:
-    0 12px 20px -8px rgba(0, 0, 0, 0.15),
-    0 4px 8px -4px rgba(0, 0, 0, 0.1);
-  background: white;
-}
-
-/* Icon Container */
-.iconContainer {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: var(--platform-bg, #f1f5f9);
-  color: var(--platform-color);
-  transition: all 0.3s ease;
-}
-
-.socialButton:hover .iconContainer {
-  transform: scale(1.1);
-  background: var(--platform-color);
-  color: white;
-}
-
-.platformName {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
-}
-
-.socialButton:hover .platformName {
-  color: var(--text-primary);
-}
-
-/* Copy Link Section */
-.copySection {
-  background: rgba(241, 245, 249, 0.8);
-  padding: 8px;
-  /* Reduced pading as input contains padding */
-  border-radius: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.urlContainer {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-  background: white;
-  padding: 6px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.urlContainer:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
-
-.urlInput {
-  flex: 1;
-  padding: 12px 16px;
-  border: none;
-  font-size: 0.9rem;
-  background: transparent;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Roboto Mono', monospace;
-  width: 100%;
-}
-
-.urlInput:focus {
-  outline: none;
-}
-
-.copyButton {
-  padding: 0 24px;
-  background: var(--text-primary);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.copyButton:hover {
-  background: black;
-  transform: scale(1.02);
-}
-
-.copyButton:active {
-  transform: scale(0.98);
-}
-
-.copyButton.copied {
-  background: var(--status-success);
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
-  .modal {
-    width: 95%;
-    bottom: 0;
-    max-height: 85vh;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    margin-bottom: 0;
-    transform: translateY(100%);
-  }
-
-  /* Override animation for mobile bottom sheet feel */
-  @keyframes slideUpMobile {
-    from {
-      transform: translateY(100%);
-    }
-
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  .modal {
-    animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .content {
-    padding: 24px;
-  }
-
-  .socialGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .modal {
-    background: rgba(30, 41, 59, 0.85);
-    /* Slate 800 */
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  }
-
-  .header {
-    background: rgba(30, 41, 59, 0.5);
-    border-bottom-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .closeButton {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-tertiary);
-  }
-
-  .closeButton:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-
-  .description {
-    color: var(--text-tertiary);
-  }
-
-  .socialButton {
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .socialButton:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .iconContainer {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .copySection {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .urlContainer {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .urlContainer:focus-within {
-    border-color: var(--primary-color);
-  }
-
-  .urlInput {
-    color: var(--text-on-accent);
-  }
-
-  .copyButton {
-    background: white;
-    color: black;
-  }
-
-  .copyButton:hover {
-    background: #e2e8f0;
-  }
-
-  .copyButton.copied {
-    background: var(--status-success);
-    color: white;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* Modal */
-.modal {
-  background: white;
-  border-radius: 24px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Header */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 28px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.closeButton {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #666;
+  color: #1e293b;
   width: 32px;
   height: 32px;
   display: flex;
@@ -485,287 +109,25 @@
 }
 
 .closeButton:hover {
-  background: #f5f5f5;
-  color: #333;
+  background: rgba(0, 0, 0, 0.1);
   transform: rotate(90deg);
 }
 
 /* Content */
 .content {
-  padding: 28px;
+  padding: 8px 0;
+  /* Minimal padding as SharePreview has its own */
   overflow-y: auto;
-  max-height: calc(90vh - 100px);
+  position: relative;
+  z-index: 5;
 }
 
-.description {
-  text-align: center;
-  color: #666;
-  margin: 0 0 24px 0;
-  font-size: 0.95rem;
-}
-
-/* Native Share Button */
-.nativeShareButton {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 24px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.nativeShareButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.nativeShareButton:active {
-  transform: translateY(0);
-}
-
-.shareIcon {
-  font-size: 1.2rem;
-}
-
-/* Social Media Grid */
-.socialGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
+/* ResponsiveDesign */
 @media (max-width: 480px) {
-  .socialGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.socialButton {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 16px;
-  padding: 20px 12px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.socialButton::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--platform-color);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 0;
-}
-
-.socialButton:hover::before {
-  opacity: 0.1;
-}
-
-.socialButton:hover {
-  border-color: var(--platform-color);
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.socialButton:active {
-  transform: translateY(-2px) scale(1.02);
-}
-
-.platformIcon {
-  font-size: 2rem;
-  position: relative;
-  z-index: 1;
-  transition: transform 0.3s ease;
-}
-
-.socialButton:hover .platformIcon {
-  transform: scale(1.2);
-}
-
-.platformName {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #333;
-  position: relative;
-  z-index: 1;
-}
-
-/* Copy Link Section */
-.copySection {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 20px;
-  border-radius: 16px;
-  margin-top: 8px;
-}
-
-.urlContainer {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.urlInput {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  background: white;
-  color: #333;
-  font-family: monospace;
-  transition: all 0.2s ease;
-}
-
-.urlInput:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.copyButton {
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.copyButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
-
-.copyButton:active {
-  transform: translateY(0);
-}
-
-.copyButton.copied {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  animation: pulse 0.5s ease;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 600px) {
   .modal {
     width: 95%;
     border-radius: 20px;
-  }
-
-  .header {
-    padding: 20px 24px;
-  }
-
-  .title {
-    font-size: 1.3rem;
-  }
-
-  .content {
-    padding: 24px;
-  }
-
-  .socialButton {
-    padding: 16px 10px;
-  }
-
-  .platformIcon {
-    font-size: 1.8rem;
-  }
-
-  .platformName {
-    font-size: 0.8rem;
-  }
-
-  .urlInput {
-    font-size: 0.85rem;
-    padding: 10px 12px;
-  }
-
-  .copyButton {
-    padding: 10px 16px;
-    font-size: 0.85rem;
-  }
-}
-
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-  .modal {
-    background: #1a1a1a;
-    color: #fff;
-  }
-
-  .header {
-    border-bottom-color: #333;
-  }
-
-  .closeButton {
-    color: #aaa;
-  }
-
-  .closeButton:hover {
-    background: #2a2a2a;
-    color: #fff;
-  }
-
-  .description {
-    color: #aaa;
-  }
-
-  .socialButton {
-    background: #2a2a2a;
-    border-color: #444;
-  }
-
-  .platformName {
-    color: #fff;
-  }
-
-  .copySection {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-  }
-
-  .urlInput {
-    background: #2a2a2a;
-    border-color: #444;
-    color: #fff;
+    margin-top: auto;
+    margin-bottom: 20px;
   }
 }

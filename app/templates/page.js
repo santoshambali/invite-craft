@@ -30,14 +30,6 @@ export default function TemplatesPage() {
             description: 'Vibrant nightclub-style party invitation'
         },
         {
-            id: 3,
-            title: 'Pastel Dream',
-            category: 'Birthday',
-            color: '#fce7f3',
-            image: '/templates/birthday_pastel_dream_1766462060366.png',
-            description: 'Whimsical birthday celebration design'
-        },
-        {
             id: 4,
             title: 'Corporate Blue',
             category: 'Meeting',

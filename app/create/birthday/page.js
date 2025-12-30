@@ -11,14 +11,6 @@ import styles from "./page.module.css";
 // Theme configurations
 const THEMES = [
     {
-        id: 'pastel',
-        name: 'Pastel Dream',
-        color: '#fff1f2',
-        font: "'Comic Sans MS', 'Chalkboard SE', sans-serif",
-        accent: '#fb7185',
-        bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)'
-    },
-    {
         id: 'space',
         name: 'Space Explorer',
         color: '#0f172a',
@@ -61,7 +53,7 @@ const THEMES = [
     },
     {
         id: 'premium_abstract',
-        name: 'Premium Abstract',
+        name: 'Abstract',
         color: '#ffffff',
         font: "'Inter', sans-serif",
         accent: '#6366f1',
@@ -82,7 +74,7 @@ function BirthdayEditorContent() {
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [shareData, setShareData] = useState(null);
 
-    const [selectedThemeId, setSelectedThemeId] = useState('pastel');
+    const [selectedThemeId, setSelectedThemeId] = useState('space');
 
     const [data, setData] = useState({
         title: "",

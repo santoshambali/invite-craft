@@ -14,6 +14,7 @@ import {
     shareNative,
     isNativeShareSupported,
 } from "../../utils/shareUtils";
+import SharePreview from "../../components/SharePreview";
 import styles from "./page.module.css";
 
 // SVG Icons (Matching ShareModal)
@@ -222,53 +223,10 @@ export default function ShareContent() {
                 </div>
 
                 {/* Share Section */}
-                <div className={styles.shareSection}>
-                    <div className={styles.shareHeader}>
-                        <h2 className={styles.shareTitle}>Share Preview</h2>
-                        <p className={styles.shareSubtitle}>Invite friends and family</p>
-                    </div>
-
-                    {/* Native Share Button (Mobile) */}
-                    {isNativeShareSupported() && (
-                        <button className={styles.nativeShareButton} onClick={handleNativeShare}>
-                            <Icons.Share size={20} />
-                            <span>Share Native</span>
-                        </button>
-                    )}
-
-                    {/* Social Media Icons */}
-                    <div className={styles.socialButtons}>
-                        {socialPlatforms.map((platform) => (
-                            <button
-                                key={platform.name}
-                                className={styles.socialButton}
-                                onClick={platform.action}
-                                style={{ "--color": platform.color }}
-                                title={platform.name}
-                            >
-                                <platform.Icon size={20} />
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Copy Link */}
-                    <div className={styles.copyContainer}>
-                        <input
-                            type="text"
-                            value={currentUrl}
-                            readOnly
-                            className={styles.urlInput}
-                            onClick={(e) => e.target.select()}
-                        />
-                        <button
-                            className={`${styles.copyButton} ${copied ? styles.copied : ""}`}
-                            onClick={handleCopy}
-                        >
-                            {copied ? <Icons.Check size={16} /> : <Icons.Copy size={16} />}
-                            <span style={{ marginLeft: 6 }}>{copied ? "Copied" : "Copy"}</span>
-                        </button>
-                    </div>
-                </div>
+                <SharePreview
+                    shareUrl={currentUrl}
+                    title={invitation.title}
+                />
             </div>
 
             {/* Footer */}

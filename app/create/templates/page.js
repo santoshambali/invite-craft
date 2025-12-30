@@ -76,7 +76,6 @@ export default function TemplatesPage() {
                                         backgroundPosition: 'center'
                                     }}
                                 >
-                                    {t.premium && <span className={styles.premiumBadge}>Premium</span>}
                                     <div className={styles.previewOverlay}>
                                         <span className={styles.useButton}>Use Template</span>
                                     </div>

@@ -56,7 +56,7 @@ export default function CreateOptionsModal({ isOpen, onClose }) {
                                 </svg>
                                 <h2 className={styles.cardTitle}>Browse Templates</h2>
                                 <p className={styles.cardDesc}>
-                                    Explore our curated collection of premium templates and customize them to fit your needs.
+                                    Explore our curated collection of templates and customize them to fit your needs.
                                 </p>
                                 <Button>View Templates</Button>
                             </div>
