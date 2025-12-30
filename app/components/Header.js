@@ -166,14 +166,6 @@ export default function Header() {
 
                         {/* Actions */}
                         <div className={styles.actions}>
-                            {/* Invitation Count Badge */}
-                            {isAuthenticated && (
-                                <div className={styles.invitationBadge} title="Total Invitations">
-                                    <span className={styles.badgeIcon}>💌</span>
-                                    <span className={styles.badgeCount}>{invitationCount}</span>
-                                </div>
-                            )}
-
                             {/* Profile Dropdown (Desktop) */}
                             {isAuthenticated && (
                                 <div className={styles.userMenuWrapper} ref={dropdownRef}>

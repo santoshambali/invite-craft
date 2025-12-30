@@ -451,3 +451,53 @@
         width: 100%;
     }
 }
+
+/* AI Notice Styles */
+.aiNotice {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    border: 1px solid #c4b5fd;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.aiIcon {
+    font-size: 2.5rem;
+}
+
+.aiText h3 {
+    margin: 0 0 0.5rem 0;
+    color: #5b21b6;
+    font-size: 1.25rem;
+}
+
+.aiText p {
+    margin: 0 0 1.25rem 0;
+    color: #6d28d9;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.editInAiBtn {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.editInAiBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}

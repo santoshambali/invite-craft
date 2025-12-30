@@ -255,11 +255,6 @@ function AICreatePageContent() {
 
             setSavedInvitation(result);
 
-            // Redirect to preview page to show final result with share/download options
-            if (result && result.id) {
-                router.push(`/preview?id=${result.id}`);
-            }
-
         } catch (error) {
             console.error('Error saving invitation:', error);
 

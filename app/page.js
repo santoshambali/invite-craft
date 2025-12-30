@@ -13,7 +13,16 @@ import styles from './page.module.css';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { invitations, setInvitations, isLoading: contextLoading, error: contextError } = useInvitations();
+  const {
+    invitations,
+    totalInvitationCount,
+    hasMore,
+    isLoadingMore,
+    loadMoreInvitations,
+    setInvitations,
+    isLoading: contextLoading,
+    error: contextError
+  } = useInvitations();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -82,6 +91,26 @@ export default function Dashboard() {
 
     enrichInvitations();
   }, [router, invitations.length, contextLoading]);
+
+  // Infinite scroll implementation
+  useEffect(() => {
+    if (!isUserAuthenticated) return;
+
+    const handleScroll = () => {
+      // Check if user has scrolled to bottom
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+
+      // Trigger load more when user is 200px from bottom
+      if (scrollHeight - scrollTop - clientHeight < 200 && hasMore && !isLoadingMore) {
+        loadMoreInvitations();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isUserAuthenticated, hasMore, isLoadingMore, loadMoreInvitations]);
 
   const handleDelete = async (e, id) => {
     e.stopPropagation(); // Prevent card click
@@ -186,12 +215,11 @@ export default function Dashboard() {
       <Toast visible={toast.show} message={toast.message} type={toast.type} />
 
       <main className={styles.mainContent}>
-        {/* <div className={styles.pageHeader}>
+        <div className={styles.pageHeader}>
           <div className={styles.welcomeSection}>
             <h1>Dashboard</h1>
-            <p>Welcome back! You have {invitations.length} invitation{invitations.length !== 1 ? 's' : ''} ready to go.</p>
           </div>
-        </div> */}
+        </div>
 
         {error && (
           <div style={{ padding: '1rem', background: '#fee2e2', color: '#dc2626', borderRadius: '12px', marginBottom: '2rem' }}>
@@ -319,6 +347,13 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+
+        {/* Loading more indicator */}
+        {isLoadingMore && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+            <Spinner size="medium" text="Loading more invitations..." />
+          </div>
+        )}
 
         {invitations.length === 0 && !isLoading && !error && (
           <div style={{ textAlign: 'center', marginTop: '3rem', color: '#94a3b8' }}>

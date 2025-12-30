@@ -260,9 +260,7 @@ function PreviewContent() {
             eventId: initialData.eventId,
           });
 
-          if (initialData.templateId === 'ai-generated') {
-            setIsGenerated(true);
-          }
+          setIsGenerated(initialData.templateId === 'ai-generated');
         }
       } catch (err) {
         console.error("Error loading data:", err);
@@ -429,7 +427,23 @@ function PreviewContent() {
 
 
         <div className={styles.formContent}>
-          {justSaved && (
+          {isGenerated && (
+            <div className={styles.aiNotice}>
+              <div className={styles.aiIcon}>✨</div>
+              <div className={styles.aiText}>
+                <h3>AI Generated Invitation</h3>
+                <p>This invitation was created using AI. To change the design or details, please use the AI Generator.</p>
+                <button
+                  className={styles.editInAiBtn}
+                  onClick={() => router.push(`/create/ai?id=${eventId}`)}
+                >
+                  Edit in AI Generator
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!isGenerated && justSaved && (
             <div className={styles.saveSuccessMessage}>
               <div className={styles.successIcon}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -565,7 +579,7 @@ function PreviewContent() {
               }}
             >
               {/* Overlay for better text readability */}
-              {data.templateImage && !data.config && (
+              {data.templateImage && !data.config && !isGenerated && (
                 <div
                   style={{
                     position: "absolute",
@@ -579,89 +593,91 @@ function PreviewContent() {
                 />
               )}
 
-              <div
-                className={styles.cardContent}
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  ...data.config?.layout?.content
-                }}
-              >
-                <div style={{ flex: 1 }}></div>
-                {/* Event Type */}
+              {!isGenerated && (
                 <div
+                  className={styles.cardContent}
                   style={{
-                    textTransform: "uppercase",
-                    letterSpacing: "3px",
-                    fontSize: "0.75rem",
-                    fontWeight: "600",
-                    opacity: 0.7,
-                    marginBottom: '1.5rem',
-                    ...data.config?.layout?.eventType
+                    position: "relative",
+                    zIndex: 1,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    ...data.config?.layout?.content
                   }}
                 >
-                  {data.eventType}
-                </div>
-
-                {/* Title */}
-                <h1
-                  style={{
-                    fontSize: "3.5rem",
-                    lineHeight: "1.05",
-                    fontWeight: "400",
-                    marginBottom: "1.5rem",
-                    letterSpacing: "-0.02em",
-                    ...data.config?.layout?.title
-                  }}
-                >
-                  {data.title}
-                </h1>
-
-                {/* Divider */}
-                {!data.config && (
-                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                    <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
+                  <div style={{ flex: 1 }}></div>
+                  {/* Event Type */}
+                  <div
+                    style={{
+                      textTransform: "uppercase",
+                      letterSpacing: "3px",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      opacity: 0.7,
+                      marginBottom: '1.5rem',
+                      ...data.config?.layout?.eventType
+                    }}
+                  >
+                    {data.eventType}
                   </div>
-                )}
 
-                {/* Details Section */}
-                <div style={{
-                  fontSize: "1.1rem",
-                  lineHeight: "1.8",
-                  fontWeight: "300",
-                  ...data.config?.layout?.details
-                }}>
-                  {mounted && data.date && (
-                    <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
-                      {new Date(data.date).toLocaleDateString(undefined, {
-                        weekday: "long",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </p>
-                  )}
-                  {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+                  {/* Title */}
+                  <h1
+                    style={{
+                      fontSize: "3.5rem",
+                      lineHeight: "1.05",
+                      fontWeight: "400",
+                      marginBottom: "1.5rem",
+                      letterSpacing: "-0.02em",
+                      ...data.config?.layout?.title
+                    }}
+                  >
+                    {data.title}
+                  </h1>
 
-                  {data.location && (
-                    <p style={{ marginTop: "1rem", fontWeight: "500" }}>
-                      📍 {data.location}
-                    </p>
-                  )}
-
-                  {data.description && (
-                    <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                      {data.description}
+                  {/* Divider */}
+                  {!data.config && (
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                      <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
                     </div>
                   )}
-                </div>
 
-                <div style={{ flex: 1.5 }}></div>
-              </div>
+                  {/* Details Section */}
+                  <div style={{
+                    fontSize: "1.1rem",
+                    lineHeight: "1.8",
+                    fontWeight: "300",
+                    ...data.config?.layout?.details
+                  }}>
+                    {mounted && data.date && (
+                      <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                        {new Date(data.date).toLocaleDateString(undefined, {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    )}
+                    {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+
+                    {data.location && (
+                      <p style={{ marginTop: "1rem", fontWeight: "500" }}>
+                        📍 {data.location}
+                      </p>
+                    )}
+
+                    {data.description && (
+                      <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                        {data.description}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1.5 }}></div>
+                </div>
+              )}
             </div>
           </div>
 

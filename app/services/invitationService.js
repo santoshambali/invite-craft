@@ -253,30 +253,55 @@ export const createInvitation = async (invitationData) => {
 };
 
 /**
- * Get all invitations for the authenticated user
+ * Get invitations for the authenticated user with pagination support
  * @param {string} [userId] - Optional userId to filter invitations
- * @returns {Promise<Array>} List of invitations
+ * @param {number} [page=0] - Page number to fetch (0-indexed, first page = 0)
+ * @param {number} [size=10] - Number of items per page
+ * @returns {Promise<Object>} Object containing invitations array and pagination metadata
  */
-export const getUserInvitations = async (userId) => {
+export const getUserInvitations = async (userId, page = 0, size = 10) => {
   try {
-    let url = buildInvitationApiUrl("/api/v1/invitations");
+    // Build base URL
+    let baseUrl = buildInvitationApiUrl("/api/v1/invitations");
+    const separator = "?";
+    let queryParams = [];
+
     if (userId) {
-      url += `?userId=${encodeURIComponent(userId)}`;
+      queryParams.push(`userId=${encodeURIComponent(userId)}`);
     }
-    console.log("Fetching invitations from:", url);
+
+    // Always include page and size parameters (0-indexed)
+    queryParams.push(`page=${page}`);
+    queryParams.push(`size=${size}`);
+
+    // Build final URL
+    const url = `${baseUrl}${separator}${queryParams.join("&")}`;
+
+    console.log(`Fetching invitations from: ${url} (Page ${page}, Size ${size})`);
     const response = await fetch(url, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
     const result = await handleResponse(response);
-    console.log("API Response:", result);
+    console.log(`API Response (Page ${page}):`, result);
 
-    // Handle different response formats - backend returns { items: [...] }
-    const invitations = result.items || result.data || result.invitations || [];
-    console.log("Parsed invitations:", invitations);
+    // Extract pagination info from nested pagination object
+    const pagination = result.pagination || {};
+    const totalPages = pagination.totalPages || 1;
+    const totalItems = pagination.totalItems || 0;
+    const currentPage = pagination.page !== undefined ? pagination.page : page;
+    const invitations = result.items || [];
 
-    return Array.isArray(invitations) ? invitations : [];
+    console.log(`Fetched ${invitations.length} invitations (Page ${currentPage} of ${totalPages}, Total: ${totalItems})`);
+
+    return {
+      invitations: Array.isArray(invitations) ? invitations : [],
+      totalItems: totalItems,
+      totalPages: totalPages,
+      currentPage: currentPage,
+      hasMore: currentPage < totalPages - 1, // 0-indexed, so last page is totalPages - 1
+    };
   } catch (error) {
     console.error("Error fetching invitations:", error);
     throw error;
