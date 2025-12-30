@@ -148,16 +148,6 @@ export default function Header() {
                             </button>
                         </form>
 
-                        {/* Mobile Toggle */}
-                        <button
-                            className={`${styles.mobileToggle} ${isMobileMenuOpen ? styles.open : ''}`}
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            aria-label="Toggle mobile menu"
-                        >
-                            <span className={styles.bar}></span>
-                            <span className={styles.bar}></span>
-                            <span className={styles.bar}></span>
-                        </button>
                     </div>
                 ) : (
                     <>
@@ -221,33 +211,7 @@ export default function Header() {
             {!isAuthPage && (
                 <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
 
-                    {!isAuthenticated && (
-                        <div className={styles.mobileLoginSection}>
-                            <h3>Sign In</h3>
-                            <input
-                                type="text"
-                                placeholder="Username"
-                                className={styles.mobileInput}
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className={styles.mobileInput}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <button onClick={handleQuickLogin} className={styles.mobileLoginBtn} disabled={loginLoading}>
-                                {loginLoading ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                        <Spinner size="small" />
-                                        <span>Signing in...</span>
-                                    </div>
-                                ) : 'Sign In'}
-                            </button>
-                        </div>
-                    )}
+
 
                     {isAuthenticated && (
                         <div className={styles.mobileNavLink} onClick={handleLogout} style={{ color: '#ef4444' }}>
