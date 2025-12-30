@@ -82,7 +82,7 @@ function PreviewContent() {
   const containerRef = useRef(null);
   const { invitations, refreshInvitations } = useInvitations();
 
-  const [activeTab, setActiveTab] = useState('preview'); // 'edit' or 'preview'
+  const [activeTab, setActiveTab] = useState('edit'); // 'edit' or 'preview'
   const [scale, setScale] = useState(1);
   const [isGenerated, setIsGenerated] = useState(false);
 
@@ -121,8 +121,9 @@ function PreviewContent() {
       if (!containerRef.current) return;
 
       const parent = containerRef.current;
-      const availableWidth = parent.clientWidth - 40; // padding
-      const availableHeight = parent.clientHeight - 40;
+      // Account for larger padding in new modern design and providing breathing room
+      const availableWidth = parent.clientWidth - 96;
+      const availableHeight = parent.clientHeight - 96;
 
       // Card natural dimensions: 480 x 680
       const scaleX = availableWidth / 480;
@@ -422,306 +423,316 @@ function PreviewContent() {
         />
       )}
 
-      {/* Left: Editor Panel */}
-      <div className={`${styles.editorPanel} ${activeTab === 'edit' ? styles.active : ''}`}>
+      <div className={styles.mainContent}>
+        <div className={styles.editorWrapper}>
+          <div className={styles.splitLayout}>
 
+            {/* Left: Editor Panel */}
+            <div className={`${styles.editorPanel} ${activeTab === 'edit' ? styles.active : ''}`}>
+              <div className={styles.formContent}>
+                <div className={styles.header}>
+                  <h1 className={styles.title}>Customize Invitation</h1>
+                  <p className={styles.subtitle}>Personalize your event details below</p>
+                </div>
+                {isGenerated && (
+                  <div className={styles.aiNotice}>
+                    <div className={styles.aiIcon}>✨</div>
+                    <div className={styles.aiText}>
+                      <h3>AI Generated Invitation</h3>
+                      <p>This invitation was created using AI. To change the design or details, please use the AI Generator.</p>
+                      <button
+                        className={styles.editInAiBtn}
+                        onClick={() => router.push(`/create/ai?id=${eventId}`)}
+                      >
+                        Edit in AI Generator
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-        <div className={styles.formContent}>
-          {isGenerated && (
-            <div className={styles.aiNotice}>
-              <div className={styles.aiIcon}>✨</div>
-              <div className={styles.aiText}>
-                <h3>AI Generated Invitation</h3>
-                <p>This invitation was created using AI. To change the design or details, please use the AI Generator.</p>
-                <button
-                  className={styles.editInAiBtn}
-                  onClick={() => router.push(`/create/ai?id=${eventId}`)}
-                >
-                  Edit in AI Generator
-                </button>
-              </div>
-            </div>
-          )}
+                {!isGenerated && justSaved && (
+                  <div className={styles.saveSuccessMessage}>
+                    <div className={styles.successIcon}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <div className={styles.successText}>
+                      <h3>Saved Successfully!</h3>
+                      <p>Your invitation is ready to be shared.</p>
+                    </div>
+                    <button
+                      className={styles.dismissButton}
+                      onClick={() => setJustSaved(false)}
+                    >
+                      Continue Editing
+                    </button>
+                  </div>
+                )}
 
-          {!isGenerated && justSaved && (
-            <div className={styles.saveSuccessMessage}>
-              <div className={styles.successIcon}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              </div>
-              <div className={styles.successText}>
-                <h3>Saved Successfully!</h3>
-                <p>Your invitation is ready to be shared.</p>
-              </div>
-              <button
-                className={styles.dismissButton}
-                onClick={() => setJustSaved(false)}
-              >
-                Continue Editing
-              </button>
-            </div>
-          )}
-
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <span className={styles.label}>Event Details</span>
-              <div className={styles.separator} />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Event Title</label>
-              <input
-                className={styles.input}
-                name="title"
-                placeholder={placeholders.title}
-                value={data.title}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Event Type</label>
-              <input
-                className={styles.input}
-                name="eventType"
-                placeholder={placeholders.eventType}
-                value={data.eventType}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Message</label>
-              <textarea
-                className={styles.input}
-                name="description"
-                placeholder={placeholders.description}
-                value={data.description}
-                onChange={handleChange}
-                rows={4}
-                style={{ minHeight: '100px', resize: 'vertical' }}
-              />
-            </div>
-          </div>
-
-          <div className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <span className={styles.label}>When & Where</span>
-              <div className={styles.separator} />
-            </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Date</label>
-              <input
-                className={styles.input}
-                type="date"
-                name="date"
-                value={data.date}
-                onChange={handleChange}
-              />
-            </div>
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Time</label>
-              <input
-                className={styles.input}
-                type="time"
-                name="time"
-                value={data.time}
-                onChange={handleChange}
-              />
-            </div>
-            <div className={styles.inputGroup}>
-              <label className={styles.inputLabel}>Location</label>
-              <input
-                className={styles.input}
-                name="location"
-                placeholder={placeholders.location}
-                value={data.location}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right: Preview Area */}
-      <div
-        ref={containerRef}
-        className={`${styles.previewArea} ${activeTab === 'preview' ? styles.active : ''}`}
-      >
-        <div className={styles.previewWrapper}>
-          <div
-            className={styles.canvas}
-            style={{
-              transform: `scale(${scale})`,
-              // Ensure we don't cause layout issues while scaling
-              width: '480px',
-              height: '680px',
-              flexShrink: 0
-            }}
-          >
-            {/* The Card - Ref added here */}
-            <div
-              ref={cardRef}
-              className={styles.card}
-              style={{
-                background: data.templateImage
-                  ? `url(${data.templateImage}) center/cover no-repeat`
-                  : (data.config?.background || data.color),
-                color: data.config?.color || "#1a1a1a",
-                fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
-                textAlign: data.config?.textAlign || 'center',
-                position: "relative",
-                display: 'flex',
-                flexDirection: 'column',
-                ...data.config?.layout?.container
-              }}
-            >
-              {/* Overlay for better text readability */}
-              {data.templateImage && !data.config && !isGenerated && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: "rgba(255, 255, 255, 0.85)",
-                    zIndex: 0,
-                  }}
-                />
-              )}
-
-              {!isGenerated && (
-                <div
-                  className={styles.cardContent}
-                  style={{
-                    position: "relative",
-                    zIndex: 1,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    ...data.config?.layout?.content
-                  }}
-                >
-                  <div style={{ flex: 1 }}></div>
-                  {/* Event Type */}
-                  <div
-                    style={{
-                      textTransform: "uppercase",
-                      letterSpacing: "3px",
-                      fontSize: "0.75rem",
-                      fontWeight: "600",
-                      opacity: 0.7,
-                      marginBottom: '1.5rem',
-                      ...data.config?.layout?.eventType
-                    }}
-                  >
-                    {data.eventType}
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <span className={styles.label}>Event Details</span>
+                    <div className={styles.separator} />
                   </div>
 
-                  {/* Title */}
-                  <h1
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Event Title</label>
+                    <input
+                      className={styles.input}
+                      name="title"
+                      placeholder={placeholders.title}
+                      value={data.title}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Event Type</label>
+                    <input
+                      className={styles.input}
+                      name="eventType"
+                      placeholder={placeholders.eventType}
+                      value={data.eventType}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Message</label>
+                    <textarea
+                      className={styles.input}
+                      name="description"
+                      placeholder={placeholders.description}
+                      value={data.description}
+                      onChange={handleChange}
+                      rows={4}
+                      style={{ minHeight: '100px', resize: 'vertical' }}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <span className={styles.label}>When & Where</span>
+                    <div className={styles.separator} />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Date</label>
+                    <input
+                      className={styles.input}
+                      type="date"
+                      name="date"
+                      value={data.date}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Time</label>
+                    <input
+                      className={styles.input}
+                      type="time"
+                      name="time"
+                      value={data.time}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.inputLabel}>Location</label>
+                    <input
+                      className={styles.input}
+                      name="location"
+                      placeholder={placeholders.location}
+                      value={data.location}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Preview Area */}
+            <div
+              ref={containerRef}
+              className={`${styles.previewArea} ${activeTab === 'preview' ? styles.active : ''}`}
+            >
+              <div className={styles.previewWrapper}>
+                <div
+                  className={styles.canvas}
+                  style={{
+                    transform: `scale(${scale})`,
+                    // Ensure we don't cause layout issues while scaling
+                    width: '480px',
+                    height: '680px',
+                    flexShrink: 0
+                  }}
+                >
+                  {/* The Card - Ref added here */}
+                  <div
+                    ref={cardRef}
+                    className={styles.card}
                     style={{
-                      fontSize: "3.5rem",
-                      lineHeight: "1.05",
-                      fontWeight: "400",
-                      marginBottom: "1.5rem",
-                      letterSpacing: "-0.02em",
-                      ...data.config?.layout?.title
+                      background: data.templateImage
+                        ? `url(${data.templateImage}) center/cover no-repeat`
+                        : (data.config?.background || data.color),
+                      color: data.config?.color || "#1a1a1a",
+                      fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
+                      textAlign: data.config?.textAlign || 'center',
+                      position: "relative",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      ...data.config?.layout?.container
                     }}
                   >
-                    {data.title}
-                  </h1>
-
-                  {/* Divider */}
-                  {!data.config && (
-                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                      <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
-                    </div>
-                  )}
-
-                  {/* Details Section */}
-                  <div style={{
-                    fontSize: "1.1rem",
-                    lineHeight: "1.8",
-                    fontWeight: "300",
-                    ...data.config?.layout?.details
-                  }}>
-                    {mounted && data.date && (
-                      <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
-                        {new Date(data.date).toLocaleDateString(undefined, {
-                          weekday: "long",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </p>
-                    )}
-                    {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
-
-                    {data.location && (
-                      <p style={{ marginTop: "1rem", fontWeight: "500" }}>
-                        📍 {data.location}
-                      </p>
+                    {/* Overlay for better text readability */}
+                    {data.templateImage && !data.config && !isGenerated && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: "rgba(255, 255, 255, 0.85)",
+                          zIndex: 0,
+                        }}
+                      />
                     )}
 
-                    {data.description && (
-                      <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                        {data.description}
+                    {!isGenerated && (
+                      <div
+                        className={styles.cardContent}
+                        style={{
+                          position: "relative",
+                          zIndex: 1,
+                          width: '100%',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          textShadow: data.templateImage ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          ...data.config?.layout?.content
+                        }}
+                      >
+                        <div style={{ flex: 1 }}></div>
+                        {/* Event Type */}
+                        <div
+                          style={{
+                            textTransform: "uppercase",
+                            letterSpacing: "3px",
+                            fontSize: "0.75rem",
+                            fontWeight: "600",
+                            opacity: 0.7,
+                            marginBottom: '1.5rem',
+                            ...data.config?.layout?.eventType
+                          }}
+                        >
+                          {data.eventType}
+                        </div>
+
+                        {/* Title */}
+                        <h1
+                          style={{
+                            fontSize: "3.5rem",
+                            lineHeight: "1.05",
+                            fontWeight: "400",
+                            marginBottom: "1.5rem",
+                            letterSpacing: "-0.02em",
+                            ...data.config?.layout?.title
+                          }}
+                        >
+                          {data.title}
+                        </h1>
+
+                        {/* Divider */}
+                        {!data.config && (
+                          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                            <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
+                          </div>
+                        )}
+
+                        {/* Details Section */}
+                        <div style={{
+                          fontSize: "1.1rem",
+                          lineHeight: "1.8",
+                          fontWeight: "300",
+                          ...data.config?.layout?.details
+                        }}>
+                          {mounted && data.date && (
+                            <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                              {new Date(data.date).toLocaleDateString(undefined, {
+                                weekday: "long",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </p>
+                          )}
+                          {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+
+                          {data.location && (
+                            <p style={{ marginTop: "1rem", fontWeight: "500" }}>
+                              📍 {data.location}
+                            </p>
+                          )}
+
+                          {data.description && (
+                            <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                              {data.description}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ flex: 1.5 }}></div>
                       </div>
                     )}
                   </div>
-
-                  <div style={{ flex: 1.5 }}></div>
                 </div>
-              )}
-            </div>
-          </div>
 
-          <div className={styles.actionBar}>
-            <button
-              className={styles.btnIcon}
-              onClick={handleDownload}
-              title="Download Invitation"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-            </button>
-            <button
-              className={styles.btnIcon}
-              onClick={handleShare}
-              title="Share Invitation"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3" />
-                <circle cx="6" cy="12" r="3" />
-                <circle cx="18" cy="19" r="3" />
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-              </svg>
-            </button>
-            <button
-              className={styles.btnIcon}
-              onClick={handleSave}
-              disabled={saving}
-              title="Save Invitation"
-            >
-              {saving ? (
-                <Spinner size="small" />
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                  <polyline points="17 21 17 13 7 13 7 21" />
-                  <polyline points="7 3 7 8 15 8" />
-                </svg>
-              )}
-            </button>
+                <div className={styles.actionBar}>
+                  <button
+                    className={styles.btnIcon}
+                    onClick={handleDownload}
+                    title="Download Invitation"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </button>
+                  <button
+                    className={styles.btnIcon}
+                    onClick={handleShare}
+                    title="Share Invitation"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3" />
+                      <circle cx="6" cy="12" r="3" />
+                      <circle cx="18" cy="19" r="3" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                    </svg>
+                  </button>
+                  <button
+                    className={styles.btnIcon}
+                    onClick={handleSave}
+                    disabled={saving}
+                    title="Save Invitation"
+                  >
+                    {saving ? (
+                      <Spinner size="small" />
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
