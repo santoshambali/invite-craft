@@ -101,26 +101,28 @@ export default function TemplatesPage() {
 
                 <div className={styles.grid}>
                     {filteredTemplates.map(template => (
-                        <div key={template.id} className={styles.card}>
+                        <div
+                            key={template.id}
+                            className={styles.card}
+                            onClick={() => handleUseTemplate(template)}
+                        >
                             <div className={styles.preview}>
                                 <Image
                                     src={template.image}
                                     alt={template.title}
                                     className={styles.previewImage}
-                                    width={280}
-                                    height={180}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    priority={template.id <= 3}
                                 />
+                                <div className={styles.previewOverlay}>
+                                    <span className={styles.overlayBtn}>Use Template</span>
+                                </div>
                             </div>
                             <div className={styles.content}>
                                 <div className={styles.cardCategory}>{template.category}</div>
                                 <h3 className={styles.cardTitle}>{template.title}</h3>
                                 <p className={styles.cardDesc}>{template.description}</p>
-                                <button
-                                    className={styles.useBtn}
-                                    onClick={() => handleUseTemplate(template)}
-                                >
-                                    Use Template
-                                </button>
                             </div>
                         </div>
                     ))}

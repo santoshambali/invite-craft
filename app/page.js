@@ -8,6 +8,7 @@ import CreateOptionsModal from './components/CreateOptionsModal';
 import GuestLanding from './components/GuestLanding';
 import { useInvitations } from './contexts/InvitationContext';
 import Spinner from './components/Spinner';
+import Toast from './components/Toast';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -19,6 +20,16 @@ export default function Dashboard() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
+  });
+
+  const showToast = (message, type = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+  };
 
   useEffect(() => {
     // Check authentication
@@ -107,6 +118,33 @@ export default function Dashboard() {
     }
   };
 
+  const handleDownload = async (e, imageUrl, title) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (!imageUrl) return;
+
+    try {
+      showToast("Preparing your download...", "success");
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${title || 'invitation'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback: open in new tab
+      window.open(imageUrl, '_blank');
+      showToast("Opening in new tab for download", "success");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={styles.layout}>
@@ -144,6 +182,8 @@ export default function Dashboard() {
           invitationId={shareData.invitationId}
         />
       )}
+
+      <Toast visible={toast.show} message={toast.message} type={toast.type} />
 
       <main className={styles.mainContent}>
         {/* <div className={styles.pageHeader}>
@@ -257,15 +297,13 @@ export default function Dashboard() {
                     )}
 
                     {(invitation.viewUrl || invitation.imageUrl) && (
-                      <a
-                        href={invitation.viewUrl || invitation.imageUrl}
-                        download={`${invitation.title || 'invitation'}.png`}
+                      <button
                         className={styles.btnIcon}
                         title="Download"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => handleDownload(e, invitation.viewUrl || invitation.imageUrl, invitation.title)}
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                      </a>
+                      </button>
                     )}
                   </div>
 

@@ -179,7 +179,11 @@ function BirthdayEditorContent() {
             }
 
             showToast("Invitation saved successfully!");
-            // Update local storage if needed ...
+
+            // Redirect to preview page to show final result with share/download options
+            if (result && result.id) {
+                router.push(`/preview?id=${result.id}`);
+            }
         } catch (error) {
             console.error(error);
             showToast("Failed to save.", "error");

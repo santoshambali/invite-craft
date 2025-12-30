@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, Suspense, useLayoutEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { toPng } from "html-to-image";
 import Toast from "../components/Toast";
@@ -75,6 +75,7 @@ const getDefaultEventType = (category) => {
 };
 
 function PreviewContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const eventId = searchParams.get("id");
   const cardRef = useRef(null);
@@ -108,6 +109,7 @@ function PreviewContent() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -205,17 +207,33 @@ function PreviewContent() {
             if (!initialData.config) {
               initialData.config = template.config;
             }
-            // Ensure category is correct (e.g. 'birthday' instead of 'birthday-pastel')
+            // Use the original template image for background, not the composite image
+            initialData.templateImage = template.image;
+
+            // Ensure category is correct (e.g. 'birthday' instead of 'birthday-modern')
             if (!initialData.category || initialData.category === initialData.templateId) {
               initialData.category = template.category;
             }
           }
         }
 
-        // Scenario 2: Creating new from template (fallback or new flow)
-        if (!initialData) {
-          const stored = localStorage.getItem("previewData");
-          if (stored) initialData = JSON.parse(stored);
+        // Scenario 2: Load local cache for potentially non-persisted fields (like description)
+        const stored = localStorage.getItem("previewData");
+        const localData = stored ? JSON.parse(stored) : null;
+
+        // Merge API data with local cache if they match or if API data is missing fields
+        if (initialData && localData) {
+          // If the template matches, we can safely merge fields that might be missing in API
+          if (initialData.templateId === localData.templateId) {
+            initialData = {
+              ...localData,
+              ...initialData,
+              // Favor local description if API version is empty/null
+              description: initialData.description || localData.description || ""
+            };
+          }
+        } else if (!initialData && localData) {
+          initialData = localData;
         }
 
         if (initialData) {
@@ -319,11 +337,13 @@ function PreviewContent() {
             e.id === data.id ? savedEvent : e
           );
           localStorage.setItem("myEvents", JSON.stringify(updatedEvents));
+          // Also update previewData to ensure fields like description are preserved on reload
+          localStorage.setItem("previewData", JSON.stringify(eventData));
         } else {
-          localStorage.setItem(
-            "myEvents",
-            JSON.stringify([savedEvent, ...allEvents])
-          );
+          localStorage.setItem("myEvents", JSON.stringify([savedEvent, ...allEvents]));
+          // Also update previewData to ensure fields like description are preserved on reload
+          localStorage.setItem("previewData", JSON.stringify(eventData));
+
           setData((prev) => ({
             ...prev,
             id: savedEvent.id,
@@ -334,6 +354,12 @@ function PreviewContent() {
 
       refreshInvitations();
       showToast("Invitation saved successfully!");
+      setJustSaved(true);
+
+      // If this was a new invitation (no eventId in URL), update URL to include the new ID
+      if (!eventId && result.id) {
+        router.replace(`/preview?id=${result.id}`, { scroll: false });
+      }
     } catch (error) {
       console.error("Error saving invitation:", error);
       showToast(
@@ -403,6 +429,26 @@ function PreviewContent() {
 
 
         <div className={styles.formContent}>
+          {justSaved && (
+            <div className={styles.saveSuccessMessage}>
+              <div className={styles.successIcon}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div className={styles.successText}>
+                <h3>Saved Successfully!</h3>
+                <p>Your invitation is ready to be shared.</p>
+              </div>
+              <button
+                className={styles.dismissButton}
+                onClick={() => setJustSaved(false)}
+              >
+                Continue Editing
+              </button>
+            </div>
+          )}
+
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
               <span className={styles.label}>Event Details</span>

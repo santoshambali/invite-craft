@@ -367,3 +367,87 @@
         transform: translateX(-50%) translateY(-2px);
     }
 }
+
+/* Save Success Message */
+.saveSuccessMessage {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #10b981;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.successIcon {
+    width: 48px;
+    height: 48px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.successText h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #064e3b;
+    font-weight: 700;
+}
+
+.successText p {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    color: #065f46;
+    opacity: 0.8;
+}
+
+.dismissButton {
+    margin-left: auto;
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 1px solid #10b981;
+    color: #10b981;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dismissButton:hover {
+    background: #10b981;
+    color: white;
+}
+
+@media (max-width: 640px) {
+    .saveSuccessMessage {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.25rem;
+    }
+
+    .dismissButton {
+        margin: 0;
+        width: 100%;
+    }
+}

@@ -190,5 +190,47 @@ export const TEMPLATES = [
                 }
             }
         }
+    },
+
+    {
+        id: 'new-year-snowy',
+        name: 'Snowy Soiree',
+        category: 'new-year',
+        image: '/templates/new_year_snowy_celebration.png',
+        premium: false,
+        config: {
+            background: 'url(/templates/new_year_snowy_celebration.png) center/cover no-repeat',
+            fontFamily: "'Lora', serif",
+            color: '#2C3E50',
+            textAlign: 'center',
+            layout: {
+                container: { justifyContent: 'center' },
+                title: {
+                    fontSize: '3.5rem',
+                    fontWeight: '700',
+                    color: '#1A252F',
+                    textShadow: '0 0 20px rgba(255,255,255,0.8)',
+                    marginBottom: '1rem'
+                },
+                eventType: {
+                    fontSize: '1rem',
+                    letterSpacing: '4px',
+                    textTransform: 'uppercase',
+                    color: '#5D6D7E',
+                    marginBottom: '3rem'
+                },
+                details: {
+                    fontSize: '1.1rem',
+                    marginTop: '2rem',
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    padding: '2.5rem',
+                    borderRadius: '50% 50% 0 0',
+                    width: '350px',
+                    margin: '0 auto',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    backdropFilter: 'blur(5px)'
+                }
+            }
+        }
     }
 ];
