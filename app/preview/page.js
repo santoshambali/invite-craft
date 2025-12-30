@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, Suspense, useLayoutEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+
 import { toPng } from "html-to-image";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
@@ -399,20 +399,7 @@ function PreviewContent() {
 
       {/* Left: Editor Panel */}
       <div className={`${styles.editorPanel} ${activeTab === 'edit' ? styles.active : ''}`}>
-        <div className={styles.editorHeader}>
-          <Link href="/" className={styles.backLink}>
-            <div className={styles.backIconWrapper}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5" />
-                <path d="M12 19l-7-7 7-7" />
-              </svg>
-            </div>
-            <span>Back to Dashboard</span>
-          </Link>
-          <h1 className={styles.sectionTitle}>
-            {eventId ? "Edit Invitation" : "Customize Invitation"}
-          </h1>
-        </div>
+
 
         <div className={styles.formContent}>
           <div className={styles.section}>

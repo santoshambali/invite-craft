@@ -16,8 +16,21 @@
 }
 
 .headerScrolled {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     box-shadow: var(--shadow-sm);
+}
+
+.headerInner {
+    /* Simulate the root page's hero gradient behind the glass */
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Ensure scrolled state takes precedence with higher specificity or correct order */
+.header.headerScrolled {
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .container {

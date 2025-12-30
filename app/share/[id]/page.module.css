@@ -1,160 +1,134 @@
-/* Container - Premium Dark Gradient */
+/* Container - Matches Root Page (GuestLanding) Gradient */
 .container {
+    padding-top: calc(var(--header-height) + 1rem);
     min-height: 100vh;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    padding: calc(var(--header-height) + 40px) 20px 40px;
+    /* Allow height to grow */
+    height: auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    /* Allow default overflow for scrolling */
+    padding: calc(var(--header-height) + 1rem) 1.5rem 4rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    color: #e2e8f0;
+    justify-content: flex-start;
+    /* Start from top */
+    color: white;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Glassmorphism Base */
-.glassPanel {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border-radius: 24px;
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
 }
 
-/* Loading State */
-.loader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-}
-
-.spinner {
-    width: 48px;
-    height: 48px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #38bdf8;
-    border-radius: 50%;
-    animation: spin 0.8s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loader p {
-    font-size: 1rem;
-    color: #94a3b8;
-    letter-spacing: 0.5px;
-}
-
-/* Error State */
-.error {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border-radius: 24px;
-    padding: 60px 40px;
-    text-align: center;
-    max-width: 480px;
-}
-
-.errorIcon {
-    font-size: 3.5rem;
-    margin-bottom: 24px;
-    opacity: 0.8;
-}
-
-.error h1 {
-    font-size: 1.75rem;
-    margin: 0 0 16px 0;
-    color: #f8fafc;
-    font-weight: 700;
-}
-
-.error p {
-    color: #cbd5e1;
-    margin: 0 0 32px 0;
-    line-height: 1.6;
-}
-
-.homeLink {
-    display: inline-flex;
-    padding: 12px 32px;
-    background: #38bdf8;
-    color: #0f172a;
-    text-decoration: none;
-    border-radius: 99px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-.homeLink:hover {
-    background: #7dd3fc;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4);
-}
-
-/* Invitation Wrapper */
+/* Invitation Wrapper - Responsive Layout */
 .invitationWrapper {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1400px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
+    justify-content: flex-start;
+    gap: 32px;
+    z-index: 1;
     animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 2rem;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
+/* Desktop Layout: Side-by-Side */
+@media (min-width: 900px) {
+    .container {
+        justify-content: center;
+        /* Center vertically on large screens if it fits */
+        min-height: 100vh;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .invitationWrapper {
+        flex-direction: row;
+        align-items: flex-start;
+        /* Align top */
+        justify-content: center;
+        gap: 60px;
+        padding-bottom: 0;
+        margin-top: 2rem;
+    }
+
+    .invitationCard {
+        flex: 1;
+        max-width: 650px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        /* Reset min-height for desktop side-by-side */
+        min-height: auto;
+    }
+
+    .shareSection {
+        flex: 0 0 400px;
+        position: sticky;
+        top: calc(var(--header-height) + 2rem);
     }
 }
 
-/* Invitation Card - Now creates a separation between Image and Details */
+/* Invitation Card */
 .invitationCard {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    /* Mobile: Ensure it fills the viewport (minus header/padding) */
+    min-height: calc(100vh - var(--header-height) - 2rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: transform 0.4s ease;
-    background: transparent;
-    /* Changed from white to allow image to be independent */
 }
 
 .invitationCard:hover {
     transform: translateY(-5px);
 }
 
-/* Only Image Mode - Main View */
 .invitationImage {
-    width: 100%;
+    width: auto;
+    /* Allow it to be as tall as it needs to be, but constrained by viewport */
     height: auto;
-    display: block;
+    max-width: 100%;
+    /* Ensure it doesn't overflow vertically on the first view */
+    max-height: calc(100vh - var(--header-height) - 4rem);
     border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    background-color: transparent;
+    object-fit: contain;
+    transition: box-shadow 0.4s ease;
 }
 
-/* Text Fallback (if no image or overlaid) */
+.invitationCard:hover .invitationImage {
+    box-shadow: 0 35px 90px rgba(0, 0, 0, 0.6);
+}
+
+/* Fallback Card Styling */
 .fallbackCard {
     background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
     color: #1e293b;
     padding: 60px 40px;
     text-align: center;
-    border-radius: 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    width: 100%;
+}
+
+.invitationCard.fallbackCard:hover {
+    box-shadow: 0 35px 90px rgba(0, 0, 0, 0.6);
 }
 
 .inviteText {
@@ -163,12 +137,11 @@
     font-size: 0.75rem;
     color: #64748b;
     margin-bottom: 2rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .eventTitle {
     font-family: 'Playfair Display', serif;
-    /* Or system serif */
     font-size: 3rem;
     margin: 0 0 1.5rem 0;
     line-height: 1.1;
@@ -184,35 +157,46 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .date,
 .time,
-.location {
+.location,
+.eventType {
     font-size: 1.1rem;
     color: #475569;
+}
+
+.eventType {
+    font-weight: 600;
+    color: #3b82f6;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
 }
 
 .location {
     font-weight: 500;
     margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* Share Section */
 .shareSection {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.2);
     border-radius: 24px;
     padding: 32px;
     width: 100%;
-    max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 28px;
 }
 
 .shareHeader {
@@ -220,33 +204,32 @@
 }
 
 .shareTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     margin: 0 0 8px 0;
-    color: #f8fafc;
+    color: #1e293b;
+    letter-spacing: -0.02em;
 }
 
 .shareSubtitle {
-    font-size: 0.9rem;
-    color: #94a3b8;
+    font-size: 0.95rem;
+    color: #64748b;
     margin: 0;
 }
 
 /* Social Icon Grid */
 .socialButtons {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    flex-wrap: wrap;
 }
 
 .socialButton {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #f8fafc;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -261,7 +244,8 @@
     transform: translateY(-4px);
     background: var(--color);
     border-color: var(--color);
-    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.4);
+    color: white;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
 }
 
 .socialButton:active {
@@ -271,12 +255,18 @@
 /* Copy Link Section */
 .copyContainer {
     position: relative;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    padding: 4px;
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 6px;
     display: flex;
     align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid #e2e8f0;
+    transition: border-color 0.2s;
+}
+
+.copyContainer:focus-within {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
 }
 
 .urlInput {
@@ -284,38 +274,38 @@
     background: transparent;
     border: none;
     padding: 12px 16px;
-    color: #94a3b8;
+    color: #334155;
     font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     min-width: 0;
-    /* allows text overflow ellipsis */
 }
 
 .urlInput:focus {
     outline: none;
-    color: #f8fafc;
 }
 
 .copyButton {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #f8fafc;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .copyButton:hover {
-    background: #38bdf8;
-    color: #0f172a;
+    background: #f1f5f9;
+    transform: translateY(-1px);
 }
 
 .copyButton.copied {
     background: #10b981;
+    border-color: #10b981;
     color: white;
 }
 
@@ -323,35 +313,38 @@
 .nativeShareButton {
     width: 100%;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    font-size: 1rem;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.05rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     transition: all 0.3s ease;
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
 }
 
 .nativeShareButton:hover {
-    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5);
+    filter: brightness(1.1);
 }
 
 /* Footer */
 .footer {
     text-align: center;
-    color: #64748b;
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.85rem;
-    margin-top: auto;
-    padding-top: 40px;
+    margin-top: 40px;
+    z-index: 10;
 }
 
 .brandLink {
-    color: #94a3b8;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     font-weight: 600;
     transition: color 0.2s;
@@ -359,23 +352,117 @@
 
 .brandLink:hover {
     color: #38bdf8;
+    text-decoration: underline;
+    text-underline-offset: 4px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading & Error States */
+.loader,
+.error {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #38bdf8;
+    border-radius: 50%;
+    animation: spin 0.8s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loader p {
+    margin-top: 16px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.errorIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error p {
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.homeLink {
+    display: inline-block;
+    padding: 12px 32px;
+    background: white;
+    color: #4f46e5;
+    border-radius: 99px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Mobile Tweaks */
+@media (max-width: 900px) {
     .container {
-        padding: calc(var(--header-height) + 20px) 16px 20px;
+        padding: calc(var(--header-height) + 1rem) 16px 40px;
+        min-height: 100vh;
+        height: auto;
+        justify-content: flex-start;
+    }
+
+    .invitationWrapper {
+        gap: 32px;
+        max-width: 600px;
+        /* Increased slightly */
     }
 
     .invitationCard {
-        border-radius: 16px;
-    }
-
-    .eventTitle {
-        font-size: 2.25rem;
+        /* Ensure image isn't restricted too much */
+        width: 100%;
+        max-width: 100%;
     }
 
     .shareSection {
-        padding: 24px 20px;
+        width: 100%;
+    }
+
+    .socialButtons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .socialButtons {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .eventTitle {
+        font-size: 2rem;
     }
 }

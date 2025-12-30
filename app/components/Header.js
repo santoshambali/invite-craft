@@ -89,8 +89,11 @@ export default function Header() {
     // Check if we are on an auth page
     const isAuthPage = pathname === '/login' || pathname === '/register';
 
+    // Pages that have the full purple gradient background (don't need fake header gradient)
+    const isGradientPage = pathname === '/' || pathname.startsWith('/share');
+
     return (
-        <header className={`${styles.header} ${isScrolled ? styles.headerScrolled : ''}`}>
+        <header className={`${styles.header} ${!isGradientPage ? styles.headerInner : ''} ${isScrolled ? styles.headerScrolled : ''}`}>
             <div className={styles.container}>
                 {/* Brand */}
                 <div className={styles.brand} onClick={() => router.push('/')}>
