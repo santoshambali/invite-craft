@@ -17,10 +17,11 @@ export default function TemplatesPage() {
             // Save the selected template details
             localStorage.setItem('previewData', JSON.stringify({
                 templateId: template.id,
-                title: 'Event Title',
+                category: template.category,
+                title: '',
                 date: '',
                 location: '',
-                eventType: template.category.charAt(0).toUpperCase() + template.category.slice(1),
+                eventType: '',
                 // We pass the config forward so the customized preview knows how to render
                 config: template.config
             }));

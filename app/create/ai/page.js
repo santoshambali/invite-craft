@@ -394,7 +394,6 @@ function AICreatePageContent() {
                                         value={formData.date}
                                         onChange={handleChange}
                                         className={styles.input}
-                                        required
                                     />
                                 </div>
 

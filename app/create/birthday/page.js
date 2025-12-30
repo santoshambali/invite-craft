@@ -85,11 +85,12 @@ function BirthdayEditorContent() {
     const [selectedThemeId, setSelectedThemeId] = useState('pastel');
 
     const [data, setData] = useState({
-        title: "Sarah's 5th Birthday",
-        eventType: "Join the Party!",
+        title: "",
+        eventType: "",
         date: "",
         time: "",
         location: "",
+        description: "",
         theme: "",
         category: "Birthday",
         templateImage: null,
@@ -139,11 +140,12 @@ function BirthdayEditorContent() {
                 if (initialData) {
                     setData(prev => ({
                         ...prev,
-                        title: initialData.title || "Happy Birthday!",
-                        eventType: initialData.eventType || "You are invited",
+                        title: initialData.title || "",
+                        eventType: initialData.eventType || "",
                         date: initialData.date || "",
                         time: initialData.time || "",
                         location: initialData.location || "",
+                        description: initialData.description || "",
                         templateImage: initialData.image || initialData.templateImage || null,
                         id: initialData.id,
                         eventId: initialData.eventId,
@@ -298,6 +300,24 @@ function BirthdayEditorContent() {
                         </div>
                     </div>
                 </div>
+
+                <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                        <div className={styles.sectionIcon}>📝</div>
+                        <span className={styles.label}>Message</span>
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <textarea
+                            className={styles.input}
+                            name="description"
+                            placeholder="Add a personal message..."
+                            value={data.description}
+                            onChange={handleChange}
+                            rows={3}
+                            style={{ resize: 'vertical' }}
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Preview Area */}
@@ -360,13 +380,14 @@ function BirthdayEditorContent() {
                                 borderRadius: "1.5rem",
                                 backdropFilter: "blur(4px)"
                             }}>
-                                <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                                    {data.date ? new Date(data.date).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) : "Date TBD"}
-                                </p>
-                                <p style={{ marginBottom: '1rem' }}>
-                                    {data.time || "Time TBD"}
-                                </p>
-                                <p style={{ opacity: 0.9 }}>📍 {data.location || "Location TBD"}</p>
+                                {data.date && <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                                    {new Date(data.date).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
+                                </p>}
+                                {data.time && <p style={{ marginBottom: '1rem' }}>
+                                    {data.time}
+                                </p>}
+                                {data.location && <p style={{ opacity: 0.9 }}>📍 {data.location}</p>}
+                                {data.description && <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '0.9em' }}>{data.description}</p>}
                             </div>
                         </div>
                     </div>

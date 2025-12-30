@@ -1,19 +1,88 @@
 "use client";
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense, useLayoutEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { toPng } from "html-to-image";
-import Button from "../components/Button";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
 import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
 import { useInvitations } from "../contexts/InvitationContext";
+import { TEMPLATES } from "../config/templates";
 import styles from "./page.module.css";
+
+// Helper function to get placeholders based on template category
+const getPlaceholders = (category) => {
+  const placeholders = {
+    birthday: {
+      title: "e.g. Sarah's 5th Birthday Party",
+      eventType: "e.g. Birthday Celebration",
+      location: "e.g. 123 Party Lane, Fun City",
+      description: "Join us for cake, games, and fun!"
+    },
+    wedding: {
+      title: "e.g. Emma & James Wedding",
+      eventType: "e.g. Wedding Ceremony",
+      location: "e.g. Garden Rose Chapel, Springfield",
+      description: "Join us as we celebrate our special day..."
+    },
+    party: {
+      title: "e.g. Summer Garden Party",
+      eventType: "e.g. Garden Party",
+      location: "e.g. Backyard Garden, 456 Green St",
+      description: "Come celebrate with food, music, and dancing!"
+    },
+    'new-year': {
+      title: "e.g. New Year's Eve Gala 2025",
+      eventType: "e.g. New Year Celebration",
+      location: "e.g. Grand Ballroom, Downtown Hotel",
+      description: "Ring in the new year with champagne and fireworks!"
+    },
+    announcement: {
+      title: "e.g. Big News Announcement",
+      eventType: "e.g. Special Announcement",
+      location: "e.g. Conference Hall, Main Street",
+      description: "We have exciting news to share with you..."
+    },
+    professional: {
+      title: "e.g. Annual Team Meeting 2025",
+      eventType: "e.g. Corporate Meeting",
+      location: "e.g. Conference Room A, Office Tower",
+      description: "Quarterly review and planning session"
+    },
+    default: {
+      title: "e.g. My Special Event",
+      eventType: "e.g. Celebration",
+      location: "e.g. Venue Name, Address",
+      description: "Add a personal message or details..."
+    }
+  };
+
+  return placeholders[category] || placeholders.default;
+};
+
+// Helper to get default event type value
+const getDefaultEventType = (category) => {
+  switch (category?.toLowerCase()) {
+    case 'birthday': return 'Birthday Party';
+    case 'wedding': return 'Wedding';
+    case 'new-year': return 'New Year Celebration';
+    case 'party': return 'Party';
+    case 'professional': return 'Professional Event';
+    case 'announcement': return 'Announcement';
+    default: return '';
+  }
+};
 
 function PreviewContent() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get("id");
   const cardRef = useRef(null);
-  const { refreshInvitations } = useInvitations();
+  const containerRef = useRef(null);
+  const { invitations, refreshInvitations } = useInvitations();
+
+  const [activeTab, setActiveTab] = useState('preview'); // 'edit' or 'preview'
+  const [scale, setScale] = useState(1);
+  const [isGenerated, setIsGenerated] = useState(false);
 
   const [toast, setToast] = useState({
     show: false,
@@ -26,6 +95,7 @@ function PreviewContent() {
     date: "",
     time: "",
     location: "",
+    description: "",
     theme: "",
     color: "#ffffff",
     category: "General",
@@ -36,8 +106,42 @@ function PreviewContent() {
   const [saving, setSaving] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareData, setShareData] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  // Handle dynamic scaling of the business card
+  useEffect(() => {
+    const handleResize = () => {
+      if (!containerRef.current) return;
+
+      const parent = containerRef.current;
+      const availableWidth = parent.clientWidth - 40; // padding
+      const availableHeight = parent.clientHeight - 40;
+
+      // Card natural dimensions: 480 x 680
+      const scaleX = availableWidth / 480;
+      const scaleY = availableHeight / 680;
+
+      // Scale to fit, but max 1.05 to avoid blurring too much
+      let newScale = Math.min(scaleX, scaleY, 1.05);
+
+      // Ensure it doesn't get too small ridiculously, but fitting is priority
+      if (newScale < 0.3) newScale = 0.3;
+
+      setScale(newScale);
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Initial calculation
+    const timer = setTimeout(handleResize, 100);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
+    };
+  }, [activeTab, mounted]); // Recalculate when tab changes or mounted
 
   const showToast = (msg, type = "success") => {
     setToast({ show: true, message: msg, type });
@@ -46,81 +150,110 @@ function PreviewContent() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (typeof window !== "undefined") {
+      try {
         let initialData = null;
 
-        // Scenario 1: Editing existing invitation from backend
+        // Scenario 1: Editing existing invitation from backend or context
         if (eventId) {
-          try {
-            const invitation = await getInvitation(eventId);
-            if (invitation) {
-              // Get signed URL for the image if it exists
-              let templateImage = null;
-              if (invitation.imageUrl) {
-                try {
-                  const filename = invitation.imageUrl.split("/").pop();
-                  templateImage = await getViewUrl(filename);
-                } catch (err) {
-                  console.error("Failed to get view URL:", err);
-                  templateImage = invitation.imageUrl;
+          // Check context first to avoid network call
+          const found = invitations.find(i => i.id === eventId);
+          if (found) {
+            initialData = found;
+          } else {
+            // Fetch from backend
+            try {
+              const invitation = await getInvitation(eventId);
+              if (invitation) {
+                // Get signed URL for the image if it exists
+                let templateImage = null;
+                if (invitation.imageUrl) {
+                  try {
+                    const filename = invitation.imageUrl.split("/").pop();
+                    templateImage = await getViewUrl(filename);
+                  } catch (err) {
+                    console.error("Failed to get view URL:", err);
+                    templateImage = invitation.imageUrl;
+                  }
                 }
-              }
 
-              initialData = {
-                id: invitation.id,
-                eventId: invitation.eventId,
-                title: invitation.title,
-                eventType: invitation.eventType,
-                date: invitation.date,
-                time: invitation.time,
-                location: invitation.location,
-                templateId: invitation.templateId,
-                category: invitation.templateId,
-                templateImage: templateImage,
-                imageUrl: invitation.imageUrl,
-              };
+                initialData = {
+                  id: invitation.id,
+                  eventId: invitation.eventId,
+                  title: invitation.title,
+                  eventType: invitation.eventType,
+                  date: invitation.date,
+                  time: invitation.time,
+                  location: invitation.location,
+                  description: invitation.description,
+                  templateId: invitation.templateId,
+                  category: invitation.templateId, // Will be corrected below
+                  templateImage: templateImage,
+                  imageUrl: invitation.imageUrl,
+                };
+              }
+            } catch (err) {
+              console.error("Failed to fetch invitation", err);
             }
-          } catch (err) {
-            console.error("Failed to fetch invitation from backend:", err);
-            // Fallback to localStorage
-            const allEvents = JSON.parse(
-              localStorage.getItem("myEvents") || "[]"
-            );
-            const found = allEvents.find((e) => e.id === eventId);
-            if (found) initialData = found;
           }
         }
 
-        // Scenario 2: Creating new from template (fallback)
+        // Re-hydrate config and category from TEMPLATES if missing
+        if (initialData && initialData.templateId) {
+          const template = TEMPLATES.find(t => t.id === initialData.templateId);
+          if (template) {
+            if (!initialData.config) {
+              initialData.config = template.config;
+            }
+            // Ensure category is correct (e.g. 'birthday' instead of 'birthday-pastel')
+            if (!initialData.category || initialData.category === initialData.templateId) {
+              initialData.category = template.category;
+            }
+          }
+        }
+
+        // Scenario 2: Creating new from template (fallback or new flow)
         if (!initialData) {
           const stored = localStorage.getItem("previewData");
           if (stored) initialData = JSON.parse(stored);
         }
 
         if (initialData) {
+          // Pre-fill eventType if empty using helper
+          if (!initialData.eventType && initialData.category) {
+            initialData.eventType = getDefaultEventType(initialData.category);
+          }
+
           setData({
-            title: initialData.title || "Event Title",
-            eventType: initialData.eventType || "Celebration",
+            title: initialData.title || "",
+            eventType: initialData.eventType || "",
             date: initialData.date || "",
             time: initialData.time || "",
-            location: initialData.location || "Location Here",
-            theme: initialData.theme || "",
-            color: initialData.color || "#ffffff",
-            category: initialData.category || "General",
-            templateImage:
-              initialData.image || initialData.templateImage || null,
+            location: initialData.location || "",
+            description: initialData.description || "",
+            templateId: initialData.templateId || "",
+            templateImage: initialData.templateImage || initialData.image || "",
+            // Provide defaults for config-related fields
+            category: initialData.category || "default",
+            color: initialData.color || initialData.config?.color || "#000000",
+            config: initialData.config || null,
+            // Keep original IDs
             id: initialData.id,
             eventId: initialData.eventId,
-            templateId: initialData.templateId,
-            config: initialData.config,
           });
+
+          if (initialData.templateId === 'ai-generated') {
+            setIsGenerated(true);
+          }
         }
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, [eventId]);
+  }, [eventId, invitations]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,48 +261,47 @@ function PreviewContent() {
   };
 
   const handleSave = async () => {
-    // First, generate the image from the card BEFORE setting any loading state
-    // This ensures the card element is still mounted and visible
     if (!cardRef.current) {
       showToast("Unable to generate invitation image", "error");
       return;
     }
 
     try {
-      // Generate image data URL first while card is still visible
-      const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+      // Temporarily reset scale for clear image generation if needed, 
+      // but toPng usually handles visual state. 
+      // It's often safer to capture at 1.0 scale.
+      const currentScale = scale;
+      // We might need to trick it if we were scaling via transform.
+      // But html-to-image is smart. Let's see. 
+      // Ideally we capture the element as is but at high res.
+      // The current transform might affect it. 
+      // Let's try capturing with the current transform, it should be fine as it's just visual scaling.
 
-      // Now set saving state (doesn't hide the card)
+      const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
       setSaving(true);
 
-      // Import the invitation service dynamically
       const { saveInvitationWithImage, updateInvitationWithImage } =
         await import("../services/invitationService");
 
-      // Prepare event data
       const eventData = {
         ...data,
-        eventId: data.eventId || data.id, // Use existing eventId or id
+        eventId: data.eventId || data.id,
         templateId: data.templateId || data.category || "custom",
       };
 
-      // Check if this is an update (has invitation ID) or create
       const isUpdate = data.invitationId || data.id;
       let result;
 
       if (isUpdate) {
-        // Update existing invitation
         result = await updateInvitationWithImage(
           data.invitationId || data.id,
           eventData,
           dataUrl
         );
       } else {
-        // Create new invitation
         result = await saveInvitationWithImage(eventData, dataUrl);
       }
 
-      // Also save to localStorage for backward compatibility
       if (typeof window !== "undefined") {
         const allEvents = JSON.parse(localStorage.getItem("myEvents") || "[]");
         const savedEvent = {
@@ -182,13 +314,11 @@ function PreviewContent() {
         };
 
         if (data.id && allEvents.some((e) => e.id === data.id)) {
-          // Update existing
           const updatedEvents = allEvents.map((e) =>
             e.id === data.id ? savedEvent : e
           );
           localStorage.setItem("myEvents", JSON.stringify(updatedEvents));
         } else {
-          // Create new
           localStorage.setItem(
             "myEvents",
             JSON.stringify([savedEvent, ...allEvents])
@@ -201,41 +331,14 @@ function PreviewContent() {
         }
       }
 
-      // Refresh global invitation count
       refreshInvitations();
-
       showToast("Invitation saved successfully!");
     } catch (error) {
       console.error("Error saving invitation:", error);
       showToast(
-        error.message || "Failed to save invitation. Please try again.",
+        error.message || "Failed to save invitation. Try again.",
         "error"
       );
-
-      // Fallback to localStorage-only save
-      if (typeof window !== "undefined") {
-        const allEvents = JSON.parse(localStorage.getItem("myEvents") || "[]");
-        let dateId;
-
-        if (data.id && allEvents.some((e) => e.id === data.id)) {
-          // Update existing
-          const updatedEvents = allEvents.map((e) =>
-            e.id === data.id ? { ...data, status: "Draft" } : e
-          );
-          localStorage.setItem("myEvents", JSON.stringify(updatedEvents));
-          dateId = data.id;
-        } else {
-          // Create new
-          dateId = Date.now().toString();
-          const newEvent = { ...data, id: dateId, status: "Draft" };
-          localStorage.setItem(
-            "myEvents",
-            JSON.stringify([newEvent, ...allEvents])
-          );
-          setData((prev) => ({ ...prev, id: dateId }));
-        }
-        showToast("Saved locally (offline mode)", "warning");
-      }
     } finally {
       setSaving(false);
     }
@@ -244,7 +347,7 @@ function PreviewContent() {
   const handleDownload = async () => {
     if (cardRef.current) {
       try {
-        const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+        const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
         const link = document.createElement("a");
         link.download = `${data.title || "invitation"}.png`;
         link.href = dataUrl;
@@ -258,7 +361,6 @@ function PreviewContent() {
   };
 
   const handleShare = async () => {
-    // Check if invitation has been saved
     const invitationId = data.invitationId || data.id;
     if (!invitationId) {
       showToast("Please save the invitation first before sharing", "warning");
@@ -275,9 +377,10 @@ function PreviewContent() {
     }
   };
 
+  if (loading) return <div className={styles.container}><div className={styles.spinner}></div></div>;
 
-
-  if (loading) return <div className={styles.container}>Loading editor...</div>;
+  // Get placeholders based on template category
+  const placeholders = getPlaceholders(data.category?.toLowerCase() || 'default');
 
   return (
     <div className={styles.container}>
@@ -295,14 +398,17 @@ function PreviewContent() {
       )}
 
       {/* Left: Editor Panel */}
-      <div className={styles.editorPanel}>
+      <div className={`${styles.editorPanel} ${activeTab === 'edit' ? styles.active : ''}`}>
         <div className={styles.editorHeader}>
-          <div
-            onClick={() => (window.location.href = "/")}
-            className={styles.backLink}
-          >
-            ← Back to Dashboard
-          </div>
+          <Link href="/" className={styles.backLink}>
+            <div className={styles.backIconWrapper}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
+            </div>
+            <span>Back to Dashboard</span>
+          </Link>
           <h1 className={styles.sectionTitle}>
             {eventId ? "Edit Invitation" : "Customize Invitation"}
           </h1>
@@ -310,30 +416,55 @@ function PreviewContent() {
 
         <div className={styles.formContent}>
           <div className={styles.section}>
-            <label className={styles.label}>Event Details</label>
+            <div className={styles.sectionHeader}>
+              <span className={styles.label}>Event Details</span>
+              <div className={styles.separator} />
+            </div>
+
             <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Event Title</label>
               <input
                 className={styles.input}
                 name="title"
-                placeholder="Event Title"
+                placeholder={placeholders.title}
                 value={data.title}
                 onChange={handleChange}
               />
             </div>
+
             <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Event Type</label>
               <input
                 className={styles.input}
                 name="eventType"
-                placeholder="Event Type"
+                placeholder={placeholders.eventType}
                 value={data.eventType}
                 onChange={handleChange}
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Message</label>
+              <textarea
+                className={styles.input}
+                name="description"
+                placeholder={placeholders.description}
+                value={data.description}
+                onChange={handleChange}
+                rows={4}
+                style={{ minHeight: '100px', resize: 'vertical' }}
               />
             </div>
           </div>
 
           <div className={styles.section}>
-            <label className={styles.label}>Date & Location</label>
+            <div className={styles.sectionHeader}>
+              <span className={styles.label}>When & Where</span>
+              <div className={styles.separator} />
+            </div>
+
             <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Date</label>
               <input
                 className={styles.input}
                 type="date"
@@ -343,6 +474,7 @@ function PreviewContent() {
               />
             </div>
             <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Time</label>
               <input
                 className={styles.input}
                 type="time"
@@ -352,145 +484,220 @@ function PreviewContent() {
               />
             </div>
             <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>Location</label>
               <input
                 className={styles.input}
                 name="location"
-                placeholder="Venue / Address"
+                placeholder={placeholders.location}
                 value={data.location}
                 onChange={handleChange}
               />
             </div>
           </div>
-
-
         </div>
       </div>
 
       {/* Right: Preview Area */}
-      <div className={styles.previewArea}>
-        <div className={styles.canvas}>
-          {/* The Card - Ref added here */}
+      <div
+        ref={containerRef}
+        className={`${styles.previewArea} ${activeTab === 'preview' ? styles.active : ''}`}
+      >
+        <div className={styles.previewWrapper}>
           <div
-            ref={cardRef}
-            className={styles.card}
+            className={styles.canvas}
             style={{
-              background: data.templateImage
-                ? `url(${data.templateImage}) center/cover no-repeat`
-                : (data.config?.background || data.color),
-              color: data.config?.color || "#1a1a1a",
-              fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
-              textAlign: data.config?.textAlign || 'center',
-              position: "relative",
-              display: 'flex',
-              flexDirection: 'column',
-              ...data.config?.layout?.container
+              transform: `scale(${scale})`,
+              // Ensure we don't cause layout issues while scaling
+              width: '480px',
+              height: '680px',
+              flexShrink: 0
             }}
           >
-            {/* Overlay for better text readability when using template image BUT NOT custom config (custom config handles its own contrast) */}
-            {data.templateImage && !data.config && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: "rgba(255, 255, 255, 0.85)",
-                  zIndex: 0,
-                }}
-              />
-            )}
-
+            {/* The Card - Ref added here */}
             <div
-              className={styles.cardContent}
+              ref={cardRef}
+              className={styles.card}
               style={{
+                background: data.templateImage
+                  ? `url(${data.templateImage}) center/cover no-repeat`
+                  : (data.config?.background || data.color),
+                color: data.config?.color || "#1a1a1a",
+                fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
+                textAlign: data.config?.textAlign || 'center',
                 position: "relative",
-                zIndex: 1,
-                width: '100%',
-                height: '100%',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                ...data.config?.layout?.container
               }}
             >
-              {/* Event Type / Uppercase Header */}
-              <div
-                style={{
-                  textTransform: "uppercase",
-                  letterSpacing: "2px",
-                  fontSize: "0.8rem",
-                  opacity: 0.8,
-                  marginBottom: '1rem',
-                  ...data.config?.layout?.eventType
-                }}
-              >
-                {data.eventType || "You Are Invited"}
-              </div>
-
-              {/* Title */}
-              <h1
-                style={{
-                  fontSize: "3rem",
-                  lineHeight: "1.1",
-                  margin: "0 0 1rem 0",
-                  ...data.config?.layout?.title
-                }}
-              >
-                {data.title}
-              </h1>
-
-              {/* Divider if no custom config or if explicitly requested (could be added to config later) */}
-              {!data.config && (
-                <div style={{ fontSize: "1.2rem", margin: "auto 0 2rem" }}>
-                  <hr
-                    style={{
-                      width: "50px",
-                      border: "none",
-                      borderTop: "2px solid rgba(0,0,0,0.1)",
-                      margin: "1rem auto",
-                    }}
-                  />
-                </div>
+              {/* Overlay for better text readability */}
+              {data.templateImage && !data.config && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: "rgba(255, 255, 255, 0.85)",
+                    zIndex: 0,
+                  }}
+                />
               )}
 
-              {/* Details Section */}
-              <div style={{
-                fontSize: "1.1rem",
-                lineHeight: "1.6",
-                marginTop: 'auto',
-                ...data.config?.layout?.details
-              }}>
-                <p style={{ fontWeight: 'bold' }}>
-                  {data.date
-                    ? new Date(data.date).toLocaleDateString(undefined, {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
-                    : "Date"}
-                </p>
-                <p>{data.time || "Time"}</p>
-                <p style={{ marginTop: "0.5rem" }}>{data.location}</p>
+              <div
+                className={styles.cardContent}
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  ...data.config?.layout?.content
+                }}
+              >
+                <div style={{ flex: 1 }}></div>
+                {/* Event Type */}
+                <div
+                  style={{
+                    textTransform: "uppercase",
+                    letterSpacing: "3px",
+                    fontSize: "0.75rem",
+                    fontWeight: "600",
+                    opacity: 0.7,
+                    marginBottom: '1.5rem',
+                    ...data.config?.layout?.eventType
+                  }}
+                >
+                  {data.eventType}
+                </div>
+
+                {/* Title */}
+                <h1
+                  style={{
+                    fontSize: "3.5rem",
+                    lineHeight: "1.05",
+                    fontWeight: "400",
+                    marginBottom: "1.5rem",
+                    letterSpacing: "-0.02em",
+                    ...data.config?.layout?.title
+                  }}
+                >
+                  {data.title}
+                </h1>
+
+                {/* Divider */}
+                {!data.config && (
+                  <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                    <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
+                  </div>
+                )}
+
+                {/* Details Section */}
+                <div style={{
+                  fontSize: "1.1rem",
+                  lineHeight: "1.8",
+                  fontWeight: "300",
+                  ...data.config?.layout?.details
+                }}>
+                  {mounted && data.date && (
+                    <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                      {new Date(data.date).toLocaleDateString(undefined, {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  )}
+                  {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+
+                  {data.location && (
+                    <p style={{ marginTop: "1rem", fontWeight: "500" }}>
+                      📍 {data.location}
+                    </p>
+                  )}
+
+                  {data.description && (
+                    <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                      {data.description}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ flex: 1.5 }}></div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles.floatingActions}>
-          <Button variant="secondary" onClick={handleDownload}>
-            Download Image
-          </Button>
-          <Button variant="secondary" onClick={handleShare}>
-            📤 Share
-          </Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving
-              ? "Saving..."
-              : eventId || data.id
-                ? "Update Invitation"
-                : "Save Invitation"}
-          </Button>
+          <div className={styles.actionBar}>
+            <button
+              className={styles.btnIcon}
+              onClick={handleDownload}
+              title="Download Invitation"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </button>
+            <button
+              className={styles.btnIcon}
+              onClick={handleShare}
+              title="Share Invitation"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+            </button>
+            <button
+              className={styles.btnIcon}
+              onClick={handleSave}
+              disabled={saving}
+              title="Save Invitation"
+            >
+              {saving ? (
+                <span className={styles.spinner}></span>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Mobile Tabs */}
+      <div className={styles.mobileTabs}>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'edit' ? styles.active : ''}`}
+          onClick={() => setActiveTab('edit')}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'preview' ? styles.active : ''}`}
+          onClick={() => setActiveTab('preview')}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Preview
+        </button>
       </div>
     </div>
   );

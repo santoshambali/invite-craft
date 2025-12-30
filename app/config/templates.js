@@ -3,6 +3,7 @@ export const TEMPLATE_CATEGORIES = [
     { id: 'birthday', label: 'Birthday' },
     { id: 'wedding', label: 'Wedding' },
     { id: 'party', label: 'Party' },
+    { id: 'new-year', label: 'New Year' },
     { id: 'announcement', label: 'Announcement' },
     { id: 'professional', label: 'Professional' },
 ];
@@ -70,7 +71,7 @@ export const TEMPLATES = [
         image: '/templates/party_neon_vibes_1766462042447.png',
         premium: false,
         config: {
-            background: 'url(/templates/party_neon_vibes_1766462042447.png) center/cover no-repeat',
+            background: '#000000 url(/templates/party_neon_vibes_1766462042447.png) center/cover no-repeat',
             fontFamily: "'Montserrat', sans-serif",
             color: '#FFFFFF',
             textAlign: 'center',
@@ -106,7 +107,7 @@ export const TEMPLATES = [
         image: '/templates/meeting_corporate_blue_1766462077968.png',
         premium: false,
         config: {
-            background: 'url(/templates/meeting_corporate_blue_1766462077968.png) center/cover no-repeat',
+            background: '#1e3a8a url(/templates/meeting_corporate_blue_1766462077968.png) center/cover no-repeat',
             fontFamily: "'Roboto', sans-serif",
             color: '#FFFFFF',
             textAlign: 'left',
@@ -151,6 +152,60 @@ export const TEMPLATES = [
                 title: { fontSize: '2.5rem', fontWeight: '300', marginTop: '25vh' },
                 eventType: { fontSize: '0.9rem', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '3rem' },
                 details: { fontSize: '1rem', marginTop: '2rem', color: '#666' }
+            }
+        }
+    },
+    {
+        id: 'new-year-elegant',
+        name: 'Midnight Sparkle',
+        category: 'new-year',
+        image: '/templates/new_year_midnight_sparkle_1767086061674.png',
+        premium: true,
+        config: {
+            background: '#000000 url(/templates/new_year_midnight_sparkle_1767086061674.png) center/cover no-repeat',
+            fontFamily: "'Playfair Display', serif",
+            color: '#FFD700',
+            textAlign: 'center',
+            layout: {
+                container: {
+                    justifyContent: 'center',
+                    padding: '3rem 2rem'
+                },
+                content: {
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                },
+                eventType: {
+                    fontSize: '0.85rem',
+                    letterSpacing: '5px',
+                    textTransform: 'uppercase',
+                    marginBottom: '1.5rem',
+                    color: '#FFD700',
+                    fontWeight: '600',
+                    textShadow: '0 0 20px rgba(255, 215, 0, 0.6), 2px 2px 4px rgba(0,0,0,0.8)'
+                },
+                title: {
+                    fontSize: '3.8rem',
+                    fontWeight: '700',
+                    marginBottom: '2rem',
+                    lineHeight: '1.1',
+                    color: '#FFFFFF',
+                    textShadow: '0 0 30px rgba(255, 215, 0, 0.5), 0 0 10px rgba(255, 215, 0, 0.3), 3px 3px 6px rgba(0,0,0,0.9)',
+                    letterSpacing: '2px'
+                },
+                details: {
+                    fontSize: '1.15rem',
+                    marginTop: '2.5rem',
+                    color: '#FFFFFF',
+                    lineHeight: '2',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(255, 215, 0, 0.2)',
+                    fontWeight: '400',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    padding: '1.5rem 2rem',
+                    borderRadius: '12px',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 215, 0, 0.2)'
+                }
             }
         }
     }

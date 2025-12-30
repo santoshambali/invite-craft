@@ -470,6 +470,7 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl, isGuest =
       time: formatTimeForBackend(eventData.time),
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
+      description: eventData.description || null,
     };
 
     // Only add userId if user is authenticated
@@ -551,6 +552,7 @@ export const updateInvitationWithImage = async (
       time: formatTimeForBackend(eventData.time),
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
+      description: eventData.description || null,
     };
 
     // Only add userId if user is authenticated
