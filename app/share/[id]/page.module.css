@@ -1,4 +1,4 @@
-/* Container - Matches Root Page (GuestLanding) Gradient */
+/* Container - Matches Root Page (GuestLanding) Gradient - Updated at 2025-12-30 V4 (Single Row) */
 .container {
     padding-top: calc(var(--header-height) + 1rem);
     min-height: 100vh;
@@ -45,38 +45,38 @@
     margin-bottom: 2rem;
 }
 
-/* Desktop Layout: Side-by-Side */
+/* Desktop Layout: Force Vertical Stack as requested */
 @media (min-width: 900px) {
     .container {
-        justify-content: center;
-        /* Center vertically on large screens if it fits */
+        justify-content: flex-start;
         min-height: 100vh;
     }
 
     .invitationWrapper {
-        flex-direction: row;
-        align-items: flex-start;
-        /* Align top */
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
         gap: 60px;
-        padding-bottom: 0;
-        margin-top: 2rem;
+        padding-bottom: 2rem;
+        margin-top: 1rem;
     }
 
     .invitationCard {
-        flex: 1;
-        max-width: 650px;
+        width: 100%;
+        max-width: 1000px;
+        /* Allow wider image on desktop */
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        /* Reset min-height for desktop side-by-side */
-        min-height: auto;
+        align-items: center;
+        /* Maintain the viewport filling styling */
+        min-height: calc(100vh - var(--header-height) - 4rem);
     }
 
     .shareSection {
-        flex: 0 0 400px;
-        position: sticky;
-        top: calc(var(--header-height) + 2rem);
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        top: 0;
     }
 }
 
@@ -191,12 +191,15 @@
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.2);
-    border-radius: 24px;
-    padding: 32px;
+    border-radius: 20px;
+    padding: 16px;
     width: 100%;
+    max-width: 340px;
+    /* Global max-width constraint */
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 12px;
+    margin: 0 auto;
 }
 
 .shareHeader {
@@ -204,60 +207,64 @@
 }
 
 .shareTitle {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 2px 0;
     color: #1e293b;
     letter-spacing: -0.02em;
 }
 
 .shareSubtitle {
-    font-size: 0.95rem;
+    font-size: 0.8rem;
     color: #64748b;
     margin: 0;
 }
 
 /* Social Icon Grid */
 .socialButtons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    /* Ensure single row */
 }
 
 .socialButton {
-    aspect-ratio: 1;
-    border-radius: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     background: #f8fafc;
     border: 1px solid rgba(226, 232, 240, 0.8);
     color: #64748b;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .socialButton:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     background: var(--color);
     border-color: var(--color);
     color: white;
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .socialButton:active {
-    transform: translateY(-2px);
+    transform: translateY(0);
 }
 
 /* Copy Link Section */
 .copyContainer {
     position: relative;
     background: #f8fafc;
-    border-radius: 16px;
-    padding: 6px;
+    border-radius: 12px;
+    padding: 4px;
     display: flex;
     align-items: center;
     border: 1px solid #e2e8f0;
@@ -266,17 +273,17 @@
 
 .copyContainer:focus-within {
     border-color: #38bdf8;
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
 .urlInput {
     flex: 1;
     background: transparent;
     border: none;
-    padding: 12px 16px;
+    padding: 8px 12px;
     color: #334155;
     font-family: 'DM Mono', monospace;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     min-width: 0;
 }
 
@@ -288,9 +295,9 @@
     background: white;
     border: 1px solid #e2e8f0;
     color: #0f172a;
-    padding: 10px 24px;
-    border-radius: 12px;
-    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -312,25 +319,25 @@
 /* Native Share Button */
 .nativeShareButton {
     width: 100%;
-    padding: 16px;
+    padding: 10px;
     background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
     color: white;
     border: none;
-    border-radius: 16px;
-    font-size: 1.05rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .nativeShareButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.5);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
     filter: brightness(1.1);
 }
 
@@ -338,8 +345,8 @@
 .footer {
     text-align: center;
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-    margin-top: 40px;
+    font-size: 0.75rem;
+    margin-top: 24px;
     z-index: 10;
 }
 
@@ -360,7 +367,7 @@
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(40px);
+        transform: translateY(20px);
     }
 
     to {
@@ -449,6 +456,8 @@
 
     .shareSection {
         width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
     }
 
     .socialButtons {
