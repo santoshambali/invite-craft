@@ -113,17 +113,33 @@ export default function Dashboard() {
   }, [isUserAuthenticated, hasMore, isLoadingMore, loadMoreInvitations]);
 
   const handleDelete = async (e, id) => {
-    e.stopPropagation(); // Prevent card click
-    if (!confirm('Are you sure you want to delete this invitation?')) {
+    // e.stopPropagation(); // Prevent card click
+
+    // // Debug logging
+    // console.log("Delete button clicked", { id, event: e });
+
+    if (!id) {
+      console.error("No invitation ID provided to delete");
+      alert("Error: Cannot delete invitation with missing ID");
       return;
     }
 
+    // Use window.confirm explicitly
+    // if (!window.confirm('Are you sure you want to delete this invitation?')) {
+    //   console.log("Delete cancelled by user");
+    //   return;
+    // }
+
+    // console.log("Confirmation accepted, invoking API for ID:", id);
+
     try {
       await deleteInvitation(id);
-      setInvitations(invitations.filter(inv => inv.id !== id));
+      console.log("API call successful, updating state");
+      setInvitations((prev) => prev.filter(inv => inv.id !== id));
+      showToast("Invitation deleted successfully", "success");
     } catch (err) {
       console.error('Failed to delete invitation:', err);
-      alert('Failed to delete invitation. Please try again.');
+      alert(`Failed to delete invitation: ${err.message}`);
     }
   };
 
@@ -149,7 +165,7 @@ export default function Dashboard() {
 
   const handleDownload = async (e, imageUrl, title) => {
     e.stopPropagation();
-    e.preventDefault();
+    // e.preventDefault();
 
     if (!imageUrl) return;
 
@@ -340,7 +356,7 @@ export default function Dashboard() {
                     onClick={(e) => handleDelete(e, invitation.id)}
                     title="Delete"
                   >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <svg style={{ pointerEvents: 'none' }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                   </button>
                 </div>
               </div>

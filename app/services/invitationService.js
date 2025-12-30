@@ -314,6 +314,7 @@ export const getUserInvitations = async (userId, page = 0, size = 10) => {
  * @returns {Promise<void>}
  */
 export const deleteInvitation = async (id) => {
+  console.log("deleteInvitation service invoked for ID:", id);
   try {
     const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
     const response = await fetch(url, {
@@ -321,11 +322,19 @@ export const deleteInvitation = async (id) => {
       headers: getAuthHeaders(),
     });
 
+    if (response.status === 204) {
+      return;
+    }
+
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(
-        data.error?.details || data.message || "Failed to delete invitation"
-      );
+      let errorMessage = "Failed to delete invitation";
+      try {
+        const data = await response.json();
+        errorMessage = data.error?.details || data.message || errorMessage;
+      } catch (e) {
+        errorMessage = `Failed to delete invitation: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error("Error deleting invitation:", error);
