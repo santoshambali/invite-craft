@@ -117,8 +117,8 @@ export default function SharePreview({ shareUrl, title, showGlassBackground = tr
     return (
         <div className={`${styles.shareSection} ${showGlassBackground ? styles.glass : ""}`}>
             <div className={styles.shareHeader}>
-                <h2 className={styles.shareTitle}>Share Preview</h2>
-                <p className={styles.shareSubtitle}>Invite friends and family</p>
+                {/* <h2 className={styles.shareTitle}>Share Preview</h2>
+                <p className={styles.shareSubtitle}>Invite friends and family</p> */}
             </div>
 
             {/* Native Share Button */}

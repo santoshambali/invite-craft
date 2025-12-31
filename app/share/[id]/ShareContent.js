@@ -190,11 +190,16 @@ export default function ShareContent() {
                     <div className={styles.floatingCard}>
                         <div className={styles.cardGlow}></div>
                         {imageUrl ? (
-                            <img
-                                src={imageUrl}
-                                alt={invitation.title}
-                                className={styles.invitationImage}
-                            />
+                            <div className={styles.cardImageContainer}>
+                                <img
+                                    src={imageUrl}
+                                    alt={invitation.title}
+                                    className={styles.invitationImage}
+                                />
+                                <div className={styles.brandBadge}>
+                                    <span className={styles.badgeText}>LAGU Cards</span>
+                                </div>
+                            </div>
                         ) : (
                             // Fallback Text Card (only shown if no image)
                             <div className={styles.fallbackCard}>
@@ -218,6 +223,9 @@ export default function ShareContent() {
                                     {invitation.time && <p className={styles.time}>{invitation.time}</p>}
                                     {invitation.location && <p className={styles.location}>{invitation.location}</p>}
                                 </div>
+                                <div className={styles.brandBadge}>
+                                    <span className={styles.badgeText}>LAGU Cards</span>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -233,12 +241,13 @@ export default function ShareContent() {
             {/* Footer */}
             <div className={styles.footer}>
                 <p>
-                    Powered by{" "}
+                    Loved this card? Create your own at
                     <a href="/" className={styles.brandLink}>
-                        LAGU
+                        <span className={styles.brandText}>LAGU Cards</span>
                     </a>
                 </p>
             </div>
+
         </div>
     );
 }
