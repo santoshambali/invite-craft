@@ -19,6 +19,10 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "LAGU Cards - Create Beautiful Cards",
   description: "Create and share beautiful cards with AI-powered design",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -27,6 +31,8 @@ export default function RootLayout({ children }) {
       <head>
         {/* Load runtime environment configuration */}
         <script src="/env-config.js" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
