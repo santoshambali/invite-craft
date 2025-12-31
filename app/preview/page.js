@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toPng } from "html-to-image";
 import Toast from "../components/Toast";
 import ShareModal from "../components/ShareModal";
-import { getInvitation, getViewUrl, getShareUrl } from "../services/invitationService";
+import { getInvitation, getViewUrl, getShareUrl, saveInvitationWithImage, updateInvitationWithImage } from "../services/invitationService";
 import { useInvitations } from "../contexts/InvitationContext";
+import { useGuestInvitations } from "../contexts/GuestInvitationContext";
+import { isAuthenticated } from "../utils/auth";
 import { TEMPLATES } from "../config/templates";
 import Spinner from "../components/Spinner";
 import styles from "./page.module.css";
@@ -88,6 +90,8 @@ function PreviewContent() {
   const cardRef = useRef(null);
   const containerRef = useRef(null);
   const { invitations, refreshInvitations } = useInvitations();
+  const { guestInvitations, createGuestInvitation, updateGuestInvitation, getGuestInvitation } = useGuestInvitations();
+  const isAuth = isAuthenticated();
 
   const [activeTab, setActiveTab] = useState('edit'); // 'edit' or 'preview'
   const [scale, setScale] = useState(1);
@@ -159,51 +163,62 @@ function PreviewContent() {
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
   };
 
+  const lastLoadedIdRef = useRef(null);
+
   useEffect(() => {
     const loadData = async () => {
+      // Don't re-load if we already initialized for this ID
+      if (eventId && lastLoadedIdRef.current === eventId) return;
+
       try {
         let initialData = null;
 
         // Scenario 1: Editing existing invitation from backend or context
         if (eventId) {
           // Check context first to avoid network call
-          const found = invitations.find(i => i.id === eventId);
+          const found = invitations.find(i => i.id === eventId) || guestInvitations.find(i => i.id === eventId);
           if (found) {
             initialData = found;
           } else {
-            // Fetch from backend
-            try {
-              const invitation = await getInvitation(eventId);
-              if (invitation) {
-                // Get signed URL for the image if it exists
-                let templateImage = null;
-                if (invitation.imageUrl) {
-                  try {
-                    const filename = invitation.imageUrl.split("/").pop();
-                    templateImage = await getViewUrl(filename);
-                  } catch (err) {
-                    console.error("Failed to get view URL:", err);
-                    templateImage = invitation.imageUrl;
+            // Check guest storage directly if not in context yet
+            const guestFound = getGuestInvitation(eventId);
+            if (guestFound) {
+              initialData = guestFound;
+            } else {
+              // Fetch from backend (only if authenticated or if service supports public fetch)
+              try {
+                const invitation = await getInvitation(eventId);
+                if (invitation) {
+                  // Get signed URL for the image if it exists
+                  let templateImage = null;
+                  if (invitation.imageUrl) {
+                    try {
+                      const filename = invitation.imageUrl.split("/").pop();
+                      templateImage = await getViewUrl(filename);
+                    } catch (err) {
+                      console.error("Failed to get view URL:", err);
+                      templateImage = invitation.imageUrl;
+                    }
                   }
-                }
 
-                initialData = {
-                  id: invitation.id,
-                  eventId: invitation.eventId,
-                  title: invitation.title,
-                  eventType: invitation.eventType,
-                  date: invitation.date,
-                  time: invitation.time,
-                  location: invitation.location,
-                  description: invitation.description,
-                  templateId: invitation.templateId,
-                  category: invitation.templateId, // Will be corrected below
-                  templateImage: templateImage,
-                  imageUrl: invitation.imageUrl,
-                };
+                  initialData = {
+                    id: invitation.id,
+                    eventId: invitation.eventId,
+                    title: invitation.title,
+                    eventType: invitation.eventType,
+                    date: invitation.date,
+                    time: invitation.time,
+                    location: invitation.location,
+                    description: invitation.description,
+                    templateId: invitation.templateId,
+                    category: invitation.templateId, // Will be corrected below
+                    templateImage: templateImage,
+                    imageUrl: invitation.imageUrl,
+                  };
+                }
+              } catch (err) {
+                console.error("Failed to fetch invitation", err);
               }
-            } catch (err) {
-              console.error("Failed to fetch invitation", err);
             }
           }
         }
@@ -269,6 +284,7 @@ function PreviewContent() {
           });
 
           setIsGenerated(initialData.templateId === 'ai-generated');
+          lastLoadedIdRef.current = initialData.id || eventId;
         }
       } catch (err) {
         console.error("Error loading data:", err);
@@ -278,7 +294,7 @@ function PreviewContent() {
     };
 
     loadData();
-  }, [eventId, invitations]);
+  }, [eventId]); // Only re-run when eventId changes
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -328,8 +344,6 @@ function PreviewContent() {
       const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
       setSaving(true);
 
-      const { saveInvitationWithImage, updateInvitationWithImage } =
-        await import("../services/invitationService");
 
       const eventData = {
         ...data,
@@ -341,13 +355,25 @@ function PreviewContent() {
       let result;
 
       if (isUpdate) {
-        result = await updateInvitationWithImage(
-          data.invitationId || data.id,
-          eventData,
-          dataUrl
-        );
+        if (isAuth) {
+          result = await updateInvitationWithImage(
+            data.invitationId || data.id,
+            eventData,
+            dataUrl
+          );
+        } else {
+          result = await updateGuestInvitation(
+            data.invitationId || data.id,
+            eventData,
+            dataUrl
+          );
+        }
       } else {
-        result = await saveInvitationWithImage(eventData, dataUrl);
+        if (isAuth) {
+          result = await saveInvitationWithImage(eventData, dataUrl);
+        } else {
+          result = await createGuestInvitation(eventData, dataUrl);
+        }
       }
 
       if (typeof window !== "undefined") {

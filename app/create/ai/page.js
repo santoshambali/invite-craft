@@ -67,10 +67,15 @@ function AICreatePageContent() {
         setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
     };
 
+    const lastLoadedIdRef = useRef(null);
+
     // Fetch existing invitation if editing
     useEffect(() => {
         const fetchInvitation = async () => {
             if (!id) return;
+
+            // Skip if already loaded this ID
+            if (lastLoadedIdRef.current === id) return;
 
             setLoading(true);
             try {
@@ -139,6 +144,7 @@ function AICreatePageContent() {
                 }
 
                 setSavedInvitation(invitation);
+                lastLoadedIdRef.current = invitation.id || id;
 
             } catch (error) {
                 console.error('Error fetching invitation:', error);

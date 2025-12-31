@@ -5,7 +5,9 @@ import { toPng } from "html-to-image";
 import Button from "../../components/Button";
 import Toast from "../../components/Toast";
 import ShareModal from "../../components/ShareModal";
-import { getInvitation, getViewUrl, getShareUrl } from "../../services/invitationService";
+import { getInvitation, getViewUrl, getShareUrl, saveInvitationWithImage, updateInvitationWithImage } from "../../services/invitationService";
+import { useGuestInvitations } from "../../contexts/GuestInvitationContext";
+import { isAuthenticated } from "../../utils/auth";
 import Spinner from "../../components/Spinner";
 import styles from "./page.module.css";
 
@@ -74,6 +76,8 @@ function BirthdayEditorContent() {
     const router = useRouter();
     const eventId = searchParams.get("id");
     const cardRef = useRef(null);
+    const { guestInvitations, createGuestInvitation, updateGuestInvitation, getGuestInvitation } = useGuestInvitations();
+    const isAuth = isAuthenticated();
 
     // States
     const [toast, setToast] = useState({ show: false, message: "", type: "success" });
@@ -111,7 +115,14 @@ function BirthdayEditorContent() {
                 // Load existing invitation
                 if (eventId) {
                     try {
-                        const invitation = await getInvitation(eventId);
+                        // Check context first for guest invitations
+                        let invitation = guestInvitations.find(i => i.id === eventId) || getGuestInvitation(eventId);
+
+                        // If not found in guest storage, try fetching from API (for auth users)
+                        if (!invitation) {
+                            invitation = await getInvitation(eventId);
+                        }
+
                         if (invitation) {
                             let templateImage = null;
                             if (invitation.imageUrl) {
@@ -123,9 +134,6 @@ function BirthdayEditorContent() {
                                 ...invitation,
                                 templateImage
                             };
-
-                            // Try to infer theme from saved data if stored in specific field, else default
-                            // For now simpler to default or strict logic if we saved themeId
                         }
                     } catch (err) {
                         console.error("Fetch error:", err);
@@ -167,8 +175,6 @@ function BirthdayEditorContent() {
         setSaving(true);
         try {
             const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
-            const { saveInvitationWithImage, updateInvitationWithImage } =
-                await import("../../services/invitationService");
 
             const eventData = {
                 ...data,
@@ -180,12 +186,24 @@ function BirthdayEditorContent() {
             let result;
 
             if (isUpdate) {
-                result = await updateInvitationWithImage(data.invitationId || data.id, eventData, dataUrl);
+                if (isAuth) {
+                    result = await updateInvitationWithImage(data.invitationId || data.id, eventData, dataUrl);
+                } else {
+                    result = await updateGuestInvitation(data.invitationId || data.id, eventData, dataUrl);
+                }
             } else {
-                result = await saveInvitationWithImage(eventData, dataUrl);
+                if (isAuth) {
+                    result = await saveInvitationWithImage(eventData, dataUrl);
+                } else {
+                    result = await createGuestInvitation(eventData, dataUrl);
+                }
             }
 
-            showToast("Invitation saved successfully!");
+            if (typeof window !== "undefined") {
+                localStorage.setItem("previewData", JSON.stringify(eventData));
+            }
+
+            showToast("Card saved successfully!");
 
             // Redirect to preview page to show final result with share/download options
             if (result && result.id) {
@@ -193,7 +211,7 @@ function BirthdayEditorContent() {
             }
         } catch (error) {
             console.error(error);
-            showToast("Failed to save.", "error");
+            showToast("Failed to save card.", "error");
         } finally {
             setSaving(false);
         }

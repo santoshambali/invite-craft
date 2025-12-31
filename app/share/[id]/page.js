@@ -25,8 +25,8 @@ export async function generateMetadata({ params }) {
 
         if (!response.ok) {
             return {
-                title: 'Invitation Not Found - Lagu Invitations',
-                description: 'The invitation you are looking for does not exist or has been removed.'
+                title: 'Card Not Found',
+                description: 'The card you are looking for does not exist or has been removed.'
             };
         }
 
@@ -39,13 +39,13 @@ export async function generateMetadata({ params }) {
         const imageUrl = invitation.imageUrl || '/images/default-invite-card.png';
 
         return {
-            title: `You're Invited: ${invitation.title}`,
-            description: `You are cordially invited to ${invitation.title}. Click to see the details.`,
+            title: `${invitation.title}`,
+            description: `${invitation.title}.`,
             openGraph: {
                 title: invitation.title,
-                description: `You are cordially invited to ${invitation.title}. Click to see the details.`,
+                description: `${invitation.title}.`,
                 url: invitation.shareUrl,
-                siteName: 'Lagu Invitations',
+                siteName: 'Lagu Cards',
                 images: [
                     {
                         url: imageUrl,
@@ -60,15 +60,15 @@ export async function generateMetadata({ params }) {
             twitter: {
                 card: 'summary_large_image',
                 title: invitation.title,
-                description: `You are cordially invited to ${invitation.title}.`,
+                description: `${invitation.title}.`,
                 images: [imageUrl],
             },
         };
     } catch (error) {
         console.error("Error generating metadata:", error);
         return {
-            title: 'Invitation - Lagu Invitations',
-            description: 'You are cordially invited check out this invitation!',
+            title: 'Card',
+            description: '',
         };
     }
 }
