@@ -60,7 +60,7 @@ export default function InvitationExample() {
 
             {/* Save button */}
             <Button onClick={handleSave} disabled={loading}>
-                {loading ? 'Saving...' : 'Save Invitation'}
+                {loading ? 'Saving...' : 'Save Card'}
             </Button>
 
             {/* Display saved invitation data */}

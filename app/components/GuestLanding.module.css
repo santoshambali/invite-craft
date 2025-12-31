@@ -49,10 +49,12 @@
 }
 
 .titleGradient {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #f472b6 60%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    /* Add a subtle glow to make it pop against the dark background */
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
 }
 
 .subtitle {
@@ -77,18 +79,18 @@
     padding: 1rem 2rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1e293b;
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    background: var(--accent-gradient);
     border: none;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
 }
 
 .primaryButton:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 40px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
 }
 
 .primaryButton svg {
@@ -152,7 +154,7 @@
 .cardGlow {
     position: absolute;
     inset: -20px;
-    background: linear-gradient(135deg, #fbbf24, #ec4899);
+    background: var(--accent-gradient);
     border-radius: 24px;
     filter: blur(40px);
     opacity: 0.6;

@@ -11,7 +11,7 @@ export default function Sidebar() {
 
     return (
         <aside className={styles.sidebar}>
-            <div className={styles.brand}>SmartInvite</div>
+            <div className={styles.brand}>Smart Cards</div>
             <div className={styles.tagline}>Create magical cards</div>
 
             <nav className={styles.nav}>

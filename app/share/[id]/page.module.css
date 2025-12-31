@@ -100,7 +100,7 @@
     position: absolute;
     /* Inset should be adjusted based on content size, but -20px to -40px is good for blur */
     inset: -30px;
-    background: linear-gradient(135deg, #fbbf24, #ec4899);
+    background: var(--accent-gradient);
     border-radius: 40px;
     filter: blur(50px);
     opacity: 0.5;
@@ -311,7 +311,7 @@
 .brandText {
     font-size: 2.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899, #d946ef, #fbbf24);
+    background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #d946ef, #6366f1);
     background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;
@@ -326,7 +326,7 @@
 
 .brandLink:hover .brandText {
     transform: scale(1.1) translateY(-5px);
-    filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.3));
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.3));
 }
 
 @keyframes gradientShift {
@@ -372,9 +372,9 @@
     content: '';
     width: 6px;
     height: 6px;
-    background: #fbbf24;
+    background: var(--primary-color);
     border-radius: 50%;
-    box-shadow: 0 0 10px #fbbf24;
+    box-shadow: 0 0 10px var(--primary-color);
 }
 
 .badgeText {

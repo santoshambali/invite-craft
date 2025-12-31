@@ -119,7 +119,7 @@ export default function Dashboard() {
     // console.log("Delete button clicked", { id, event: e });
 
     if (!id) {
-      console.error("No invitation ID provided to delete");
+      // console.error("No invitation ID provided to delete");
       alert("Error: Cannot delete card with missing ID");
       return;
     }
@@ -173,7 +173,9 @@ export default function Dashboard() {
 
       // Use proxy-image to get the data without CORS issues
       const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-      const response = await fetch(proxiedUrl);
+      // const response = await fetch(proxiedUrl);
+
+      const response = await fetch(imageUrl);
 
       if (!response.ok) throw new Error('Failed to fetch image data');
 

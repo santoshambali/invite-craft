@@ -7,57 +7,66 @@ export const TEMPLATE_CATEGORIES = [
 
 export const TEMPLATES = [
     {
-        id: 'birthday-modern',
-        name: 'Modern Vibes',
+        id: 'birthday-cosmic',
+        name: 'Cosmic Celebration',
         category: 'birthday',
-        image: '/templates/modern_birthday_bg.png',
+        image: '/templates/new_year_cosmic_1767107981495.png',
         premium: false,
         config: {
-            background: 'url(/templates/modern_birthday_bg.png) center/cover no-repeat',
+            background: 'url(/templates/new_year_cosmic_1767107981495.png) center/cover no-repeat',
             fontFamily: "'Inter', sans-serif",
-            color: '#1a1a1a',
-            textAlign: 'left',
+            color: '#FFFFFF',
+            textAlign: 'center',
             layout: {
-                container: { alignItems: 'flex-start', paddingLeft: '10%' },
-                title: { fontSize: '4rem', fontWeight: '900', lineHeight: '0.9', marginTop: '20vh' },
-                eventType: { fontSize: '1rem', fontWeight: '600', color: '#6366f1', textTransform: 'uppercase', marginBottom: '1rem' },
-                details: { fontSize: '1.1rem', marginTop: '3rem', borderLeft: '4px solid #6366f1', paddingLeft: '1rem' }
+                container: { justifyContent: 'center' },
+                title: { fontSize: '4.5rem', fontWeight: '900', letterSpacing: '-2px', textShadow: '0 0 30px rgba(147, 51, 234, 0.8)' },
+                eventType: { fontSize: '1rem', fontWeight: 'bold', color: '#a855f7', textTransform: 'uppercase', letterSpacing: '10px', marginBottom: '4rem' },
+                details: { fontSize: '1.1rem', background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.2)' }
             }
         }
     },
     {
-        id: 'wedding-gold',
-        name: 'Golden Elegance',
+        id: 'wedding-timeless',
+        name: 'Rose Gold Romance',
         category: 'wedding',
-        image: '/templates/wedding_golden_elegance_1766462022352.png',
+        image: '/templates/new_year_rosegold_1767108020891.png',
         premium: false,
         config: {
-            background: 'url(/templates/wedding_golden_elegance_1766462022352.png) center/cover no-repeat',
+            background: 'url(/templates/new_year_rosegold_1767108020891.png) center/cover no-repeat',
             fontFamily: "'Playfair Display', serif",
-            color: '#78350F',
+            color: '#5d3a3a',
             textAlign: 'center',
             layout: {
-                title: { fontSize: '3.5rem', fontStyle: 'italic', marginTop: '25vh' },
-                eventType: { fontSize: '1.2rem', letterSpacing: '4px', textTransform: 'uppercase', marginBottom: '2rem' },
-                details: { fontSize: '1.1rem', marginTop: '3rem', fontFamily: "'Lato', sans-serif" }
-            }
-        }
-    },
-    {
-        id: 'wedding-garden',
-        name: 'Garden Wedding',
-        category: 'wedding',
-        image: '/templates/party_garden_tea_1766462117592.png',
-        premium: false,
-        config: {
-            background: 'url(/templates/party_garden_tea_1766462117592.png) center/cover no-repeat',
-            fontFamily: "'Cormorant Garamond', serif",
-            color: '#2F4F4F',
-            textAlign: 'center',
-            layout: {
-                title: { fontSize: '4rem', fontWeight: 'bold', marginTop: '10vh', letterSpacing: '2px', color: '#2F4F4F' },
-                eventType: { fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '4rem' },
-                details: { fontSize: '1.4rem', fontWeight: '500', marginTop: 'auto', marginBottom: '10vh', textShadow: '1px 1px 2px white' }
+                container: { justifyContent: 'center' },
+                title: {
+                    fontSize: '4.5rem',
+                    fontWeight: '400',
+                    fontStyle: 'italic',
+                    color: '#b76e79',
+                    marginBottom: '1rem',
+                    textShadow: '2px 2px 4px rgba(255, 255, 255, 0.5)'
+                },
+                eventType: {
+                    fontSize: '1rem',
+                    letterSpacing: '6px',
+                    textTransform: 'uppercase',
+                    color: '#c9a0a8',
+                    fontWeight: '600',
+                    marginBottom: '4rem'
+                },
+                details: {
+                    fontSize: '1.2rem',
+                    background: 'rgba(255, 255, 255, 0.6)',
+                    backdropFilter: 'blur(12px)',
+                    padding: '3rem 2rem',
+                    borderRadius: '20px',
+                    border: '2px solid rgba(183, 110, 121, 0.2)',
+                    boxShadow: '0 8px 32px rgba(183, 110, 121, 0.1)',
+                    maxWidth: '450px',
+                    margin: '0 auto',
+                    lineHeight: '2',
+                    color: '#5d3a3a'
+                }
             }
         }
     },

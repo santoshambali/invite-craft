@@ -33,10 +33,10 @@ const getPlaceholders = (category) => {
       description: "Come celebrate with food, music, and dancing!"
     },
     'new-year': {
-      title: "e.g. New Year's Eve Gala 2025",
-      eventType: "e.g. New Year Celebration",
-      location: "e.g. Grand Ballroom, Downtown Hotel",
-      description: "Ring in the new year with champagne and fireworks!"
+      title: "e.g. Midnight Sparkle Gala",
+      eventType: "e.g. New Year's Eve Party",
+      location: "e.g. Sky Lounge, City Heights",
+      description: "Let's toast to the new year! Join us for a night of music, dancing, and memories."
     },
     announcement: {
       title: "e.g. Big News Announcement",
@@ -283,6 +283,29 @@ function PreviewContent() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTemplateChange = (template) => {
+    setData(prev => ({
+      ...prev,
+      templateId: template.id,
+      templateImage: template.image,
+      config: template.config,
+      color: template.config?.color || prev.color
+    }));
+    // Also update localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem("previewData");
+      if (stored) {
+        const localData = JSON.parse(stored);
+        localStorage.setItem("previewData", JSON.stringify({
+          ...localData,
+          templateId: template.id,
+          config: template.config
+        }));
+      }
+    }
+    showToast(`Switched to ${template.name}`);
   };
 
   const handleSave = async () => {
@@ -575,6 +598,31 @@ function PreviewContent() {
                     />
                   </div>
                 </div>
+
+                {!isGenerated && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                      <span className={styles.label}>Change Theme</span>
+                      <div className={styles.separator} />
+                    </div>
+                    <div className={styles.templateSwitcher}>
+                      {TEMPLATES.filter(t => t.category === data.category).map(t => (
+                        <div
+                          key={t.id}
+                          className={`${styles.templateOption} ${data.templateId === t.id ? styles.selectedTemplate : ''}`}
+                          onClick={() => handleTemplateChange(t)}
+                          title={t.name}
+                        >
+                          <div
+                            className={styles.templateThumb}
+                            style={{ backgroundImage: `url(${t.image})` }}
+                          />
+                          <span className={styles.templateLabel}>{t.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -640,7 +688,7 @@ function PreviewContent() {
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'center',
-                            textShadow: data.templateImage ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                             ...data.config?.layout?.content
                           }}
                         >
@@ -770,7 +818,7 @@ function PreviewContent() {
       </div>
 
       {/* Mobile Tabs */}
-      <div className={styles.mobileTabs}>
+      {/* <div className={styles.mobileTabs}>
         <button
           className={`${styles.tabButton} ${activeTab === 'edit' ? styles.active : ''}`}
           onClick={() => setActiveTab('edit')}
@@ -791,7 +839,7 @@ function PreviewContent() {
           </svg>
           Preview
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }
