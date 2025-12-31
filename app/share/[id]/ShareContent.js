@@ -235,7 +235,7 @@ export default function ShareContent() {
                 <p>
                     Powered by{" "}
                     <a href="/" className={styles.brandLink}>
-                        InviteCraft
+                        LAGU
                     </a>
                 </p>
             </div>
