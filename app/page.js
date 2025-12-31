@@ -165,28 +165,51 @@ export default function Dashboard() {
 
   const handleDownload = async (e, imageUrl, title) => {
     e.stopPropagation();
-    // e.preventDefault();
 
     if (!imageUrl) return;
 
     try {
-      showToast("Preparing your download...", "success");
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Network response was not ok');
+      showToast("Starting download...", "success");
+
+      // Use proxy-image to get the data without CORS issues
+      const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+      const response = await fetch(proxiedUrl);
+
+      if (!response.ok) throw new Error('Failed to fetch image data');
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
+
+      // Sanitized filename
+      let fileName = (title || 'invitation').toString()
+        .replace(/[/\\?%*:|"<>]/g, '-')
+        .trim();
+
+      if (!fileName || /^[0-9a-f-]{36}$/i.test(fileName)) {
+        fileName = 'invitation';
+      }
+
+      // Append extension if missing
+      if (!/\.(png|jpg|jpeg|webp)$/i.test(fileName)) {
+        const type = blob.type || 'image/png';
+        if (type.includes('png')) fileName += '.png';
+        else if (type.includes('jpeg')) fileName += '.jpg';
+        else if (type.includes('webp')) fileName += '.webp';
+        else fileName += '.png';
+      }
+
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${title || 'invitation'}.png`;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
-      // Fallback: open in new tab
+      console.error('Download initiation failed:', error);
+      // Fallback
       window.open(imageUrl, '_blank');
-      showToast("Opening in new tab for download", "success");
+      showToast("Opening in new tab...", "success");
     }
   };
 

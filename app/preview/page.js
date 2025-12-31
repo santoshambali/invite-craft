@@ -74,6 +74,13 @@ const getDefaultEventType = (category) => {
   }
 };
 
+// Helper to proxy URLs
+const getProxiedUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('data:') || url.startsWith('/')) return url;
+  return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+};
+
 function PreviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -370,12 +377,31 @@ function PreviewContent() {
     }
   };
 
+  const [downloadFormat, setDownloadFormat] = useState('png'); // 'png' or 'jpeg'
+
   const handleDownload = async () => {
     if (cardRef.current) {
       try {
-        const dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
+        showToast(`Preparing ${downloadFormat.toUpperCase()}...`);
+        let dataUrl;
+        if (downloadFormat === 'jpeg') {
+          const { toJpeg } = await import("html-to-image");
+          dataUrl = await toJpeg(cardRef.current, { quality: 0.95, pixelRatio: 2, bgcolor: '#ffffff' });
+        } else {
+          dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
+        }
+
+        // Sanitized filename
+        let fileName = (data.title || 'invitation').toString()
+          .replace(/[/\\?%*:|"<>]/g, '-')
+          .trim();
+
+        if (!fileName || /^[0-9a-f-]{36}$/i.test(fileName)) {
+          fileName = 'invitation';
+        }
+
         const link = document.createElement("a");
-        link.download = `${data.title || "invitation"}.png`;
+        link.download = `${fileName}.${downloadFormat === 'jpeg' ? 'jpg' : 'png'}`;
         link.href = dataUrl;
         link.click();
         showToast("Download Started!");
@@ -554,184 +580,189 @@ function PreviewContent() {
 
             {/* Right: Preview Area */}
             <div
-              ref={containerRef}
               className={`${styles.previewArea} ${activeTab === 'preview' ? styles.active : ''}`}
             >
-              <div className={styles.previewWrapper}>
-                <div
-                  className={styles.canvas}
-                  style={{
-                    transform: `scale(${scale})`,
-                    transformOrigin: 'top center',
-                    width: '480px',
-                    height: '680px',
-                    flexShrink: 0,
-                    marginBottom: `-${680 * (1 - scale)}px`
-                  }}
-                >
-                  {/* The Card - Ref added here */}
+              <h2 className={styles.previewTitle}>Preview</h2>
+              <div ref={containerRef} className={styles.previewBox}>
+                <div className={styles.previewWrapper}>
                   <div
-                    ref={cardRef}
-                    className={styles.card}
+                    className={styles.canvas}
                     style={{
-                      background: data.templateImage
-                        ? `url(${data.templateImage}) center/cover no-repeat`
-                        : (data.config?.background || data.color),
-                      color: data.config?.color || "#1a1a1a",
-                      fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
-                      textAlign: data.config?.textAlign || 'center',
-                      position: "relative",
-                      display: 'flex',
-                      flexDirection: 'column',
-                      ...data.config?.layout?.container
+                      transform: `scale(${scale})`,
+                      transformOrigin: 'top center',
+                      width: '480px',
+                      height: '680px',
+                      flexShrink: 0,
+                      marginBottom: `-${680 * (1 - scale)}px`
                     }}
                   >
-                    {/* Overlay for better text readability */}
-                    {data.templateImage && !data.config && !isGenerated && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: "rgba(255, 255, 255, 0.85)",
-                          zIndex: 0,
-                        }}
-                      />
-                    )}
+                    {/* The Card - Ref added here */}
+                    <div
+                      ref={cardRef}
+                      className={styles.card}
+                      style={{
+                        background: data.templateImage
+                          ? `url(${getProxiedUrl(data.templateImage)}) center/cover no-repeat`
+                          : (data.config?.background || data.color),
 
-                    {!isGenerated && (
-                      <div
-                        className={styles.cardContent}
-                        style={{
-                          position: "relative",
-                          zIndex: 1,
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          textShadow: data.templateImage ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                          ...data.config?.layout?.content
-                        }}
-                      >
-                        <div style={{ flex: 1 }}></div>
-                        {/* Event Type */}
+                        color: data.config?.color || "#1a1a1a",
+                        fontFamily: data.config?.fontFamily || '"Times New Roman", Times, serif',
+                        textAlign: data.config?.textAlign || 'center',
+                        position: "relative",
+                        display: 'flex',
+                        flexDirection: 'column',
+                        ...data.config?.layout?.container
+                      }}
+                    >
+                      {/* Overlay for better text readability */}
+                      {data.templateImage && !data.config && !isGenerated && (
                         <div
                           style={{
-                            textTransform: "uppercase",
-                            letterSpacing: "3px",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            opacity: 0.7,
-                            marginBottom: '1.5rem',
-                            ...data.config?.layout?.eventType
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: "rgba(255, 255, 255, 0.85)",
+                            zIndex: 0,
                           }}
-                        >
-                          {data.eventType}
-                        </div>
+                        />
+                      )}
 
-                        {/* Title */}
-                        <h1
+                      {!isGenerated && (
+                        <div
+                          className={styles.cardContent}
                           style={{
-                            fontSize: "3.5rem",
-                            lineHeight: "1.05",
-                            fontWeight: "400",
-                            marginBottom: "1.5rem",
-                            letterSpacing: "-0.02em",
-                            ...data.config?.layout?.title
+                            position: "relative",
+                            zIndex: 1,
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            textShadow: data.templateImage ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                            ...data.config?.layout?.content
                           }}
                         >
-                          {data.title}
-                        </h1>
-
-                        {/* Divider */}
-                        {!data.config && (
-                          <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-                            <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
+                          <div style={{ flex: 1 }}></div>
+                          {/* Event Type */}
+                          <div
+                            style={{
+                              textTransform: "uppercase",
+                              letterSpacing: "3px",
+                              fontSize: "0.75rem",
+                              fontWeight: "600",
+                              opacity: 0.7,
+                              marginBottom: '1.5rem',
+                              ...data.config?.layout?.eventType
+                            }}
+                          >
+                            {data.eventType}
                           </div>
-                        )}
 
-                        {/* Details Section */}
-                        <div style={{
-                          fontSize: "1.1rem",
-                          lineHeight: "1.8",
-                          fontWeight: "300",
-                          ...data.config?.layout?.details
-                        }}>
-                          {mounted && data.date && (
-                            <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
-                              {new Date(data.date).toLocaleDateString(undefined, {
-                                weekday: "long",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </p>
-                          )}
-                          {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+                          {/* Title */}
+                          <h1
+                            style={{
+                              fontSize: "3.5rem",
+                              lineHeight: "1.05",
+                              fontWeight: "400",
+                              marginBottom: "1.5rem",
+                              letterSpacing: "-0.02em",
+                              ...data.config?.layout?.title
+                            }}
+                          >
+                            {data.title}
+                          </h1>
 
-                          {data.location && (
-                            <p style={{ marginTop: "1rem", fontWeight: "500" }}>
-                              📍 {data.location}
-                            </p>
-                          )}
-
-                          {data.description && (
-                            <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
-                              {data.description}
+                          {/* Divider */}
+                          {!data.config && (
+                            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+                              <div style={{ width: '40px', height: '1px', background: 'currentColor', opacity: 0.3 }}></div>
                             </div>
                           )}
-                        </div>
 
-                        <div style={{ flex: 1.5 }}></div>
-                      </div>
-                    )}
+                          {/* Details Section */}
+                          <div style={{
+                            fontSize: "1.1rem",
+                            lineHeight: "1.8",
+                            fontWeight: "300",
+                            ...data.config?.layout?.details
+                          }}>
+                            {mounted && data.date && (
+                              <p style={{ fontWeight: '500', fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                                {new Date(data.date).toLocaleDateString(undefined, {
+                                  weekday: "long",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </p>
+                            )}
+                            {data.time && <p style={{ opacity: 0.8 }}>{data.time}</p>}
+
+                            {data.location && (
+                              <p style={{ marginTop: "1rem", fontWeight: "500" }}>
+                                📍 {data.location}
+                              </p>
+                            )}
+
+                            {data.description && (
+                              <div style={{ marginTop: "2rem", fontSize: "0.95em", opacity: 0.85, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                                {data.description}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ flex: 1.5 }}></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <div className={styles.actionBar}>
-                  <button
-                    className={styles.btnIcon}
-                    onClick={handleDownload}
-                    title="Download Card"
+              <div className={styles.actionBar}>
+                <div className={styles.formatSelector}>
+                  <select
+                    value={downloadFormat}
+                    onChange={(e) => setDownloadFormat(e.target.value)}
+                    className={styles.select}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="7 10 12 15 17 10" />
-                      <line x1="12" y1="15" x2="12" y2="3" />
-                    </svg>
-                  </button>
-                  <button
-                    className={styles.btnIcon}
-                    onClick={handleShare}
-                    title="Share Card"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="18" cy="5" r="3" />
-                      <circle cx="6" cy="12" r="3" />
-                      <circle cx="18" cy="19" r="3" />
-                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-                    </svg>
-                  </button>
-                  <button
-                    className={styles.btnIcon}
-                    onClick={handleSave}
-                    disabled={saving}
-                    title="Save Card"
-                  >
-                    {saving ? (
-                      <Spinner size="small" />
-                    ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                        <polyline points="17 21 17 13 7 13 7 21" />
-                        <polyline points="7 3 7 8 15 8" />
-                      </svg>
-                    )}
-                  </button>
+                    <option value="png">PNG</option>
+                    <option value="jpeg">JPG</option>
+                  </select>
                 </div>
+                <button
+                  className={styles.btnIcon}
+                  onClick={handleDownload}
+                  title={`Download as ${downloadFormat.toUpperCase()}`}
+                >
+                  <span className={styles.btnTextIcon}>⬇️</span>
+                  <span>Download</span>
+                </button>
+                <button
+                  className={styles.btnIcon}
+                  onClick={handleShare}
+                  title="Share Card"
+                >
+                  <span className={styles.btnTextIcon}>📤</span>
+                  <span>Share</span>
+                </button>
+                <button
+                  className={`${styles.btnIcon} ${styles.primary}`}
+                  onClick={handleSave}
+                  disabled={saving}
+                  title="Save Card"
+                >
+                  <span className={styles.btnTextIcon}>💾</span>
+                  {saving ? (
+                    <>
+                      <Spinner size="small" style={{ borderTopColor: 'white' }} />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <span>{(data.invitationId || data.id) ? 'Update' : 'Save'}</span>
+                  )}
+                </button>
               </div>
             </div>
           </div>

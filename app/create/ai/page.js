@@ -201,8 +201,9 @@ function AICreatePageContent() {
             let imageDataUrl;
 
             try {
-                // Fetch the image and convert to data URL
-                const response = await fetch(generatedImageUrl);
+                // Fetch the image via proxy and convert to data URL
+                const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(generatedImageUrl)}`;
+                const response = await fetch(proxiedUrl);
                 const blob = await response.blob();
 
                 // Convert blob to data URL
@@ -290,6 +291,8 @@ function AICreatePageContent() {
         }
     };
 
+    const [downloadFormat, setDownloadFormat] = useState('png');
+
     const handleDownload = async () => {
         if (!generatedImageUrl) {
             showToast('Please generate a card first', 'warning');
@@ -297,25 +300,56 @@ function AICreatePageContent() {
         }
 
         try {
-            // Create a temporary link to download the image
-            const link = document.createElement('a');
-            link.href = generatedImageUrl;
-            link.download = `${formData.title || 'card'}.png`;
+            showToast(`Preparing ${downloadFormat.toUpperCase()}...`, "success");
 
-            // For cross-origin images, we need to fetch and convert to blob
-            const response = await fetch(generatedImageUrl);
+            // If user wants original format and it's png, we can just use proxy-download
+            // But to be consistent with format selection, we use canvas conversion
+            const proxiedUrl = `/api/proxy-image?url=${encodeURIComponent(generatedImageUrl)}`;
+            const response = await fetch(proxiedUrl);
             const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
 
-            link.href = blobUrl;
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            const imageUrl = URL.createObjectURL(blob);
+
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = imageUrl;
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const mimeType = downloadFormat === 'jpeg' ? 'image/jpeg' : 'image/png';
+            const convertedDataUrl = canvas.toDataURL(mimeType, 0.95);
+
+            // Sanitized filename
+            let fileName = (formData.title || 'card').toString()
+                .replace(/[/\\?%*:|"<>]/g, '-')
+                .trim();
+
+            if (!fileName || /^[0-9a-f-]{36}$/i.test(fileName)) {
+                fileName = 'card';
+            }
+
+            const link = document.createElement('a');
+            link.href = convertedDataUrl;
+            link.download = `${fileName}.${downloadFormat === 'jpeg' ? 'jpg' : 'png'}`;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
 
-            // Clean up
-            URL.revokeObjectURL(blobUrl);
+            URL.revokeObjectURL(imageUrl);
             showToast('Download started!');
         } catch (error) {
-            console.error('Error downloading image:', error);
-            showToast('Failed to download image', 'error');
+            console.error('Download error:', error);
+            const filename = `${formData.title || 'card'}.png`;
+            window.open(`/api/proxy-download?url=${encodeURIComponent(generatedImageUrl)}&filename=${encodeURIComponent(filename)}`, '_blank');
+            showToast('Fallback download started', 'success');
         }
     };
 
@@ -528,6 +562,16 @@ function AICreatePageContent() {
                             {/* Action Buttons - Show only when invitation is generated */}
                             {generatedImageUrl && (
                                 <div className={styles.actionButtons}>
+                                    <div style={{ display: 'flex', background: 'white', borderRadius: '12px', padding: '0 0.75rem', border: '1px solid #e2e8f0', alignItems: 'center' }}>
+                                        <select
+                                            value={downloadFormat}
+                                            onChange={(e) => setDownloadFormat(e.target.value)}
+                                            style={{ border: 'none', background: 'transparent', fontSize: '0.85rem', fontWeight: '600', color: '#6366f1', outline: 'none', cursor: 'pointer', padding: '0.5rem' }}
+                                        >
+                                            <option value="png">PNG</option>
+                                            <option value="jpeg">JPG</option>
+                                        </select>
+                                    </div>
                                     <button
                                         onClick={handleDownload}
                                         className={styles.actionButton}

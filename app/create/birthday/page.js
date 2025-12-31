@@ -9,6 +9,13 @@ import { getInvitation, getViewUrl, getShareUrl } from "../../services/invitatio
 import Spinner from "../../components/Spinner";
 import styles from "./page.module.css";
 
+// Helper to proxy URLs for canvas capture
+const getProxiedUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('data:') || url.startsWith('/')) return url;
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+};
+
 // Theme configurations
 const THEMES = [
     {
@@ -192,13 +199,39 @@ function BirthdayEditorContent() {
         }
     };
 
+    const [downloadFormat, setDownloadFormat] = useState('png');
+
     const handleDownload = async () => {
-        if (cardRef.current) {
-            const dataUrl = await toPng(cardRef.current, { quality: 0.95 });
+        if (!cardRef.current) return;
+
+        try {
+            showToast(`Preparing ${downloadFormat.toUpperCase()}...`, "success");
+            let dataUrl;
+            if (downloadFormat === 'jpeg') {
+                const { toJpeg } = await import("html-to-image");
+                dataUrl = await toJpeg(cardRef.current, { quality: 0.95, pixelRatio: 2, bgcolor: '#ffffff' });
+            } else {
+                dataUrl = await toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
+            }
+
+            // Sanitized filename
+            let fileName = (data.title || 'birthday-invite').toString()
+                .replace(/[/\\?%*:|"<>]/g, '-')
+                .trim();
+
+            if (!fileName || /^[0-9a-f-]{36}$/i.test(fileName)) {
+                fileName = 'birthday-invite';
+            }
+
             const link = document.createElement("a");
-            link.download = `birthday-invite-${Date.now()}.png`;
+            link.download = `${fileName}.${downloadFormat === 'jpeg' ? 'jpg' : 'png'}`;
             link.href = dataUrl;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error("Download error:", err);
+            showToast("Failed to download image", "error");
         }
     };
 
@@ -325,7 +358,7 @@ function BirthdayEditorContent() {
                         className={styles.card}
                         style={{
                             background: data.templateImage
-                                ? `url(${data.templateImage}) center/cover no-repeat`
+                                ? `url(${getProxiedUrl(data.templateImage)}) center/cover no-repeat`
                                 : currentTheme.bg,
                             color: currentTheme.textColor || '#1a1a1a',
                             fontFamily: currentTheme.font
@@ -391,7 +424,17 @@ function BirthdayEditorContent() {
                 </div>
 
                 <div className={styles.floatingActions}>
-                    <Button variant="secondary" onClick={handleDownload} style={{ borderRadius: '99px' }}>
+                    <div style={{ display: 'flex', background: 'white', borderRadius: '99px', padding: '0 1rem', border: '1px solid #e2e8f0', alignItems: 'center', marginRight: '-1rem', zIndex: 1 }}>
+                        <select
+                            value={downloadFormat}
+                            onChange={(e) => setDownloadFormat(e.target.value)}
+                            style={{ border: 'none', background: 'transparent', fontSize: '0.9rem', fontWeight: '600', color: '#6366f1', outline: 'none', cursor: 'pointer', padding: '0.5rem' }}
+                        >
+                            <option value="png">PNG</option>
+                            <option value="jpeg">JPG</option>
+                        </select>
+                    </div>
+                    <Button variant="secondary" onClick={handleDownload} style={{ borderRadius: '99px', paddingLeft: '2rem' }}>
                         ↓ Download
                     </Button>
                     <Button onClick={handleSave} disabled={saving} style={{ borderRadius: '99px', paddingLeft: '2rem', paddingRight: '2rem' }}>

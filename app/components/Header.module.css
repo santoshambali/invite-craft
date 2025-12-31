@@ -391,27 +391,7 @@
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1100px) {
-    .navDesktop {
-        display: none;
-    }
 
-    .mobileToggle {
-        display: flex;
-    }
-
-    .userMenuWrapper {
-        display: none;
-    }
-
-    .createButton {
-        display: none;
-    }
-
-    .loginForm {
-        display: none;
-    }
-}
 
 /* Header Login */
 .loginForm {
@@ -495,4 +475,27 @@
     border-radius: var(--radius-md);
     cursor: pointer;
     margin-top: 0.5rem;
+}
+
+/* Responsive Breakpoints - Moved to end to override earlier styles */
+@media (max-width: 1100px) {
+    .navDesktop {
+        display: none;
+    }
+
+    .mobileToggle {
+        display: flex;
+    }
+
+    .userMenuWrapper {
+        display: none;
+    }
+
+    .createButton {
+        display: none;
+    }
+
+    .loginForm {
+        display: none;
+    }
 }
