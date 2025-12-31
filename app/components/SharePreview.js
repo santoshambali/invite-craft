@@ -51,7 +51,7 @@ const Icons = {
 export default function SharePreview({ shareUrl, title, showGlassBackground = true }) {
     const [copied, setCopied] = useState(false);
 
-    const shareText = `You're invited! ${title || "Check out this invitation"}`;
+    const shareText = `${title || "Check out this invitation"}`;
 
     const handleCopy = async () => {
         const success = await copyToClipboard(shareUrl);

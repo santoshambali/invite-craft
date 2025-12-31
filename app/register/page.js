@@ -47,7 +47,8 @@ export default function Register() {
 
     const showToast = (message, type) => {
         setToast({ message, visible: true, type });
-        setTimeout(() => setToast({ message: '', visible: false, type }), 3000);
+        const duration = type === 'error' ? 5000 : 3000;
+        setTimeout(() => setToast({ message: '', visible: false, type }), duration);
     };
 
     const validateForm = () => {

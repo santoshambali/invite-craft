@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }) => {
             }
         } catch (error) {
             console.error('Login error:', error);
-            return { success: false, error: 'An unexpected error occurred' };
+            return { success: false, error: error.message || 'An unexpected error occurred during login' };
         }
     }, [storeAuthData]);
 
@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }) => {
             return result;
         } catch (error) {
             console.error('Registration error:', error);
-            return { success: false, error: 'An unexpected error occurred' };
+            return { success: false, error: error.message || 'An unexpected error occurred during registration' };
         }
     }, []);
 

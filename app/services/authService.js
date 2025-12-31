@@ -25,10 +25,19 @@ export const login = async (credentials) => {
             credentials: 'include', // Include cookies for refresh token
         });
 
-        const data = await response.json();
+        // Check for non-JSON response
+        const contentType = response.headers.get('content-type');
+        let data = {};
+
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        }
 
         if (!response.ok) {
-            throw new Error(data.message || 'Login failed');
+            if (response.status === 500) {
+                throw new Error(data.message || 'We are experiencing technical difficulties. Please try again later.');
+            }
+            throw new Error(data.message || 'Login failed. Please check your credentials.');
         }
 
         if (data.status !== 'success') {
@@ -64,10 +73,25 @@ export const register = async (userData) => {
             body: JSON.stringify(userData),
         });
 
-        const data = await response.json();
+        // Check for non-JSON response
+        const contentType = response.headers.get('content-type');
+        let data = {};
+
+        if (contentType && contentType.includes('application/json')) {
+            try {
+                data = await response.json();
+            } catch (e) {
+                console.error('Error parsing registration error response:', e);
+            }
+        }
 
         if (!response.ok) {
-            throw new Error(data.message || 'Registration failed');
+            if (response.status === 500) {
+                // Meaningfully show the error message as requested
+                const serverErrorMessage = data.message || 'We encountered an issue while creating your account. Our team has been notified. Please try again in a few minutes.';
+                throw new Error(`Server Error (500): ${serverErrorMessage}`);
+            }
+            throw new Error(data.message || 'Registration failed. This could be due to an existing account or invalid data.');
         }
 
         if (data.status !== 'success') {
@@ -83,7 +107,7 @@ export const register = async (userData) => {
         console.error('Registration error:', error);
         return {
             success: false,
-            error: error.message || 'Network error. Please try again.',
+            error: error.message || 'Network error or server is unreachable. Please check your connection and try again.',
         };
     }
 };

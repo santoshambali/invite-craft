@@ -57,7 +57,7 @@ export default function ShareModal({ isOpen, onClose, shareUrl, title, invitatio
 
     if (!isOpen) return null;
 
-    const shareText = `You're invited! ${title || "Check out this invitation"}`;
+    const shareText = `${title || "Check out this invitation"}`;
 
     const handleCopy = async () => {
         const success = await copyToClipboard(shareUrl);
