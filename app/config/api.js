@@ -30,16 +30,16 @@ const INVITATION_API_BASE_URL =
 const API_ENDPOINTS = {
   // Authentication endpoints
   AUTH: {
-    LOGIN: "/api/auth/login",
-    LOGOUT: "/api/auth/logout",
-    REFRESH: "/api/auth/refresh",
+    LOGIN: "/api/v1/auth/login",
+    LOGOUT: "/api/v1/auth/logout",
+    REFRESH: "/api/v1/auth/refresh",
   },
 
   // User endpoints
   USERS: {
-    REGISTER: "/api/users/register",
-    PROFILE: "/api/users/profile",
-    UPDATE: "/api/users/update",
+    REGISTER: "/api/v1/users/register",
+    PROFILE: "/api/v1/users/profile",
+    UPDATE: "/api/v1/users/update",
   },
 
   // Invitation endpoints (v1 API)
