@@ -1,0 +1,133 @@
+/* Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  /* Slightly darker for modal focus */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal - Liquid Glass Style */
+.modal {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.5) 100%);
+  backdrop-filter: blur(30px);
+  /* Even more blur for modal */
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.4);
+  border-radius: 28px;
+  width: 90%;
+  max-width: 400px;
+  /* Aligned with SharePreview constraints */
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.modal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.2) 0%,
+      transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 5;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1e293b;
+  letter-spacing: -0.02em;
+}
+
+.closeButton {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #1e293b;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Content */
+.content {
+  padding: 8px 0;
+  /* Minimal padding as SharePreview has its own */
+  overflow-y: auto;
+  position: relative;
+  z-index: 5;
+}
+
+/* ResponsiveDesign */
+@media (max-width: 480px) {
+  .modal {
+    width: 95%;
+    border-radius: 20px;
+    margin-top: auto;
+    margin-bottom: 20px;
+  }
+}

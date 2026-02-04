@@ -7,8 +7,18 @@
  * - Uploading images via signed URLs
  */
 
-import { buildInvitationApiUrl } from "../config/api";
+import {
+  buildInvitationApiUrl,
+  buildShareUrl,
+  buildApiUrl,
+  buildAiApiUrl,
+  AI,
+} from "../config/api";
+
 import { getAccessToken, getUserId } from "../utils/auth";
+
+/**
+ * Get authorization headers
 
 /**
  * Get authorization headers
@@ -28,11 +38,32 @@ const getAuthHeaders = () => {
  * @returns {Promise<Object>} Parsed response data
  */
 const handleResponse = async (response) => {
-  const data = await response.json();
+  // Check if response has content
+  const contentType = response.headers.get("content-type");
+  const hasJson = contentType && contentType.includes("application/json");
+
+  let data = {};
+
+  // Only try to parse JSON if content-type indicates JSON
+  if (hasJson) {
+    try {
+      data = await response.json();
+    } catch (e) {
+      // If JSON parsing fails, create error object
+      data = { error: { details: "Invalid response from server" } };
+    }
+  }
 
   if (!response.ok) {
+    // Special handling for 401 Unauthorized
+    if (response.status === 401) {
+      throw new Error(
+        "Authentication required. Please log in or ensure the API supports guest access."
+      );
+    }
+
     throw new Error(
-      data.error?.details || data.message || "API request failed"
+      data.error?.details || data.message || `API request failed with status ${response.status}`
     );
   }
 
@@ -161,6 +192,42 @@ export const uploadInvitationImage = async (
 };
 
 /**
+ * Generate invitation image using AI
+ * @param {Object} invitationData - Full event details for image generation
+ * @returns {Promise<string>} URL of the generated image
+ */
+export const generateInvitationImage = async (invitationData) => {
+  try {
+    const url = buildAiApiUrl(AI.GENERATE_IMAGE);
+    // Assuming the API expects query parameters based on typical FastAPI/Swagger structure "generate_invitation_image_generate_invitation_image_post"
+    // Usually accepts a JSON body or query params. I will try JSON body first as it is a POST.
+    // If "prompt" is the key.
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Add auth headers if needed, but maybe this AI service is open or uses same token?
+        // I'll add auth headers just in case.
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(invitationData),
+    });
+
+    const result = await handleResponse(response);
+    // Handle the specific response structure from the AI service
+    if (result.gcs_urls && Array.isArray(result.gcs_urls) && result.gcs_urls.length > 0) {
+      return result.gcs_urls[0];
+    }
+
+    // Fallbacks for other potential formats
+    return result.url || result.image_url || result.imageUrl || result;
+  } catch (error) {
+    console.error("Error generating AI invitation image:", error);
+    throw error;
+  }
+};
+
+/**
  * Create a new invitation
  * @param {Object} invitationData - Invitation data
  * @param {string} invitationData.eventId - UUID of the event
@@ -186,26 +253,55 @@ export const createInvitation = async (invitationData) => {
 };
 
 /**
- * Get all invitations for the authenticated user
- * @returns {Promise<Array>} List of invitations
+ * Get invitations for the authenticated user with pagination support
+ * @param {string} [userId] - Optional userId to filter invitations
+ * @param {number} [page=0] - Page number to fetch (0-indexed, first page = 0)
+ * @param {number} [size=10] - Number of items per page
+ * @returns {Promise<Object>} Object containing invitations array and pagination metadata
  */
-export const getUserInvitations = async () => {
+export const getUserInvitations = async (userId, page = 0, size = 10) => {
   try {
-    const url = buildInvitationApiUrl("/api/v1/invitations");
-    console.log("Fetching invitations from:", url);
+    // Build base URL
+    let baseUrl = buildInvitationApiUrl("/api/v1/invitations");
+    const separator = "?";
+    let queryParams = [];
+
+    if (userId) {
+      queryParams.push(`userId=${encodeURIComponent(userId)}`);
+    }
+
+    // Always include page and size parameters (0-indexed)
+    queryParams.push(`page=${page}`);
+    queryParams.push(`size=${size}`);
+
+    // Build final URL
+    const url = `${baseUrl}${separator}${queryParams.join("&")}`;
+
+    console.log(`Fetching invitations from: ${url} (Page ${page}, Size ${size})`);
     const response = await fetch(url, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
     const result = await handleResponse(response);
-    console.log("API Response:", result);
+    console.log(`API Response (Page ${page}):`, result);
 
-    // Handle different response formats - backend returns { items: [...] }
-    const invitations = result.items || result.data || result.invitations || [];
-    console.log("Parsed invitations:", invitations);
+    // Extract pagination info from nested pagination object
+    const pagination = result.pagination || {};
+    const totalPages = pagination.totalPages || 1;
+    const totalItems = pagination.totalItems || 0;
+    const currentPage = pagination.page !== undefined ? pagination.page : page;
+    const invitations = result.items || [];
 
-    return Array.isArray(invitations) ? invitations : [];
+    console.log(`Fetched ${invitations.length} invitations (Page ${currentPage} of ${totalPages}, Total: ${totalItems})`);
+
+    return {
+      invitations: Array.isArray(invitations) ? invitations : [],
+      totalItems: totalItems,
+      totalPages: totalPages,
+      currentPage: currentPage,
+      hasMore: currentPage < totalPages - 1, // 0-indexed, so last page is totalPages - 1
+    };
   } catch (error) {
     console.error("Error fetching invitations:", error);
     throw error;
@@ -218,6 +314,7 @@ export const getUserInvitations = async () => {
  * @returns {Promise<void>}
  */
 export const deleteInvitation = async (id) => {
+  console.log("deleteInvitation service invoked for ID:", id);
   try {
     const url = buildInvitationApiUrl(`/api/v1/invitations/${id}`);
     const response = await fetch(url, {
@@ -225,11 +322,19 @@ export const deleteInvitation = async (id) => {
       headers: getAuthHeaders(),
     });
 
+    if (response.status === 204) {
+      return;
+    }
+
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(
-        data.error?.details || data.message || "Failed to delete invitation"
-      );
+      let errorMessage = "Failed to delete invitation";
+      try {
+        const data = await response.json();
+        errorMessage = data.error?.details || data.message || errorMessage;
+      } catch (e) {
+        errorMessage = `Failed to delete invitation: ${response.status} ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error("Error deleting invitation:", error);
@@ -254,6 +359,32 @@ export const getInvitation = async (id) => {
     return result.data;
   } catch (error) {
     console.error("Error fetching invitation:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get shareable URL for invitation
+ * @param {string} id - UUID of the invitation
+ * @returns {Promise<Object>} Share URL data with shareUrl, invitationId, title, imageUrl
+ */
+export const getShareUrl = async (id) => {
+  try {
+    const url = buildInvitationApiUrl(`/api/v1/invitations/${id}/share`);
+    const response = await fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleResponse(response);
+    const data = result.data;
+
+    // Use centralized logic from api.js to set the correct share URL
+    data.shareUrl = buildShareUrl(id);
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching share URL:", error);
     throw error;
   }
 };
@@ -341,18 +472,22 @@ const formatDateForBackend = (date) => {
 /**
  * Save invitation with image upload
  * This is a convenience method that handles both image upload and invitation creation
+ * Supports both authenticated users (with userId) and guest users (without userId)
  * @param {Object} eventData - Event data from the form
  * @param {string} imageDataUrl - Data URL of the invitation image
+ * @param {boolean} isGuest - Whether this is a guest user (optional, defaults to false)
  * @returns {Promise<Object>} Created invitation response
  */
-export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
+export const saveInvitationWithImage = async (eventData, imageDataUrl, isGuest = false) => {
   try {
     // Upload image first
     const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
 
-    // Get userId from JWT token
+    // Get userId from JWT token (optional for guests)
     const userId = getUserId();
-    if (!userId) {
+
+    // For non-guest users, require authentication
+    if (!isGuest && !userId) {
       throw new Error(
         "User not authenticated. Please log in to save invitations."
       );
@@ -361,7 +496,6 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
     // Create invitation with all required fields matching backend API schema
     const invitationData = {
       eventId: eventData.eventId || generateTempEventId(),
-      userId: userId,
       templateId: eventData.templateId || eventData.category || "custom",
       imageUrl: imageUrl,
       title: eventData.title || null,
@@ -370,7 +504,13 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
       time: formatTimeForBackend(eventData.time),
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
+      description: eventData.description || null,
     };
+
+    // Only add userId if user is authenticated
+    if (userId) {
+      invitationData.userId = userId;
+    }
 
     // Remove null/undefined values to avoid sending empty fields
     Object.keys(invitationData).forEach((key) => {
@@ -384,6 +524,7 @@ export const saveInvitationWithImage = async (eventData, imageDataUrl) => {
     return {
       ...invitation,
       eventData, // Include original event data for local storage fallback
+      isGuest: isGuest || !userId, // Mark as guest if no userId
     };
   } catch (error) {
     console.error("Error saving invitation with image:", error);
@@ -407,23 +548,28 @@ const generateTempEventId = () => {
 /**
  * Update invitation with image upload
  * This is a convenience method that handles both image upload and invitation update
+ * Supports both authenticated users (with userId) and guest users (without userId)
  * @param {string} id - Invitation ID to update
  * @param {Object} eventData - Event data from the form
  * @param {string} imageDataUrl - Data URL of the invitation image
+ * @param {boolean} isGuest - Whether this is a guest user (optional, defaults to false)
  * @returns {Promise<Object>} Updated invitation response
  */
 export const updateInvitationWithImage = async (
   id,
   eventData,
-  imageDataUrl
+  imageDataUrl,
+  isGuest = false
 ) => {
   try {
     // Upload image first
     const imageUrl = await uploadInvitationImage(imageDataUrl, eventData.title);
 
-    // Get userId from JWT token
+    // Get userId from JWT token (optional for guests)
     const userId = getUserId();
-    if (!userId) {
+
+    // For non-guest users, require authentication
+    if (!isGuest && !userId) {
       throw new Error(
         "User not authenticated. Please log in to update invitations."
       );
@@ -432,7 +578,6 @@ export const updateInvitationWithImage = async (
     // Update invitation with all required fields matching backend API schema
     const invitationData = {
       eventId: eventData.eventId || generateTempEventId(),
-      userId: userId,
       templateId: eventData.templateId || eventData.category || "custom",
       imageUrl: imageUrl,
       title: eventData.title || null,
@@ -441,7 +586,13 @@ export const updateInvitationWithImage = async (
       time: formatTimeForBackend(eventData.time),
       location: eventData.location || null,
       gmapUrl: eventData.gmapUrl || null,
+      description: eventData.description || null,
     };
+
+    // Only add userId if user is authenticated
+    if (userId) {
+      invitationData.userId = userId;
+    }
 
     // Remove null/undefined values to avoid sending empty fields
     Object.keys(invitationData).forEach((key) => {
@@ -455,6 +606,7 @@ export const updateInvitationWithImage = async (
     return {
       ...invitation,
       eventData, // Include original event data for local storage fallback
+      isGuest: isGuest || !userId, // Mark as guest if no userId
     };
   } catch (error) {
     console.error("Error updating invitation with image:", error);
@@ -469,8 +621,10 @@ export default {
   createInvitation,
   updateInvitation,
   getInvitation,
+  getShareUrl,
   getUserInvitations,
   deleteInvitation,
   saveInvitationWithImage,
   updateInvitationWithImage,
+  generateInvitationImage,
 };

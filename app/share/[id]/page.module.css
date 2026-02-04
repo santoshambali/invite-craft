@@ -1,0 +1,397 @@
+/* Container - Matches Root Page (GuestLanding) Gradient - Updated at 2025-12-30 V4 (Single Row) */
+.container {
+    padding-top: calc(var(--header-height) + 1rem);
+    min-height: 100vh;
+    /* Allow height to grow */
+    height: auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    /* Allow default overflow for scrolling */
+    padding: calc(var(--header-height) + 1rem) 1.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    /* Start from top */
+    color: white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Invitation Wrapper - Responsive Layout */
+.invitationWrapper {
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 32px;
+    z-index: 1;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 2rem;
+}
+
+/* Desktop Layout: Force Vertical Stack as requested */
+@media (min-width: 900px) {
+    .container {
+        justify-content: flex-start;
+        min-height: 100vh;
+    }
+
+    .invitationWrapper {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 60px;
+        padding-bottom: 2rem;
+        margin-top: 1rem;
+    }
+
+    .invitationCard {
+        width: 100%;
+        max-width: 1000px;
+        /* Allow wider image on desktop */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* Maintain the viewport filling styling */
+        min-height: calc(100vh - var(--header-height) - 4rem);
+    }
+}
+
+/* Invitation Card */
+.invitationCard {
+    position: relative;
+    width: 100%;
+    /* Mobile: Ensure it fills the viewport (minus header/padding) */
+    min-height: calc(100vh - var(--header-height) - 2rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.floatingCard {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    /* Match invitationCard max-width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: float 6s ease-in-out infinite;
+    z-index: 1;
+}
+
+.cardGlow {
+    position: absolute;
+    /* Inset should be adjusted based on content size, but -20px to -40px is good for blur */
+    inset: -30px;
+    background: var(--accent-gradient);
+    border-radius: 40px;
+    filter: blur(50px);
+    opacity: 0.5;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.invitationImage {
+    width: auto;
+    /* Allow it to be as tall as it needs to be, but constrained by viewport */
+    height: auto;
+    max-width: 100%;
+    /* Ensure it doesn't overflow vertically on the first view */
+    max-height: calc(100vh - var(--header-height) - 4rem);
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    background-color: transparent;
+    object-fit: contain;
+    position: relative;
+    z-index: 2;
+    transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.floatingCard:hover .invitationImage {
+    box-shadow: 0 35px 90px rgba(0, 0, 0, 0.6);
+    transform: scale(1.02);
+}
+
+/* Fallback Card Styling */
+.fallbackCard {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    color: #1e293b;
+    padding: 60px 40px;
+    text-align: center;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.floatingCard:hover .fallbackCard {
+    box-shadow: 0 35px 90px rgba(0, 0, 0, 0.6);
+}
+
+.inviteText {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.eventTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.1;
+    color: #0f172a;
+    background: linear-gradient(45deg, #0f172a, #334155);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.eventDetails {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.date,
+.time,
+.location,
+.eventType {
+    font-size: 1.1rem;
+    color: #475569;
+}
+
+.eventType {
+    font-weight: 600;
+    color: #3b82f6;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.location {
+    font-weight: 500;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Error State */
+.error {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.errorIcon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error p {
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.homeLink {
+    display: inline-block;
+    padding: 12px 32px;
+    background: white;
+    color: #4f46e5;
+    border-radius: 99px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Mobile Tweaks */
+@media (max-width: 900px) {
+    .container {
+        padding: calc(var(--header-height) + 1rem) 16px 40px;
+        min-height: 100vh;
+        height: auto;
+        justify-content: flex-start;
+    }
+
+    .invitationWrapper {
+        gap: 32px;
+        max-width: 600px;
+        /* Increased slightly */
+    }
+
+    .invitationCard {
+        /* Ensure image isn't restricted too much */
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .eventTitle {
+        font-size: 2rem;
+    }
+}
+
+/* Footer & Brand Highlighting */
+.footer {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 1.5rem;
+    z-index: 1;
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    margin-top: 4rem;
+    backdrop-filter: blur(10px);
+}
+
+.footer p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.brandLink {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brandText {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899, #d946ef, #6366f1);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite;
+    letter-spacing: -2px;
+    position: relative;
+    padding: 10px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.brandLink:hover .brandText {
+    transform: scale(1.1) translateY(-5px);
+    filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.3));
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Brand Badge on Card */
+.cardImageContainer {
+    position: relative;
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.brandBadge {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 8px 20px;
+    border-radius: 99px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brandBadge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.badgeText {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.floatingCard:hover .brandBadge {
+    transform: translateY(-8px) scale(1.05);
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.6);
+}

@@ -26,6 +26,13 @@ const INVITATION_API_BASE_URL =
   getEnvVar("NEXT_PUBLIC_INVITATION_API_BASE_URL", null) ||
   getEnvVar("NEXT_PUBLIC_API_BASE_URL", "http://localhost:8080");
 
+const APP_BASE_URL = getEnvVar("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+
+const AI_SERVICE_URL = getEnvVar(
+  "NEXT_PUBLIC_AI_SERVICE_URL",
+  "http://localhost:8000"
+);
+
 // API Endpoints configuration
 const API_ENDPOINTS = {
   // Authentication endpoints
@@ -67,6 +74,11 @@ const API_ENDPOINTS = {
     UPDATE: (id) => `/api/v1/events/${id}`,
     DELETE: (id) => `/api/v1/events/${id}`,
   },
+
+  // AI Service endpoints
+  AI: {
+    GENERATE_IMAGE: "/api/ai/generate-invitation-image",
+  },
 };
 
 /**
@@ -88,6 +100,28 @@ export const buildInvitationApiUrl = (endpoint) => {
 };
 
 /**
+ * Build full API URL for AI service
+ * @param {string} endpoint - The endpoint path
+ * @returns {string} Full API URL
+ */
+export const buildAiApiUrl = (endpoint) => {
+  return `${AI_SERVICE_URL}${endpoint}`;
+};
+
+/**
+ * Build share URL for frontend (uses APP_URL/NEXT_PUBLIC_APP_URL)
+ * @param {string} id - Invitation ID
+ * @returns {string} Full Share URL
+ */
+export const buildShareUrl = (id) => {
+  // Use APP_BASE_URL to ensure share links point to the frontend application
+  const baseUrl = APP_BASE_URL.endsWith("/")
+    ? APP_BASE_URL.slice(0, -1)
+    : APP_BASE_URL;
+  return `${baseUrl}/share/${id}`;
+};
+
+/**
  * Get API configuration
  * @returns {object} API configuration object
  */
@@ -99,16 +133,21 @@ export const getApiConfig = () => {
 };
 
 // Export individual endpoint groups for convenience
-export const { AUTH, USERS, INVITATIONS, TEMPLATES, EVENTS } = API_ENDPOINTS;
+export const { AUTH, USERS, INVITATIONS, TEMPLATES, EVENTS, AI } =
+  API_ENDPOINTS;
 
 // Export base URLs
-export { API_BASE_URL, INVITATION_API_BASE_URL };
+export { API_BASE_URL, INVITATION_API_BASE_URL, APP_BASE_URL, AI_SERVICE_URL };
 
 // Default export
 export default {
   baseUrl: API_BASE_URL,
   invitationBaseUrl: INVITATION_API_BASE_URL,
+  appBaseUrl: APP_BASE_URL,
+  aiBaseUrl: AI_SERVICE_URL,
   endpoints: API_ENDPOINTS,
   buildApiUrl,
   buildInvitationApiUrl,
+  buildAiApiUrl,
+  buildShareUrl,
 };

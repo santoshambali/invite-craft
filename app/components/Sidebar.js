@@ -11,16 +11,18 @@ export default function Sidebar() {
 
     return (
         <aside className={styles.sidebar}>
-            <div className={styles.brand}>SmartInvite</div>
-            <div className={styles.tagline}>Create magical invitations</div>
+            <div className={styles.brand}>Smart Cards</div>
+            <div className={styles.tagline}>Create magical cards</div>
 
             <nav className={styles.nav}>
                 <div className={`${styles.navItem} ${styles.active}`}>
                     <span className={styles.icon}>🏠</span> Dashboard
                 </div>
-                <div className={styles.navItem}>
-                    <span className={styles.icon}>🎨</span> Templates
-                </div>
+                <Link href="/create/templates" style={{ textDecoration: 'none' }}>
+                    <div className={styles.navItem}>
+                        <span className={styles.icon}>🎨</span> Templates
+                    </div>
+                </Link>
 
                 <Link href="/create" style={{ textDecoration: 'none' }}>
                     <button className={styles.createButton}>

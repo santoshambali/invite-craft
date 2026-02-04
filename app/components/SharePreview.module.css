@@ -1,0 +1,177 @@
+.shareSection {
+    padding: 16px;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.glass {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.85) 0%,
+            rgba(255, 255, 255, 0.5) 100%);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow:
+        0 8px 32px 0 rgba(31, 38, 135, 0.15),
+        inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.glass::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.shareHeader {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+.shareTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+}
+
+.shareSubtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.nativeShareButton {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg,
+            rgba(56, 189, 248, 0.8) 0%,
+            rgba(37, 99, 235, 0.8) 100%);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+.nativeShareButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    filter: brightness(1.1);
+}
+
+.socialButtons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    position: relative;
+    z-index: 2;
+}
+
+.socialButton {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    backdrop-filter: blur(5px);
+}
+
+.socialButton:hover {
+    transform: translateY(-2px);
+    background: var(--color);
+    border-color: var(--color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.copyContainer {
+    position: relative;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: border-color 0.2s;
+    backdrop-filter: blur(5px);
+    z-index: 2;
+}
+
+.urlInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    color: #334155;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    min-width: 0;
+}
+
+.urlInput:focus {
+    outline: none;
+}
+
+.copyButton {
+    background: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #0f172a;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.copyButton:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+}
+
+.copyButton.copied {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
